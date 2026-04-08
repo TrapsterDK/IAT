@@ -1,0 +1,5 @@
+frontend/dist/
+node_modules/
+uv.lock
+package-lock.json
+vite.config.mts.timestamp-*.mjs

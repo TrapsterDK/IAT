@@ -1,0 +1,34 @@
+slug: weight-attitudes
+title: Weight Attitudes IAT
+description: Word dataset for a thin versus fat weight attitude IAT.
+categories:
+  - category:
+      - slug: thin
+        label: Thin
+        stimuli:
+          - text: thin
+          - text: slender
+          - text: lean
+          - text: trim
+      - slug: fat
+        label: Fat
+        stimuli:
+          - text: fat
+          - text: heavy
+          - text: large
+          - text: obese
+  - category:
+      - slug: pleasant
+        label: Pleasant
+        stimuli:
+          - text: joy
+          - text: happy
+          - text: peace
+          - text: love
+      - slug: unpleasant
+        label: Unpleasant
+        stimuli:
+          - text: pain
+          - text: nasty
+          - text: evil
+          - text: awful

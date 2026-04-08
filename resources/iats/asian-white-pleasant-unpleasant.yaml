@@ -1,0 +1,34 @@
+slug: asian-white-pleasant-unpleasant
+title: Asian White Pleasant Unpleasant IAT
+description: Image and word dataset comparing Asian and White faces with pleasant and unpleasant words.
+categories:
+  - category:
+      - slug: asian
+        label: Asian
+        stimuli:
+          - image: project-implicit/asian-white-faces-landmarks/AFE021.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE071.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE081.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE831.jpg
+      - slug: white
+        label: White
+        stimuli:
+          - image: project-implicit/asian-white-faces-landmarks/AME002.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME003.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME006.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME009.jpg
+  - category:
+      - slug: pleasant
+        label: Pleasant
+        stimuli:
+          - text: joy
+          - text: peace
+          - text: love
+          - text: wonderful
+      - slug: unpleasant
+        label: Unpleasant
+        stimuli:
+          - text: pain
+          - text: terrible
+          - text: horrible
+          - text: evil

@@ -1,0 +1,34 @@
+slug: age-attitudes
+title: Age Attitudes IAT
+description: Image and word dataset for a young versus old attitude IAT.
+categories:
+  - category:
+      - slug: young
+        label: Young
+        stimuli:
+          - image: project-implicit/age-faces/yf1.jpg
+          - image: project-implicit/age-faces/yf4.jpg
+          - image: project-implicit/age-faces/ym2.jpg
+          - image: project-implicit/age-faces/ym3.jpg
+      - slug: old
+        label: Old
+        stimuli:
+          - image: project-implicit/age-faces/of1.jpg
+          - image: project-implicit/age-faces/of2.jpg
+          - image: project-implicit/age-faces/om1.jpg
+          - image: project-implicit/age-faces/om2.jpg
+  - category:
+      - slug: pleasant
+        label: Pleasant
+        stimuli:
+          - text: joy
+          - text: peace
+          - text: love
+          - text: wonderful
+      - slug: unpleasant
+        label: Unpleasant
+        stimuli:
+          - text: pain
+          - text: terrible
+          - text: horrible
+          - text: evil

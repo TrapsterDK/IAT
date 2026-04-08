@@ -1,0 +1,38 @@
+slug: race-attitudes
+title: Race Attitudes IAT
+description: Image and word dataset for a race attitude IAT.
+categories:
+  - category:
+      - slug: black
+        label: Black
+        stimuli:
+          - image: project-implicit/race-attitudes/bf14_nc.jpg
+          - image: project-implicit/race-attitudes/bf23_nc.jpg
+          - image: project-implicit/race-attitudes/bf56_nc.jpg
+          - image: project-implicit/race-attitudes/bm14_nc.jpg
+          - image: project-implicit/race-attitudes/bm23_nc.jpg
+          - image: project-implicit/race-attitudes/bm56_nc.jpg
+      - slug: white
+        label: White
+        stimuli:
+          - image: project-implicit/race-attitudes/wf2_nc.jpg
+          - image: project-implicit/race-attitudes/wf3_nc.jpg
+          - image: project-implicit/race-attitudes/wf6_nc.jpg
+          - image: project-implicit/race-attitudes/wm1_nc.jpg
+          - image: project-implicit/race-attitudes/wm4_nc.jpg
+          - image: project-implicit/race-attitudes/wm6_nc.jpg
+  - category:
+      - slug: pleasant
+        label: Pleasant
+        stimuli:
+          - text: joy
+          - text: peace
+          - text: love
+          - text: wonder
+      - slug: unpleasant
+        label: Unpleasant
+        stimuli:
+          - text: pain
+          - text: filth
+          - text: grief
+          - text: evil

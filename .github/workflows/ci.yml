@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: Format check
+            runtime: both
+            command: npm run format:check
+          - name: Lint
+            runtime: both
+            command: npm run lint:check
+          - name: Test
+            runtime: both
+            command: npm run test
+          - name: Build
+            runtime: node
+            command: npm run build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        if: matrix.runtime == 'python' || matrix.runtime == 'both'
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-python@v5
+        if: matrix.runtime == 'python' || matrix.runtime == 'both'
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        if: matrix.runtime == 'python' || matrix.runtime == 'both'
+        run: uv sync --group dev
+
+      - uses: actions/setup-node@v4
+        if: matrix.runtime == 'node' || matrix.runtime == 'both'
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Node dependencies
+        if: matrix.runtime == 'node' || matrix.runtime == 'both'
+        run: npm ci
+
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}

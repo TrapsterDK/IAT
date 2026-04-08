@@ -1,0 +1,63 @@
+[project]
+name = "iat"
+version = "0.1.0"
+description = "FastAPI and TypeScript Implicit Association Test platform with A/B testing support"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115.12",
+  "gdown>=5.2.0",
+  "loguru>=0.7.3",
+  "pydantic-settings>=2.8.1",
+  "pyyaml>=6.0.2",
+  "python-multipart>=0.0.20",
+  "sqlalchemy>=2.0.40",
+  "uvicorn>=0.34.0",
+  "typer>=0.24.1",
+]
+
+[dependency-groups]
+dev = [
+  "httpx>=0.28.1",
+  "pytest>=8.3.5",
+  "ruff>=0.11.4",
+  "ty>=0.0.1a16",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL", "FA100"]
+ignore = [
+  "E501",
+  "E731",
+  "C901",
+  "S311",
+  "FBT001",
+  "TRY003",
+  "EM101",
+  "EM102",
+  "COM812",
+  "ARG003",
+  "W292",
+  "G004",
+  "FIX002",
+  "TD002",
+  "TD003",
+  "S608",
+  "FBT002",
+  "ASYNC230",
+  "PLR0913",
+  "SLF001",
+  "ERA001",
+  "DTZ011",
+  "INP001",
+  "D203",
+  "D213",
+  "D413",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["."]

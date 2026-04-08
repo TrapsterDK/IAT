@@ -1,0 +1,34 @@
+slug: gender-science
+title: Gender Science IAT
+description: Word dataset for a gender versus science and liberal arts association IAT.
+categories:
+  - category:
+      - slug: male
+        label: Male
+        stimuli:
+          - text: man
+          - text: boy
+          - text: father
+          - text: uncle
+      - slug: female
+        label: Female
+        stimuli:
+          - text: woman
+          - text: girl
+          - text: mother
+          - text: aunt
+  - category:
+      - slug: science
+        label: Science
+        stimuli:
+          - text: physics
+          - text: chemistry
+          - text: math
+          - text: astronomy
+      - slug: liberal_arts
+        label: Liberal Arts
+        stimuli:
+          - text: poetry
+          - text: history
+          - text: literature
+          - text: art

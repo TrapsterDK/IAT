@@ -1,0 +1,36 @@
+slug: asian-white-american-foreign
+title: Asian White American Foreign IAT
+description: Image-image dataset comparing Asian and White faces with American and Foreign landmarks.
+categories:
+  - category:
+      - slug: asian
+        label: Asian
+        stimuli:
+          - image: project-implicit/asian-white-faces-landmarks/AFE021.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE071.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE081.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE831.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE851.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AFE871.jpg
+      - slug: white
+        label: White
+        stimuli:
+          - image: project-implicit/asian-white-faces-landmarks/AME002.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME003.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME006.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME009.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME011.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME021.jpg
+  - category:
+      - slug: american
+        label: American
+        stimuli:
+          - image: project-implicit/asian-white-faces-landmarks/AME821.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME831.jpg
+          - image: project-implicit/asian-white-faces-landmarks/AME871.jpg
+      - slug: foreign
+        label: Foreign
+        stimuli:
+          - image: project-implicit/asian-white-faces-landmarks/FOR001.jpg
+          - image: project-implicit/asian-white-faces-landmarks/FOR002.jpg
+          - image: project-implicit/asian-white-faces-landmarks/FOR003.jpg

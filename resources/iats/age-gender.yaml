@@ -1,0 +1,34 @@
+slug: age-gender
+title: Age Gender IAT
+description: Image-image dataset comparing young versus old and women versus men.
+categories:
+  - category:
+      - slug: young
+        label: Young
+        stimuli:
+          - image: project-implicit/age-faces/yf1.jpg
+          - image: project-implicit/age-faces/yf4.jpg
+          - image: project-implicit/age-faces/ym2.jpg
+          - image: project-implicit/age-faces/ym3.jpg
+      - slug: old
+        label: Old
+        stimuli:
+          - image: project-implicit/age-faces/of1.jpg
+          - image: project-implicit/age-faces/of2.jpg
+          - image: project-implicit/age-faces/om1.jpg
+          - image: project-implicit/age-faces/om2.jpg
+  - category:
+      - slug: women
+        label: Women
+        stimuli:
+          - image: project-implicit/age-faces/yf5.jpg
+          - image: project-implicit/age-faces/of3.jpg
+          - image: project-implicit/age-faces/yf1.jpg
+          - image: project-implicit/age-faces/of2.jpg
+      - slug: men
+        label: Men
+        stimuli:
+          - image: project-implicit/age-faces/ym5.jpg
+          - image: project-implicit/age-faces/om3.jpg
+          - image: project-implicit/age-faces/ym3.jpg
+          - image: project-implicit/age-faces/om1.jpg
