@@ -1,6 +1,6 @@
 slug: age-attitudes
 title: Age Attitudes IAT
-description: Image and word dataset for a young versus old attitude IAT.
+description: Measures automatic preferences regarding age. You will sort images of young and old faces alongside 'Pleasant' and 'Unpleasant' words. This often reveals an implicit preference for younger people.
 categories:
   - category:
       - slug: young

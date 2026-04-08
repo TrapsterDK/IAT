@@ -1,6 +1,6 @@
 slug: gender-science
 title: Gender Science IAT
-description: Word dataset for a gender versus science and liberal arts association IAT.
+description: Measures the automatic association between gender and academic disciplines. You will sort words related to 'Male' and 'Female' with words related to 'Science' and 'Liberal Arts', often revealing a stereotype associating men with science and women with liberal arts.
 categories:
   - category:
       - slug: male
@@ -25,7 +25,7 @@ categories:
           - text: chemistry
           - text: math
           - text: astronomy
-      - slug: liberal_arts
+      - slug: liberal-arts
         label: Liberal Arts
         stimuli:
           - text: poetry

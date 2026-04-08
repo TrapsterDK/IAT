@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IAT</title>
+    <link rel="stylesheet" href="./src/css/app.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-title" href="./">IAT</a>
+    </header>
+    <main class="page-shell">
+      <section class="app-shell" id="spa-root">
+        <section class="card-stack view-panel" id="landing-view">
+          <div class="hero-card hero-card-plain">
+            <h1>Implicit Association Test</h1>
+            <p>Choose a test and sort each item to the left or right as quickly as you can.</p>
+          </div>
+
+          <section id="experiments-list" class="card-stack"></section>
+        </section>
+
+        <section class="runner-shell view-panel hidden" id="runner-view">
+          <header class="runner-header">
+            <div class="runner-heading">
+              <p class="runner-kicker">Current test</p>
+              <h1 id="experiment-title">Implicit Association Test</h1>
+              <p id="experiment-description"></p>
+            </div>
+            <p class="runner-meta" id="variant-key-mode">-</p>
+          </header>
+
+          <div class="runner-panel">
+            <div class="stage-header">
+              <div class="label-strip" id="left-label"></div>
+              <div class="label-strip label-strip-right" id="right-label"></div>
+            </div>
+
+            <div class="stimulus-stage">
+              <div class="overlay" id="overlay">
+                <h2 id="overlay-title">Ready to start</h2>
+                <p id="overlay-description">
+                  Use E for the left side and I for the right side. You can also click the buttons.
+                </p>
+                <p class="overlay-hint" id="overlay-hint">Press Space to start</p>
+                <div class="overlay-countdown hidden" id="overlay-countdown" aria-live="polite"></div>
+                <button class="primary-button hidden" id="overlay-action" type="button">Start</button>
+              </div>
+
+              <div class="error-indicator" id="error-indicator" aria-hidden="true">X</div>
+              <div class="stimulus" id="stimulus"></div>
+            </div>
+
+            <div class="controls-row">
+              <button class="response-button" data-side="left" id="left-button" type="button" aria-keyshortcuts="E">
+                Left (E)
+              </button>
+              <button class="response-button" data-side="right" id="right-button" type="button" aria-keyshortcuts="I">
+                Right (I)
+              </button>
+            </div>
+
+            <div class="status-row">
+              <span id="status-text" aria-live="polite">Ready</span>
+              <span id="progress-text" aria-live="polite">0 / 0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card-stack view-panel hidden" id="summary-view">
+          <article class="hero-card">
+            <h1>Test complete</h1>
+            <p id="summary-description"></p>
+          </article>
+
+          <article class="experiment-card summary-grid">
+            <div>
+              <h2>Summary</h2>
+            </div>
+            <dl>
+              <div>
+                <dt>Trials</dt>
+                <dd id="summary-trials">0</dd>
+              </div>
+              <div>
+                <dt>Accuracy</dt>
+                <dd id="summary-accuracy">0%</dd>
+              </div>
+              <div>
+                <dt>Mean initial RT</dt>
+                <dd id="summary-initial-rt">0 ms</dd>
+              </div>
+              <div>
+                <dt>Mean final RT</dt>
+                <dd id="summary-completed-rt">0 ms</dd>
+              </div>
+              <div>
+                <dt>Tab switches</dt>
+                <dd id="summary-visibility">0</dd>
+              </div>
+            </dl>
+            <button class="primary-button" id="restart-button" type="button">Run another test</button>
+          </article>
+        </section>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <p>
+        Copyright &copy; 2026 Martin Kuntz Jacobsen.
+        <a href="https://github.com/TrapsterDK/IAT" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </footer>
+    <script type="module" src="./src/ts/main.ts"></script>
+  </body>
+</html>

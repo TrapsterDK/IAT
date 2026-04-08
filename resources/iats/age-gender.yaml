@@ -1,6 +1,6 @@
 slug: age-gender
 title: Age Gender IAT
-description: Image-image dataset comparing young versus old and women versus men.
+description: Measures the automatic association between age and gender. You will sort images of young/old faces and male/female faces, revealing potential stereotypes.
 categories:
   - category:
       - slug: young

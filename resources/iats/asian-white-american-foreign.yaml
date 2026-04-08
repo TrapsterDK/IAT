@@ -1,6 +1,6 @@
 slug: asian-white-american-foreign
 title: Asian White American Foreign IAT
-description: Image-image dataset comparing Asian and White faces with American and Foreign landmarks.
+description: Measures the implicit association between race and nationality. You will sort images of Asian and White faces with images of American and Foreign landmarks, often revealing stereotypes about who is considered 'American'.
 categories:
   - category:
       - slug: asian

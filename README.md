@@ -29,7 +29,6 @@ Set these in the environment or a local `.env` file:
 
 - `SECRET_KEY`
 - `DATABASE_URL`
-- `INSTANCE_DIR`
 - `ASSETS_DIR` optional, defaults to `resources/`
 - `DEFINITIONS_DIR` optional, defaults to `resources/iats/`
 - `LOG_STDOUT` optional, defaults to `true`
@@ -45,7 +44,6 @@ Example:
 ```env
 SECRET_KEY=dev-secret
 DATABASE_URL=sqlite:///instance/app.sqlite3
-INSTANCE_DIR=instance
 ```
 
 ## Run
