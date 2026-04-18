@@ -40,6 +40,7 @@ def test_score_attempt_aggregates_relational_showings() -> None:
         left_secondary_category_id=None,
         right_primary_category_id=2,
         right_secondary_category_id=None,
+        congruency=None,
     )
     phase.left_primary_category = flowers
     phase.right_primary_category = insects

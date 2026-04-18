@@ -22,6 +22,7 @@ interface AppElements {
   summaryInitialRt: HTMLElement;
   summaryCompletedRt: HTMLElement;
   summaryVisibility: HTMLElement;
+  summaryDScore: HTMLElement;
   restartButton: HTMLButtonElement;
 }
 
@@ -53,6 +54,7 @@ function getAppElements(): AppElements {
     summaryInitialRt: lookup("#summary-initial-rt"),
     summaryCompletedRt: lookup("#summary-completed-rt"),
     summaryVisibility: lookup("#summary-visibility"),
+    summaryDScore: lookup("#summary-d_score"),
     restartButton: lookup<HTMLButtonElement>("#restart-button"),
   };
 }
@@ -80,6 +82,7 @@ function setSummary(
   elements.summaryInitialRt.textContent = `${summary.meanInitialReactionTimeMs} ms`;
   elements.summaryCompletedRt.textContent = `${summary.meanCompletedReactionTimeMs} ms`;
   elements.summaryVisibility.textContent = String(diagnostics.visibilityInterruptions);
+  elements.summaryDScore.textContent = String(summary.dscore);
 }
 
 function setRunnerMeta(payload: TestPayload, elements: AppElements): void {
@@ -142,7 +145,6 @@ function renderLoadingState(elements: AppElements, title: string, description: s
 
   const descriptionElement = document.createElement("p");
   descriptionElement.textContent = description;
-
 
   card.append(spinner, titleElement, descriptionElement);
   elements.testsList.replaceChildren(card);

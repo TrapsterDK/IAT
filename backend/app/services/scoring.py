@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from statistics import fmean
+from statistics import fmean, stdev
 from typing import TYPE_CHECKING
 
 from backend.app.models import ResponseSide
@@ -20,6 +20,7 @@ class AttemptScoreSummary:
     accuracy: float
     mean_initial_reaction_time_ms: float
     mean_completed_reaction_time_ms: float
+    d_score: float
 
 
 def _expected_side_for_showing(showing: Showing) -> ResponseSide | None:
@@ -53,6 +54,9 @@ def _is_correct(showing: Showing) -> bool:
         return False
     return showing.inputs[-1].side == expected_side and len(showing.inputs) == 1
 
+def _is_congruent(showing: Showing) -> bool | None:
+    return showing.phase.congruency
+
 
 def score_attempt(attempt: Attempt) -> AttemptScoreSummary:
     """Compute summary metrics for a completed attempt."""
@@ -62,15 +66,31 @@ def score_attempt(attempt: Attempt) -> AttemptScoreSummary:
             accuracy=0.0,
             mean_initial_reaction_time_ms=0.0,
             mean_completed_reaction_time_ms=0.0,
+            d_score=0.0,
         )
 
     initial_rts = [_initial_reaction_time_ms(showing) for showing in attempt.showings]
     completed_rts = [_completed_reaction_time_ms(showing) for showing in attempt.showings]
     correct_showings = sum(1 for showing in attempt.showings if _is_correct(showing))
+    congruents = [_completed_reaction_time_ms(showing) for showing in attempt.showings if _is_congruent(showing) is True]
+    incongruents = [_completed_reaction_time_ms(showing) for showing in attempt.showings if _is_congruent(showing) is False]
+    d_score = 0.0
+    if len(congruents) > 2 or len(incongruents) > 2:
+        combined = incongruents + congruents
+        std_dev = stdev(combined)
+        if std_dev > 0:
+            d_score = (fmean(incongruents) - fmean(congruents)) / std_dev
+            
+    print(f"DEBUG: congruents={len(congruents)}, incongruents={len(incongruents)}")
+    for s in attempt.showings:
+        print(f"  showing phase {s.phase_id}: congruency={s.phase.congruency}")
+        
+    print(f"  showing d-score {d_score}")
 
     return AttemptScoreSummary(
         showing_count=len(attempt.showings),
         accuracy=round(correct_showings / len(attempt.showings), 4),
         mean_initial_reaction_time_ms=round(fmean(initial_rts), 2),
         mean_completed_reaction_time_ms=round(fmean(completed_rts), 2),
+        d_score=round(d_score, 2),
     )

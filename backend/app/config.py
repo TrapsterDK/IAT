@@ -39,8 +39,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    SECRET_KEY: str
-    DATABASE_URL: str
+    SECRET_KEY: str = "dev-secret"
+    DATABASE_URL: str = "sqlite:///app.sqlite3"
     ASSETS_DIR: Path = RESOURCE_ROOT
     DEFINITIONS_DIR: Path = RESOURCE_ROOT / "iats"
     DOWNLOAD_SOURCES_FILE: Path = RESOURCE_ROOT / "downloads" / "project-implicit.yaml"

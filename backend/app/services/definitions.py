@@ -102,7 +102,7 @@ def _flatten_stimuli(definition: IatDefinitionConfig) -> list[tuple[str, str | N
 
 def _generated_phases(
     definition: IatDefinitionConfig,
-) -> list[tuple[int, int, str, str | None, str, str | None]]:
+) -> list[tuple[int, int, str, str | None, str, str | None, bool | None]]:
     target_left, target_right = definition.categories[0].category
     attribute_left, attribute_right = definition.categories[1].category
 
@@ -114,6 +114,7 @@ def _generated_phases(
             None,
             target_right.slug,
             None,
+            None,
         ),
         (
             2,
@@ -121,6 +122,7 @@ def _generated_phases(
             attribute_left.slug,
             None,
             attribute_right.slug,
+            None,
             None,
         ),
         (
@@ -130,6 +132,7 @@ def _generated_phases(
             attribute_left.slug,
             target_right.slug,
             attribute_right.slug,
+            True,
         ),
         (
             4,
@@ -138,6 +141,7 @@ def _generated_phases(
             attribute_right.slug,
             target_right.slug,
             attribute_left.slug,
+            False,
         ),
     ]
 
@@ -243,6 +247,7 @@ def _replace_test_contents(db_session: DBSession, test: Experiment, definition: 
             left_secondary,
             right_primary,
             right_secondary,
+            congruency,
         ) = phase_row
         db_session.add(
             Phase(
@@ -257,6 +262,7 @@ def _replace_test_contents(db_session: DBSession, test: Experiment, definition: 
                 right_secondary_category_id=(
                     category_by_code[right_secondary].id if right_secondary is not None else None
                 ),
+                congruency=congruency if congruency is not None else None,
             )
         )
 

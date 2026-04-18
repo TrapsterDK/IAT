@@ -152,6 +152,7 @@ class CompletionSummary(ApiModel):
     accuracy: float
     mean_initial_reaction_time_ms: float = Field(alias="meanInitialReactionTimeMs")
     mean_completed_reaction_time_ms: float = Field(alias="meanCompletedReactionTimeMs")
+    d_score: float = Field(alias="dscore")
 
 
 class AttemptCompletionResponse(ApiModel):

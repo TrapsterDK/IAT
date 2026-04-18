@@ -116,6 +116,7 @@ export interface AttemptSummary {
   accuracy: number;
   meanInitialReactionTimeMs: number;
   meanCompletedReactionTimeMs: number;
+  dscore: number;
 }
 
 export interface CompletionResult {

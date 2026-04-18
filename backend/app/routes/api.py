@@ -304,6 +304,7 @@ def _completion_response(attempt: Attempt) -> AttemptCompletionResponse:
             accuracy=summary_data.accuracy,
             meanInitialReactionTimeMs=summary_data.mean_initial_reaction_time_ms,
             meanCompletedReactionTimeMs=summary_data.mean_completed_reaction_time_ms,
+            d_score=summary_data.d_score,
         ),
     )
 

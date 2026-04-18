@@ -123,6 +123,7 @@ class Phase(Base):
     right_primary_category: Mapped[Category] = relationship(foreign_keys=[right_primary_category_id])
     right_secondary_category: Mapped[Category | None] = relationship(foreign_keys=[right_secondary_category_id])
     showings: Mapped[list[Showing]] = relationship(back_populates="phase")
+    congruency: Mapped[bool | None] = mapped_column(Boolean)
 
 
 class Attempt(Base):
