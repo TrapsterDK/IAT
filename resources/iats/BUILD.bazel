@@ -1,0 +1,49 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "age-attitudes",
+    srcs = ["age-attitudes.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "age-gender",
+    srcs = ["age-gender.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "asian-white-american-foreign",
+    srcs = ["asian-white-american-foreign.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "asian-white-pleasant-unpleasant",
+    srcs = ["asian-white-pleasant-unpleasant.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "gender-science",
+    srcs = ["gender-science.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "race-attitudes",
+    srcs = ["race-attitudes.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "weight-attitudes",
+    srcs = ["weight-attitudes.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

@@ -1,0 +1,37 @@
+import %workspace%/tools/preset.bazelrc
+
+common:lint --aspects=//tools/lint:defs.bzl%ruff
+common:lint --aspects=//tools/lint:defs.bzl%eslint
+common:lint --aspects=//tools/lint:defs.bzl%pydoclint
+common:lint --aspects=//tools/lint:defs.bzl%ty
+common:lint --aspects=//tools/lint:defs.bzl%yamllint
+common:lint --aspects=//tools/lint:defs.bzl%vale
+common:lint --aspects=//tools/lint:defs.bzl%buildifier
+
+# Bazel format relies on runfiles to find the buildifier binary, doing this here reduces rebuilds.
+common --build_runfile_links
+
+common --color=yes
+common --curses=yes
+
+common:ci --color=no
+common:ci --curses=no
+common:ci --noshow_loading_progress
+
+common:pre-commit --ui_event_filters=-info,-stdout,-stderr
+common:pre-commit --noshow_progress
+common:pre-commit --lockfile_mode=off
+common:pre-commit --color=no
+common:pre-commit --curses=no
+
+common:ai --noshow_progress
+common:ai --color=no
+common:ai --curses=no
+
+build --experimental_disk_cache_gc_max_age=7d
+build --repo_contents_cache_gc_max_age=7d
+
+# Hermetic python toolchain
+build --@rules_python//python/config_settings:bootstrap_impl=script
+
+try-import %workspace%/user.bazelrc

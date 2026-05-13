@@ -1,0 +1,121 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+package(default_visibility = ["//:__subpackages__"])
+
+exports_files(
+    [
+        ".bazelignore",
+        ".bazelrc",
+        ".bazelversion",
+        ".envrc",
+        ".gitattributes",
+        ".nvmrc",
+        ".npmrc",
+        ".pydoclint.toml",
+        ".ruff.toml",
+        ".ty.toml",
+        ".vale.ini",
+        ".yamllint",
+        "eslint.config.mjs",
+        "gazelle_python.yaml",
+        "package.json",
+        "pnpm-lock.yaml",
+        "prettier.config.cjs",
+        "pyproject.toml",
+        "requirements.txt",
+        "tsconfig.json",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+# --- Gazelle Directives ---
+# gazelle:python_root
+# gazelle:markdown enabled
+# gazelle:starlark enabled
+# gazelle:testonly_packages enabled
+# gazelle:yaml enabled
+# gazelle:default_visibility //:__subpackages__
+# gazelle:python_generation_mode file
+# gazelle:map_kind py_binary py_binary //tools/python:defs.bzl
+# gazelle:map_kind py_library py_library //tools/python:defs.bzl
+# gazelle:map_kind py_test py_test //tools/python:defs.bzl
+
+npm_link_all_packages(name = "node_modules")
+
+js_library(
+    name = "eslintrc",
+    srcs = ["eslint.config.mjs"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":node_modules/@eslint/js",
+        ":node_modules/globals",
+        ":node_modules/typescript-eslint",
+    ],
+)
+
+js_library(
+    name = "package_json",
+    srcs = ["package.json"],
+    visibility = ["//:__subpackages__"],
+)
+
+js_library(
+    name = "tsconfig",
+    srcs = ["tsconfig.json"],
+    visibility = ["//:__subpackages__"],
+)
+
+js_library(
+    name = "prettierrc",
+    srcs = ["prettier.config.cjs"],
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "readme",
+    srcs = ["README.md"],
+    tags = ["markdown"],
+)
+
+filegroup(
+    name = "module",
+    srcs = ["MODULE.bazel"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "repo",
+    srcs = ["REPO.bazel"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "agents",
+    srcs = ["AGENTS.md"],
+    tags = ["markdown"],
+)
+
+filegroup(
+    name = "gazelle_python",
+    srcs = ["gazelle_python.yaml"],
+    tags = [
+        "no-lint",
+        "yaml",
+    ],
+)
+
+filegroup(
+    name = "pnpm-lock",
+    srcs = ["pnpm-lock.yaml"],
+    tags = [
+        "no-lint",
+        "yaml",
+    ],
+)

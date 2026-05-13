@@ -1,0 +1,92 @@
+module(
+    name = "iat",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_python", version = "1.9.0")
+bazel_dep(name = "aspect_rules_py", version = "1.11.5")
+bazel_dep(name = "rules_uv", version = "0.89.2")
+bazel_dep(name = "rules_python_gazelle_plugin", version = "1.9.0")
+bazel_dep(name = "rules_nodejs", version = "6.7.4")
+bazel_dep(name = "aspect_rules_js", version = "3.1.1")
+bazel_dep(name = "aspect_rules_ts", version = "3.8.9")
+bazel_dep(name = "aspect_rules_lint", version = "2.5.2")
+bazel_dep(name = "aspect_gazelle_prebuilt", version = "0.0.8")
+bazel_dep(name = "bazel_env.bzl", version = "0.7.2")
+bazel_dep(name = "bazelrc-preset.bzl", version = "1.9.2")
+bazel_dep(name = "bazel_lib", version = "3.3.1")
+bazel_dep(name = "bazel_skylib", version = "1.9.0")
+bazel_dep(name = "buildifier_prebuilt", version = "8.5.1.2")
+bazel_dep(name = "ape", version = "1.1.0")
+bazel_dep(name = "rules_multirun", version = "0.13.0")
+bazel_dep(name = "rules_multitool", version = "1.11.1")
+
+single_version_override(
+    module_name = "aspect_rules_lint",
+    patch_strip = 1,
+    patches = ["//third_party/patches/aspect_rules_lint:vale_warnings_as_errors.patch"],
+)
+
+python_version = "3.13.11"
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    configure_coverage_tool = True,
+    is_default = True,
+    python_version = python_version,
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pip",
+    python_version = python_version,
+    requirements_lock = "//:requirements.txt",
+)
+use_repo(pip, "pip")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version_from_nvmrc = "//:.nvmrc")
+use_repo(node, "nodejs_toolchains")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
+pnpm.pnpm(
+    name = "pnpm",
+    pnpm_version_from = "//:package.json",
+)
+use_repo(pnpm, "pnpm")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "npm",
+    data = ["//:package.json"],
+    npmrc = "//:.npmrc",
+    pnpm_lock = "//:pnpm-lock.yaml",
+)
+use_repo(npm, "npm")
+
+rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
+rules_ts_ext.deps()
+use_repo(rules_ts_ext, "npm_typescript")
+
+lint_tools = use_extension("@aspect_rules_lint//lint:extensions.bzl", "tools")
+lint_tools.vale()
+lint_tools.vale_styles(
+    styles = [
+        "Google",
+        "write-good",
+    ],
+)
+use_repo(
+    lint_tools,
+    "vale_Google",
+    "vale_Linux_64-bit",
+    "vale_Linux_arm64",
+    "vale_Windows_64-bit",
+    "vale_macOS_64-bit",
+    "vale_macOS_arm64",
+    "vale_write-good",
+)
+
+multitool = use_extension("@rules_multitool//multitool:extension.bzl", "multitool")
+multitool.hub(lockfile = "//tools:tools.lock.json")
+use_repo(multitool, "multitool")

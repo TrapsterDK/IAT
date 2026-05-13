@@ -1,0 +1,55 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@pip//:requirements.bzl", "all_whl_requirements")
+load("@rules_multirun//:defs.bzl", "command")
+load("@rules_python_gazelle_plugin//manifest:defs.bzl", "gazelle_python_manifest")
+load("@rules_python_gazelle_plugin//modules_mapping:def.bzl", "modules_mapping")
+load("@rules_uv//uv:pip.bzl", "pip_compile")
+load("@rules_uv//uv:venv.bzl", "create_venv")
+
+package(default_visibility = ["//:__subpackages__"])
+
+pip_compile(
+    name = "lock",
+    requirements_in = "//:pyproject.toml",
+    requirements_txt = "//:requirements.txt",
+    tags = ["manual"],
+    universal = True,
+)
+
+modules_mapping(
+    name = "modules_map",
+    include_stub_packages = True,
+    wheels = all_whl_requirements,
+)
+
+gazelle_python_manifest(
+    name = "gazelle_manifest",
+    manifest = "//:gazelle_python.yaml",
+    modules_mapping = ":modules_map",
+    pip_repository_name = "pip",
+    requirements = "//:requirements.txt",
+)
+
+create_venv(
+    name = "_venv",
+    requirements_txt = "//:requirements.txt",
+)
+
+command(
+    name = "venv",
+    command = ":_venv",
+    environment = {"UV_VENV_CLEAR": "1"},
+    tags = ["manual"],
+)
+
+bzl_library(
+    name = "defs",
+    srcs = ["defs.bzl"],
+    deps = ["@aspect_rules_py//py:defs"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

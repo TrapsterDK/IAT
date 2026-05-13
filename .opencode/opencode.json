@@ -1,0 +1,112 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {
+    "repo-javascript": {
+      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+      "extensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".mts", ".cts", ".json"]
+    },
+    "repo-markdown": {
+      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+      "extensions": [".md"]
+    },
+    "repo-style": {
+      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+      "extensions": [".css", ".scss", ".less", ".html"]
+    },
+    "repo-python": {
+      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+      "extensions": [".py", ".pyi"]
+    },
+    "repo-starlark": {
+      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+      "extensions": [".bzl", ".bazel", "BUILD", "MODULE.bazel", "REPO.bazel"]
+    },
+    "repo-yaml": {
+      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+      "extensions": [".yaml", ".yml"]
+    },
+    "prettier": {
+      "disabled": true
+    },
+    "ruff": {
+      "disabled": true
+    },
+    "yamlfmt": {
+      "disabled": true
+    },
+    "buildifier": {
+      "disabled": true
+    },
+    "taplo": {
+      "disabled": true
+    },
+    "biome": {
+      "disabled": true
+    },
+    "uv": {
+      "disabled": true
+    }
+  },
+  "lsp": {
+    "pyright": {
+      "disabled": true
+    },
+    "ty": {
+      "command": ["ty", "server"],
+      "initialization": {
+        "settings": {
+          "configuration": {
+            "environment": {
+              "extra-paths": ["./bazel-bin"]
+            }
+          }
+        }
+      },
+      "extensions": [".py", ".pyi"]
+    },
+    "ruff": {
+      "command": ["ruff", "server"],
+      "extensions": [".py", ".pyi"]
+    },
+    "starpls": {
+      "command": ["starpls", "server"],
+      "extensions": [".bzl", ".bazel", ".axl"]
+    },
+    "taplo": {
+      "command": ["taplo", "lsp", "stdio"],
+      "extensions": [".toml"]
+    }
+  },
+  "watcher": {
+    "ignore": [
+      "**/.git/**",
+      "**/.DS_Store",
+      "**/.cache/**",
+      "**/bazel-*/**",
+      "**/node_modules/**",
+      "**/__pycache__/**",
+      "**/.direnv/**",
+      "**/.ruff_cache/**",
+      "**/.pytest_cache/**",
+      "**/.ty/**",
+      "**/dist/**",
+      "**/.venv/**",
+      "**/.pnpm-store/**"
+    ]
+  },
+  "command": {
+    "fix-lint": {
+      "template": "Run `bazel run --config=ai //tools/cli:main -- lint`. If it fails, analyze the output, fix the code, and repeat until it passes.",
+      "description": "Fix lint issues"
+    },
+    "fix-test": {
+      "template": "Run `bazel test --config=ai //...`. If tests fail, read the logs, fix the bugs, and re-run the tests.",
+      "description": "Fix failing tests"
+    },
+    "fix-all": {
+      "template": "Execute these steps sequentially using the `bash` tool: \n1. `bazel run --config=ai //tools/cli:main -- format` \n2. `bazel run --config=ai //tools/cli:main -- lint` \n3. `bazel test --config=ai //...` \nIf any step fails, fix the underlying issue before moving to the next.",
+      "description": "Fix formatting, lint, and test issues"
+    }
+  },
+  "autoupdate": true
+}

@@ -1,0 +1,21 @@
+[tool.pydoclint]
+style = "google"
+arg-type-hints-in-docstring = false
+arg-type-hints-in-signature = true
+check-arg-order = true
+skip-checking-short-docstrings = false
+skip-checking-raises = true
+allow-init-docstring = true
+require-return-section-when-returning-nothing = false
+check-return-types = false
+require-yield-section-when-yielding-nothing = false
+check-yield-types = false
+ignore-underscore-args = false
+ignore-private-args = false
+check-class-attributes = false
+should-document-private-class-attributes = false
+treat-property-methods-as-class-attributes = false
+only-attrs-with-ClassVar-are-treated-as-class-attrs = false
+should-document-star-arguments = true
+omit-stars-when-documenting-varargs = false
+check-arg-defaults = false

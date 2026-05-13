@@ -1,0 +1,28 @@
+"""Adds yaml filegroups for linting."""
+
+load("tools/configure/names.axl", "target_name_for_path")
+
+def _prepare(_cfg):
+    return aspect.PrepareResult(
+        sources = aspect.SourceGlobs("*.yaml", "*.yml"),
+    )
+
+def _declare(ctx):
+    if not ctx.sources:
+        return
+
+    for path in [src.path for src in ctx.sources]:
+        ctx.targets.add(
+            kind = "filegroup",
+            name = target_name_for_path(path),
+            attrs = {
+                "srcs": [path],
+                "tags": ["yaml"],
+            },
+        )
+
+aspect.orion_extension(
+    id = "yaml",
+    prepare = _prepare,
+    declare = _declare,
+)

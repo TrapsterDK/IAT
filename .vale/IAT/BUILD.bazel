@@ -1,0 +1,27 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "repetition",
+    srcs = ["Repetition.yml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "spelling",
+    srcs = ["Spelling.yml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "style_files",
+    srcs = [
+        ":repetition",
+        ":spelling",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

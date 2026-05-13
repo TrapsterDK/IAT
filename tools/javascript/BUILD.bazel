@@ -1,0 +1,47 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
+
+package(default_visibility = ["//:__subpackages__"])
+
+js_binary(
+    name = "lock",
+    args = [
+        "generate",
+        "$(rootpath @pnpm//:pnpm)",
+        "$(rootpath //:package.json)",
+        "$(rootpath //:pnpm-lock.yaml)",
+    ],
+    copy_data_to_bin = False,
+    data = [
+        "//:package.json",
+        "//:pnpm-lock.yaml",
+        "@pnpm",
+    ],
+    entry_point = "lock_lib.mjs",
+    tags = ["manual"],
+    visibility = ["//:__subpackages__"],
+)
+
+js_test(
+    name = "lock_test",
+    size = "small",
+    args = [
+        "verify",
+        "$(rootpath @pnpm//:pnpm)",
+        "$(rootpath //:package.json)",
+        "$(rootpath //:pnpm-lock.yaml)",
+    ],
+    copy_data_to_bin = False,
+    data = [
+        "//:package.json",
+        "//:pnpm-lock.yaml",
+        "@pnpm",
+    ],
+    entry_point = "lock_lib.mjs",
+    tags = ["manual"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

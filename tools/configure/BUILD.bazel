@@ -1,0 +1,37 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "markdown",
+    srcs = ["markdown.axl"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "starlark",
+    srcs = ["starlark.axl"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "testonly",
+    srcs = ["testonly.axl"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "yaml",
+    srcs = ["yaml.axl"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "names",
+    srcs = ["names.axl"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

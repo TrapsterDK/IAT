@@ -1,0 +1,21 @@
+{{- /* Range over the linted files */ -}}
+{{- range .Files -}}
+  {{- $path := .Path -}}
+
+  {{- range .Alerts -}}
+    {{- /* Determine color for severity */ -}}
+    {{- $sev := "" -}}
+    {{- if eq .Severity "error" -}}
+        {{- $sev = "error:" | red -}}
+    {{- else if eq .Severity "warning" -}}
+        {{- $sev = "warning:" | yellow -}}
+    {{- else -}}
+        {{- $sev = "suggestion:" | blue -}}
+    {{- end -}}
+
+    {{- /* The Output Line */ -}}
+    {{- printf "%s:%d:%d" $path .Line (index .Span 0) | underline -}}
+    {{- printf " %-12s %s (%s)" $sev .Message .Check -}}
+    {{- "\n" -}}
+  {{- end -}}
+{{- end -}}

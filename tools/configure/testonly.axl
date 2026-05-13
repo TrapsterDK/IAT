@@ -1,0 +1,36 @@
+"""Marks testing and e2e packages as testonly for Gazelle output."""
+
+def _is_testonly_package(rel):
+    parts = rel.split("/")
+    return "testing" in parts or "e2e" in parts
+
+def _prepare(_cfg):
+    return aspect.PrepareResult(
+        sources = aspect.SourceGlobs("*"),
+    )
+
+def _declare(ctx):
+    if not _is_testonly_package(ctx.rel) or not ctx.sources:
+        return
+
+    ctx.targets.add(
+        kind = "package",
+        name = "",
+        attrs = {
+            "default_testonly": True,
+        },
+    )
+
+aspect.gazelle_rule_kind(
+    name = "package",
+    attributes = {
+        "MatchAny": True,
+        "MergeableAttrs": ["default_deprecation", "default_package_metadata", "default_testonly", "default_visibility", "features"],
+    },
+)
+
+aspect.orion_extension(
+    id = "testonly_packages",
+    prepare = _prepare,
+    declare = _declare,
+)

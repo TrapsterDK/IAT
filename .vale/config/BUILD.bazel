@@ -1,0 +1,15 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "config_files",
+    srcs = [
+        "//.vale/config/ignore:dictionary",
+        "//.vale/config/vocabularies/Terms:accept",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

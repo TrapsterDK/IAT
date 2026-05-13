@@ -1,0 +1,14 @@
+"""Global repository settings."""
+
+ignore_directories([
+    "**/node_modules",
+    "**/.git",
+    "**/.direnv",
+    "**/.cache",
+    "**/__pycache__",
+    "**/.pytest_cache",
+    "**/.ruff_cache",
+    "**/.venv",
+    "**/.pnpm-store",
+    "**/venv",
+])

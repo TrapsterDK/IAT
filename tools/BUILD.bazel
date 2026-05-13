@@ -1,0 +1,91 @@
+load("@aspect_gazelle_prebuilt//:def.bzl", "aspect_gazelle")
+load("@bazel_env.bzl", bazel_env_rule = "bazel_env")
+load("@bazelrc-preset.bzl", "bazelrc_preset")
+load("@multitool//:tools.bzl", "TOOLS")
+load("@rules_multirun//:defs.bzl", "multirun")
+
+package(default_visibility = ["//:__subpackages__"])
+
+bazelrc_preset(
+    name = "preset",
+    doc_link_template = "https://registry.build/flag/bazel?filter={flag}",
+    tags = ["manual"],
+)
+
+bazel_env_rule(
+    name = "bazel_env",
+    tags = ["manual"],
+    toolchains = {
+        "nodejs": "@nodejs_toolchains//:resolved_toolchain",
+        "python": "@rules_python//python:current_py_toolchain",
+    },
+    tools = {
+        "build": "//tools/cli:build",
+        "buildifier": "@buildifier_prebuilt//:buildifier",
+        "configure": "//tools/cli:configure",
+        "format": "//tools/cli:format",
+        "lint": "//tools/cli:lint",
+        "node": "$(NODE_PATH)",
+        "npm": "$(NPM_PATH)",
+        "patch": "@ape//ape:patch",
+        "pnpm": "@pnpm",
+        "prettier": "//tools/format:prettier",
+        "pydoclint": "//tools/lint:pydoclint",
+        "python": "$(PYTHON3)",
+        "python3": "$(PYTHON3)",
+        "starpls": "@multitool//tools/starpls:starpls",
+        "test": "//tools/cli:test",
+        "tool": "//tools/cli:main",
+        "update": "//tools/cli:update",
+        "vale": "//tools/lint:vale",
+        "yamllint": "//tools/lint:yamllint",
+    } | TOOLS,
+)
+
+multirun(
+    name = "env",
+    commands = [
+        "//tools/python:venv",
+        ":bazel_env",
+    ],
+    data = [
+        ":bazel_env",
+        "//tools/python:venv",
+    ],
+    print_command = False,
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+aspect_gazelle(
+    name = "_gazelle",
+    extensions = [
+        "//tools/configure:markdown",
+        "//tools/configure:starlark",
+        "//tools/configure:testonly",
+        "//tools/configure:yaml",
+    ],
+    with_check = True,
+)
+
+alias(
+    name = "gazelle",
+    actual = ":_gazelle",
+)
+
+alias(
+    name = "gazelle.check",
+    actual = ":_gazelle.check",
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "tools_lock_json",
+    srcs = ["tools.lock.json"],
+    tags = ["json"],
+)

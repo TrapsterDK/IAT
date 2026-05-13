@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "charliermarsh.ruff",
+    "njpwerner.autodocstring",
+    "ms-python.python",
+    "BazelBuild.vscode-bazel",
+    "astral-sh.ty",
+    "tamasfe.even-better-toml",
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode"
+  ]
+}

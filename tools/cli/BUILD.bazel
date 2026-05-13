@@ -1,0 +1,77 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("//tools/cli:defs.bzl", "cli_wrapper_binaries")
+load("//tools/python:defs.bzl", "py_binary", "py_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+py_library(
+    name = "app",
+    srcs = ["app.py"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":exceptions",
+        "//libs/bazel:workspace",
+        "//tools/cli/command:build",
+        "//tools/cli/command:configure",
+        "//tools/cli/command:format",
+        "//tools/cli/command:lint",
+        "//tools/cli/command:test",
+        "//tools/cli/command:update",
+        "@pip//click",
+        "@pip//typer",
+    ],
+)
+
+py_library(
+    name = "target_resolution",
+    srcs = ["target_resolution.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":exceptions",
+        "//libs/bazel:command",
+        "//libs/bazel:targets",
+    ],
+)
+
+py_library(
+    name = "exceptions",
+    srcs = ["exceptions.py"],
+    visibility = ["//:__subpackages__"],
+    deps = ["@pip//click"],
+)
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    main = "main.py",
+    visibility = ["//visibility:public"],
+    deps = [":app"],
+)
+
+cli_wrapper_binaries(
+    app_lib = ":app",
+    commands = [
+        "build",
+        "configure",
+        "format",
+        "lint",
+        "test",
+        "update",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "defs",
+    srcs = ["defs.bzl"],
+    deps = [
+        "//tools/python:defs",
+        "@bazel_lib//lib:expand_template",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

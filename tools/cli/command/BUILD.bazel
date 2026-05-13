@@ -1,0 +1,76 @@
+load("//tools/python:defs.bzl", "py_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+py_library(
+    name = "build",
+    srcs = ["build.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/bazel:command",
+        "//tools/cli:exceptions",
+        "//tools/cli:target_resolution",
+    ],
+)
+
+py_library(
+    name = "test",
+    srcs = ["test.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/bazel:command",
+        "//tools/cli:exceptions",
+        "//tools/cli:target_resolution",
+    ],
+)
+
+py_library(
+    name = "configure",
+    srcs = ["configure.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/bazel:command",
+        "//libs/bazel:workspace",
+        "//tools/cli:exceptions",
+    ],
+)
+
+py_library(
+    name = "format",
+    srcs = ["format.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/bazel:artifacts",
+        "//libs/bazel:targets",
+        "//libs/bazel:workspace",
+        "//tools/cli:exceptions",
+    ],
+)
+
+py_library(
+    name = "lint",
+    srcs = ["lint.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/bazel:bep",
+        "//libs/bazel:command",
+        "//tools/cli:exceptions",
+        "//tools/cli:target_resolution",
+    ],
+)
+
+py_library(
+    name = "update",
+    srcs = ["update.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/bazel:command",
+        "//tools/cli:exceptions",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

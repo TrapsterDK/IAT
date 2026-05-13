@@ -1,0 +1,19 @@
+"""Helpers for generated target names."""
+
+def target_name_for_path(path):
+    """Return the generated target name for one source path.
+
+    Args:
+        path: Workspace-relative file path used by the generator.
+
+    Returns:
+        Bazel target name derived from the file stem.
+    """
+    name = path
+
+    if name.startswith("."):
+        name = name[1:]
+
+    name = "_".join(name.split(".")[:-1]).lower()
+
+    return name or "file"

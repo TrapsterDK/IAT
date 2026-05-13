@@ -1,0 +1,12 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "dictionary",
+    srcs = ["dictionary.txt"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

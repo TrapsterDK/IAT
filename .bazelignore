@@ -1,0 +1,16 @@
+.git
+.DS_Store
+.cache
+node_modules
+__pycache__
+.direnv
+.ruff_cache
+.venv
+venv
+.pnpm-store
+frontend/dist
+bazel-bin
+bazel-out
+bazel-testlogs
+.pytest_cache
+.ty

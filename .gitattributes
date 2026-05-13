@@ -1,0 +1,5 @@
+* text=auto eol=lf
+gazelle_python.yaml linguist-generated=true
+requirements.txt linguist-generated=true
+MODULE.bazel.lock linguist-generated=true
+pnpm-lock.yaml linguist-generated=true

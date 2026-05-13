@@ -1,0 +1,46 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+      - name: Run formatting
+        run: bazel run --config=ci //tools/cli:format -- --bazel_flag=--config=ci --no-fix
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+      - name: Check bazel lock
+        run: bazel mod deps --lockfile_mode=error --config=ci
+      - name: Check python lock
+        run: bazel test //tools/python:lock_test --config=ci
+      - name: Check python manifest
+        run: bazel test //tools/python:gazelle_manifest.test --config=ci
+      - name: Check javascript lock
+        run: bazel test //tools/javascript:lock_test --config=ci
+      - name: Run linting
+        run: bazel run --config=ci //tools/cli:lint -- --bazel_flag=--config=ci --no-fix
+  test-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+      - name: Run tests
+        run: bazel test //... --config=ci

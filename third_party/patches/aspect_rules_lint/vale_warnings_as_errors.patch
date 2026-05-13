@@ -1,0 +1,26 @@
+--- a/lint/vale.bzl
++++ b/lint/vale.bzl
+@@ -90,18 +90,19 @@ def vale_action(ctx, executable, srcs, styles, config, stdout, exit_code = None,
+         # Introduced in https://github.com/errata-ai/vale/commit/2139c4176a4d2e62d7dfb95dca24b96b9e8b7251
+         # and released in v3.1.0
+         env = dict(env, **{"VALE_STYLES_PATH": styles.path})
+ 
+     # Wire command-line options, see output of vale --help
+     args = ctx.actions.args()
+     args.add_all(srcs)
++    args.add("--no-exit")
+     args.add_all(["--config", config])
+     if type(output) == "File":
+         inputs.append(output)
+         args.add_all(["--output", output.path])
+     else:
+         args.add_all(["--output", output])
+     outputs = [stdout]
+ 
+     if exit_code:
+-        command = "{vale} $@ >{stdout}; echo $? > " + exit_code.path
++        command = "{vale} $@ >{stdout}; if [ -s {stdout} ]; then echo 1 > " + exit_code.path + "; else echo 0 > " + exit_code.path + "; fi"
+         outputs.append(exit_code)
+     else:
+         # Create empty file on success, as Bazel expects one
+         command = "{vale} $@ && touch {stdout}"

@@ -1,0 +1,37 @@
+"""Generate filegroups for local non-.bzl Starlark sources."""
+
+load("tools/configure/names.axl", "target_name_for_path")
+
+def _prepare(_cfg):
+    return aspect.PrepareResult(
+        sources = [
+            aspect.SourceFiles(
+                "WORKSPACE",
+                "WORKSPACE.bazel",
+                "MODULE.bazel",
+                "REPO.bazel",
+            ),
+            aspect.SourceGlobs(
+                "*.sky",
+                "*.axl",
+                "*.aspect",
+            ),
+        ],
+    )
+
+def _declare_sources(ctx):
+    for path in [src.path for src in ctx.sources]:
+        ctx.targets.add(
+            kind = "filegroup",
+            name = target_name_for_path(path),
+            attrs = {
+                "srcs": [path],
+                "tags": ["starlark"],
+            },
+        )
+
+aspect.orion_extension(
+    id = "starlark",
+    prepare = _prepare,
+    declare = _declare_sources,
+)

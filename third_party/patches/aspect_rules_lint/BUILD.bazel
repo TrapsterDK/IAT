@@ -1,0 +1,9 @@
+package(default_visibility = ["//:__subpackages__"])
+
+exports_files(["vale_warnings_as_errors.patch"])
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

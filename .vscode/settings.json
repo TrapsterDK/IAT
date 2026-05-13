@@ -1,0 +1,111 @@
+{
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "files.trimTrailingWhitespace": true,
+  "files.exclude": {
+    "**/.cache/**": true,
+    "**/bazel-*/**": true,
+    "**/node_modules/**": true,
+    "**/__pycache__/**": true,
+    "**/.direnv/**": true,
+    "**/.ruff_cache/**": true,
+    "**/dist/**": true,
+    "**/.venv/**": true,
+    "**/.pnpm-store/**": true
+  },
+  "search.exclude": {
+    "**/.git/**": true,
+    "**/.DS_Store": true,
+    "**/.cache/**": true,
+    "**/bazel-*/**": true,
+    "**/node_modules/**": true,
+    "**/__pycache__/**": true,
+    "**/.direnv/**": true,
+    "**/.ruff_cache/**": true,
+    "**/dist/**": true,
+    "**/.venv/**": true,
+    "**/.pnpm-store/**": true
+  },
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/.DS_Store": true,
+    "**/.cache/**": true,
+    "**/bazel-*/**": true,
+    "**/node_modules/**": true,
+    "**/__pycache__/**": true,
+    "**/.direnv/**": true,
+    "**/.ruff_cache/**": true,
+    "**/dist/**": true,
+    "**/.venv/**": true,
+    "**/.pnpm-store/**": true
+  },
+  "files.insertFinalNewline": true,
+  "json.schemaDownload.trustedDomains": {
+    "https://opencode.ai": true,
+    "https://models.dev": true,
+    "https://raw.githubusercontent.com/bazel-contrib": true,
+    "https://docs.renovatebot.com": true
+  },
+  "prettier.prettierPath": "${workspaceFolder}/bazel-out/bazel_env-opt/bin/tools/bazel_env/bin/prettier.runfiles/_main/node_modules/prettier",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonl]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[python]": {
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.wordBasedSuggestions": "off",
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "always",
+      "source.organizeImports.ruff": "always"
+    }
+  },
+  "ruff.path": ["${workspaceFolder}/bazel-out/bazel_env-opt/bin/tools/bazel_env/bin/ruff"],
+  "ty.path": ["${workspaceFolder}/bazel-out/bazel_env-opt/bin/tools/bazel_env/bin/ty"],
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv",
+  "ty.configuration": {
+    "environment": {
+      "extra-paths": ["./bazel-bin"]
+    }
+  },
+  "bazel.executable": "bazel",
+  "bazel.buildifierExecutable": "./bazel-out/bazel_env-opt/bin/tools/bazel_env/bin/buildifier",
+  "bazel.lsp.command": "bazel-out/bazel_env-opt/bin/tools/bazel_env/bin/starpls",
+  "bazel.lsp.args": ["server", "--bazel_path=bazel"],
+  "bazel.buildifierFixOnFormat": true,
+  "bazel.enableCodeLens": true,
+  "bazel.queriesShareServer": false,
+  "[bazel]": {
+    "editor.defaultFormatter": "BazelBuild.vscode-bazel"
+  },
+  "[starlark]": {
+    "editor.defaultFormatter": "BazelBuild.vscode-bazel"
+  },
+  "files.associations": {
+    "*.axl": "starlark",
+    "*.aspect": "starlark"
+  }
+}

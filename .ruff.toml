@@ -1,0 +1,62 @@
+target-version = "py312"
+line-length = 120
+
+[lint]
+select = ["ALL", "FA100"]
+ignore = [
+  "E501",
+  "E731",
+  "C901",
+  "S311",
+  "FBT001",
+  "TRY003",
+  "EM101",
+  "EM102",
+  "COM812",
+  "ARG003",
+  "W292",
+  "G004",
+  "FIX002",
+  "TD002",
+  "TD003",
+  "S608",
+  "S607",
+  "FBT002",
+  "ASYNC230",
+  "PLR0913",
+  "SLF001",
+  "ERA001",
+  "DTZ011",
+  "INP001",
+  "D203",
+  "D213",
+  "D413",
+]
+
+[lint.pydocstyle]
+convention = "google"
+
+[lint.extend-per-file-ignores]
+"{**/*_test.py,**/testing/**/*.py}" = [
+  "S101",
+  "ARG",
+  "FBT",
+  "PLR2004",
+  "S311",
+  "PT012",
+  "ANN401",
+]
+"**/*_test.py" = ["D"]
+
+[lint.isort]
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
+known-first-party = ["apps", "libs", "tools"]
+extra-standard-library = ["typing"]
+section-order = [
+  "future",
+  "standard-library",
+  "third-party",
+  "first-party",
+  "local-folder",
+]
