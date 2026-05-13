@@ -1,6 +1,8 @@
 slug: asian-white-pleasant-unpleasant
 title: Asian White Pleasant Unpleasant IAT
-description: Measures automatic preferences regarding Asian and White faces. You will sort these faces alongside 'Pleasant' and 'Unpleasant' words.
+# yamllint disable rule:line-length
+description: "Measures automatic preferences regarding Asian and White faces. You will sort these faces alongside 'Pleasant' and 'Unpleasant' words."
+# yamllint enable rule:line-length
 categories:
   - category:
       - slug: asian

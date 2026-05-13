@@ -1,6 +1,8 @@
 slug: race-attitudes
 title: Race Attitudes IAT
-description: Measures automatic preferences regarding race. You will sort images of Black and White faces alongside 'Pleasant' and 'Unpleasant' words. This test often reveals an implicit preference for one group over another.
+# yamllint disable rule:line-length
+description: "Measures automatic preferences regarding race. You will sort images of Black and White faces alongside 'Pleasant' and 'Unpleasant' words. This test often reveals an implicit preference for one group over another."
+# yamllint enable rule:line-length
 categories:
   - category:
       - slug: black

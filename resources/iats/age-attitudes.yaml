@@ -1,6 +1,8 @@
 slug: age-attitudes
 title: Age Attitudes IAT
-description: Measures automatic preferences regarding age. You will sort images of young and old faces alongside 'Pleasant' and 'Unpleasant' words. This often reveals an implicit preference for younger people.
+# yamllint disable rule:line-length
+description: "Measures automatic preferences regarding age. You will sort images of young and old faces alongside 'Pleasant' and 'Unpleasant' words. This often reveals an implicit preference for younger people."
+# yamllint enable rule:line-length
 categories:
   - category:
       - slug: young

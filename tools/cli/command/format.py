@@ -35,7 +35,20 @@ def run_format(
     cwd: Path,
     environment: Mapping[str, str],
 ) -> None:
-    """Run the repository formatting workflow."""
+    """Run the repository formatting workflow.
+
+    Args:
+        bazel_flags: Extra Bazel flags to pass through.
+        fix: Whether formatting should rewrite files in place.
+        targets: CLI-supplied file paths to format.
+        workspace: The Bazel workspace root.
+        cwd: The current working directory for path resolution.
+        environment: Explicit process environment for Bazel.
+
+    Raises:
+        CliToolError: Building or running the formatter fails.
+        CliUsageError: Unsupported targets or invalid paths are supplied.
+    """
     labels, paths = split_targets_and_paths(targets)
     if labels:
         raise CliUsageError("Specifying targets is not supported for format command.")

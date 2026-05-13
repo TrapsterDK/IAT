@@ -1,6 +1,8 @@
 slug: asian-white-american-foreign
 title: Asian White American Foreign IAT
-description: Measures the implicit association between race and nationality. You will sort images of Asian and White faces with images of American and Foreign landmarks, often revealing stereotypes about who is considered 'American'.
+# yamllint disable rule:line-length
+description: "Measures the implicit association between race and nationality. You will sort images of Asian and White faces with images of American and Foreign landmarks, often revealing stereotypes about who is considered 'American'."
+# yamllint enable rule:line-length
 categories:
   - category:
       - slug: asian

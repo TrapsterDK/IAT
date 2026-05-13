@@ -89,7 +89,21 @@ def run_lint(
     environment: Mapping[str, str],
     output_mode: str,
 ) -> None:
-    """Run the repository lint workflow."""
+    """Run the repository lint workflow.
+
+    Args:
+        bazel_flags: Extra Bazel flags to pass through.
+        fix: Whether lint should apply available fixes.
+        targets: CLI-supplied labels or file paths to lint.
+        workspace: The Bazel workspace root.
+        build_working_directory: The Bazel invocation directory.
+        environment: Explicit process environment for Bazel.
+        output_mode: Requested lint output group mode.
+
+    Raises:
+        CliToolError: Gazelle or lint exits with a non-zero status.
+        CliUsageError: Fix mode cannot apply generated patches.
+    """
     selected_targets = resolve_command_inputs_to_targets(
         targets,
         workspace,

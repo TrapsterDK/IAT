@@ -1,6 +1,8 @@
 slug: gender-science
 title: Gender Science IAT
-description: Measures the automatic association between gender and academic disciplines. You will sort words related to 'Male' and 'Female' with words related to 'Science' and 'Liberal Arts', often revealing a stereotype associating men with science and women with liberal arts.
+# yamllint disable rule:line-length
+description: "Measures the automatic association between gender and academic disciplines. You will sort words related to 'Male' and 'Female' with words related to 'Science' and 'Liberal Arts', often revealing a stereotype associating men with science and women with liberal arts."
+# yamllint enable rule:line-length
 categories:
   - category:
       - slug: male

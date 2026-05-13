@@ -1,6 +1,8 @@
 slug: age-gender
 title: Age Gender IAT
-description: Measures the automatic association between age and gender. You will sort images of young/old faces and male/female faces, revealing potential stereotypes.
+# yamllint disable rule:line-length
+description: "Measures the automatic association between age and gender. You will sort images of young/old faces and male/female faces, revealing potential stereotypes."
+# yamllint enable rule:line-length
 categories:
   - category:
       - slug: young

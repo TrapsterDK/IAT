@@ -20,7 +20,18 @@ def run_build(
     build_working_directory: Path,
     environment: Mapping[str, str],
 ) -> None:
-    """Run Bazel build with optional file-path target resolution."""
+    """Run Bazel build with optional file-path target resolution.
+
+    Args:
+        bazel_flags: Extra Bazel flags to pass through.
+        targets: CLI-supplied labels or file paths to build.
+        workspace: The Bazel workspace root.
+        build_working_directory: The Bazel invocation directory.
+        environment: Explicit process environment for Bazel.
+
+    Raises:
+        CliToolError: Bazel exits with a non-zero status.
+    """
     selected_targets = resolve_command_inputs_to_targets(
         targets,
         workspace,

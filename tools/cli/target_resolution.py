@@ -17,7 +17,14 @@ PATH_RESOLUTION_ERROR = "Finding targets for specified paths failed."
 
 
 def _ordered_unique(items: Iterable[str]) -> list[str]:
-    """Return one ordered list with duplicate targets removed."""
+    """Return one ordered list with duplicate targets removed.
+
+    Args:
+        items: Candidate targets in their original order.
+
+    Returns:
+        The input targets without duplicates, preserving first appearance.
+    """
     ordered_items: list[str] = []
     seen: set[str] = set()
     for item in items:
@@ -33,7 +40,16 @@ def _filter_path_resolved_targets_for_cli(
     workspace: Path,
     environment: Mapping[str, str],
 ) -> list[str]:
-    """Apply CLI-specific policy filters to path-resolved targets."""
+    """Apply CLI-specific policy filters to path-resolved targets.
+
+    Args:
+        targets: Targets resolved from CLI path inputs.
+        workspace: The Bazel workspace root.
+        environment: Explicit process environment for Bazel.
+
+    Returns:
+        The subset of targets allowed for CLI execution.
+    """
     if not targets:
         return []
 
