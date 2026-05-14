@@ -3,8 +3,8 @@ load("//tools/python:defs.bzl", "py_binary", "py_library")
 package(default_visibility = ["//:__subpackages__"])
 
 py_library(
-    name = "backend_sd35",
-    srcs = ["backend_sd35.py"],
+    name = "stable_diffusion_3_5",
+    srcs = ["stable_diffusion_3_5.py"],
     visibility = ["//:__subpackages__"],
     deps = [
         ":specs",
@@ -19,8 +19,8 @@ py_binary(
     srcs = ["main.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":backend_sd35",
         ":specs",
+        ":stable_diffusion_3_5",
         "//libs/bazel:workspace",
         "@pip//typer",
     ],

@@ -8,7 +8,7 @@ from typing import Annotated, Literal
 
 import typer
 
-from apps.stimuli_generator.backend_sd35 import generate_images
+from apps.stimuli_generator.stable_diffusion_3_5 import generate_images
 from apps.stimuli_generator.specs import StimulusGenerationSpec
 from libs.bazel.workspace import get_build_working_directory
 

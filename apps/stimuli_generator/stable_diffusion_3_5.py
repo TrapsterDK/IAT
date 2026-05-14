@@ -1,4 +1,4 @@
-"""Stable Diffusion 3.5 Medium backend for offline stimulus generation."""
+"""Stable Diffusion 3.5 Medium image generation."""
 
 from __future__ import annotations
 
