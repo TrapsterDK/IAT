@@ -1,0 +1,38 @@
+slug: female-white-caucasian-young
+description: Synthetic young White Caucasian women portrait stimuli.
+stimuli_generation:
+  count: 4
+  seed_start: 0
+  image:
+    width: 1024
+    height: 1024
+    color_mode: grayscale
+  prompts:
+    prompt: young White Caucasian woman age 18 to 25, studio portrait photo, one person,
+      centered, facing camera, neutral expression, closed mouth, plain light gray
+      background, soft even lighting, highly detailed skin texture
+    prompt_3: A standardized studio portrait of a White Caucasian woman between 18
+      and 25 years old, photographed from the waist up. The subject is perfectly centered
+      and looking directly into the lens. The background is a flat, solid light gray.
+      The lighting is soft, diffused, and shadowless across the face. The woman has
+      a calm, neutral facial expression with lips closed. The image is clean and minimalist
+      with an unobstructed face and empty background.
+    negative_prompt: text, watermark, logo, multiple people, extra face, extra limbs,
+      cropped head, profile view, head turned away, dramatic lighting, open mouth,
+      smiling, accessories, busy background, blur, low quality, deformed face, full
+      body, visible hands, visible arms, distant shot
+  model:
+    id: stabilityai/stable-diffusion-3.5-medium
+    revision: b940f670f0eda2d07fbb75229e779da1ad11eb80
+  sampling:
+    dtype: float16
+    guidance_scale: 8.0
+    max_sequence_length: 256
+    num_inference_steps: 32
+    skip_guidance_layers:
+    - 7
+    - 8
+    - 9
+    skip_layer_guidance_scale: 2.8
+    skip_layer_guidance_start: 0.01
+    skip_layer_guidance_stop: 0.2
