@@ -50,7 +50,7 @@ def generate(
         show_progress,
     )
     for seed, image in enumerate(generated_images, start=spec.stimuli_generation.seed_start):
-        image.save(image_directory / f"{spec.slug}-seed-{seed}.png", format="PNG")
+        image.save(image_directory / f"seed-{seed}.png", format="PNG")
 
     manifest_path = resolved_output_root / "manifest.yaml"
     spec.to_yaml_file(manifest_path)
