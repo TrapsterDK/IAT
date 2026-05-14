@@ -1,0 +1,11 @@
+extends: ../base.yaml
+stimuli_generation:
+  prompts:
+    negative_prompt: >-
+      text, watermark, logo, signature,
+      multiple people, extra face,
+      extra limbs, cropped head, profile view,
+      dramatic lighting, open mouth, smiling,
+      hat, glasses, jewelry,
+      busy background, blur, low quality,
+      deformed facial features

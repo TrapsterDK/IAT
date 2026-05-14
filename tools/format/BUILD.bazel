@@ -24,7 +24,20 @@ format_multirun(
     markdown = ":prettier",
     python = "@aspect_rules_lint//format:ruff",
     starlark = "@buildifier_prebuilt//:buildifier",
-    yaml = "@aspect_rules_lint//format:yamlfmt",
+    yaml = ":prettier",
+    yaml_check_args = [
+        "--check",
+        "--log-level=warn",
+    ],
+    yaml_fix_args = [
+        "--write",
+        "--log-level=warn",
+    ],
+)
+
+alias(
+    name = "format_YAML_with_prettier",
+    actual = ":format_YAML_with_yamlfmt",
 )
 
 filegroup(

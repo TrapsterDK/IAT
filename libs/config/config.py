@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from pydantic import BaseModel, ConfigDict
 
 from libs.config.utils import ConfigFormat, detect_config_format, read_mapping_file, write_mapping_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class ConfigModel(BaseModel):
@@ -25,14 +27,13 @@ class ConfigModel(BaseModel):
         Returns:
             The validated config model.
         """
-        expanded_path = path.expanduser()
-        match detect_config_format(expanded_path):
+        match detect_config_format(path):
             case ConfigFormat.YAML:
-                return cls.from_yaml_file(expanded_path)
+                return cls.from_yaml_file(path)
             case ConfigFormat.JSON:
-                return cls.from_json_file(expanded_path)
+                return cls.from_json_file(path)
             case ConfigFormat.TOML:
-                return cls.from_toml_file(expanded_path)
+                return cls.from_toml_file(path)
 
     @classmethod
     def from_yaml_file(cls, path: Path) -> Self:
@@ -44,7 +45,7 @@ class ConfigModel(BaseModel):
         Returns:
             The validated config model.
         """
-        return cls.model_validate(read_mapping_file(path.expanduser(), ConfigFormat.YAML))
+        return cls.model_validate(read_mapping_file(path, ConfigFormat.YAML))
 
     @classmethod
     def from_json_file(cls, path: Path) -> Self:
@@ -56,7 +57,7 @@ class ConfigModel(BaseModel):
         Returns:
             The validated config model.
         """
-        return cls.model_validate(read_mapping_file(path.expanduser(), ConfigFormat.JSON))
+        return cls.model_validate(read_mapping_file(path, ConfigFormat.JSON))
 
     @classmethod
     def from_toml_file(cls, path: Path) -> Self:
@@ -68,7 +69,7 @@ class ConfigModel(BaseModel):
         Returns:
             The validated config model.
         """
-        return cls.model_validate(read_mapping_file(path.expanduser(), ConfigFormat.TOML))
+        return cls.model_validate(read_mapping_file(path, ConfigFormat.TOML))
 
     def to_json_file(self, path: Path) -> None:
         """Write one config model to a stable JSON file on disk.
@@ -76,7 +77,7 @@ class ConfigModel(BaseModel):
         Args:
             path: JSON file path to write.
         """
-        write_mapping_file(path.expanduser(), self.model_dump(mode="json"), ConfigFormat.JSON)
+        write_mapping_file(path, self.model_dump(mode="json"), ConfigFormat.JSON)
 
     def to_yaml_file(self, path: Path) -> None:
         """Write one config model to a YAML file on disk.
@@ -84,7 +85,7 @@ class ConfigModel(BaseModel):
         Args:
             path: YAML file path to write.
         """
-        write_mapping_file(path.expanduser(), self.model_dump(mode="json"), ConfigFormat.YAML)
+        write_mapping_file(path, self.model_dump(mode="json"), ConfigFormat.YAML)
 
     def to_toml_file(self, path: Path) -> None:
         """Write one config model to a TOML file on disk.
@@ -92,7 +93,7 @@ class ConfigModel(BaseModel):
         Args:
             path: TOML file path to write.
         """
-        write_mapping_file(path.expanduser(), self.model_dump(mode="json"), ConfigFormat.TOML)
+        write_mapping_file(path, self.model_dump(mode="json"), ConfigFormat.TOML)
 
     def to_file(self, path: Path) -> None:
         """Write one config model to a supported file format on disk.
@@ -100,11 +101,10 @@ class ConfigModel(BaseModel):
         Args:
             path: Config file path in YAML, JSON, or TOML format.
         """
-        expanded_path = path.expanduser()
-        match detect_config_format(expanded_path):
+        match detect_config_format(path):
             case ConfigFormat.YAML:
-                self.to_yaml_file(expanded_path)
+                self.to_yaml_file(path)
             case ConfigFormat.JSON:
-                self.to_json_file(expanded_path)
+                self.to_json_file(path)
             case ConfigFormat.TOML:
-                self.to_toml_file(expanded_path)
+                self.to_toml_file(path)

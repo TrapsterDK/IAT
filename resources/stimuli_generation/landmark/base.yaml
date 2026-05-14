@@ -1,0 +1,8 @@
+extends: ../base.yaml
+stimuli_generation:
+  prompts:
+    negative_prompt: >-
+      text, watermark, logo, people, crowd,
+      vehicle, close-up, blur, low quality,
+      collage, illustration, painting,
+      dramatic tilt, busy foreground

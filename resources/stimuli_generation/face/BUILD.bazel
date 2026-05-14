@@ -1,0 +1,55 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "asian",
+    srcs = ["asian.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "base",
+    srcs = ["base.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "black",
+    srcs = ["black.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "men",
+    srcs = ["men.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "old",
+    srcs = ["old.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "white",
+    srcs = ["white.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "women",
+    srcs = ["women.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "young",
+    srcs = ["young.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

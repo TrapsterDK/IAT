@@ -1,0 +1,13 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "base",
+    srcs = ["base.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)
