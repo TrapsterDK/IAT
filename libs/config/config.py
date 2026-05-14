@@ -3,17 +3,42 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from pydantic import BaseModel, ConfigDict
 
+from libs.config.exceptions import ExtendingConfigError
 from libs.config.utils import ConfigFormat, detect_config_format, read_mapping_file, write_mapping_file
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class ConfigModel(BaseModel):
     """Typed config model loaded from one file without inheritance."""
 
     model_config = ConfigDict(extra="forbid")
+
+    @classmethod
+    def from_env(cls, variable_name: str, environment: Mapping[str, str]) -> Self | None:
+        """Load one config model from a path stored in one environment variable.
+
+        Args:
+            variable_name: Environment variable that stores the config file path.
+            environment: Explicit environment mapping to read from.
+
+        Returns:
+            The validated config model, or `None` when the variable is unset.
+        """
+        path_value = environment.get(variable_name)
+        if path_value is None:
+            return None
+
+        resolved_path_value = path_value.strip()
+        if not resolved_path_value:
+            raise ExtendingConfigError(f"Environment variable '{variable_name}' must not be blank.")
+
+        return cls.from_file(Path(resolved_path_value))
 
     @classmethod
     def from_file(cls, path: Path) -> Self:

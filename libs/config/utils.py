@@ -5,16 +5,20 @@ from __future__ import annotations
 import json
 import tomllib
 from enum import Enum
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import tomli_w
 import yaml
 
 from libs.config.exceptions import ExtendingConfigError, ExtendingConfigPathError
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 class ConfigFormat(Enum):
+    """Supported file formats for typed config models."""
+
     YAML = "yaml"
     JSON = "json"
     TOML = "toml"

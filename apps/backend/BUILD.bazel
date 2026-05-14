@@ -1,0 +1,50 @@
+load("//tools/python:defs.bzl", "py_library", "py_test")
+
+package(default_visibility = ["//:__subpackages__"])
+
+py_library(
+    name = "config",
+    srcs = ["config.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/config",
+        "@pip//pydantic",
+    ],
+)
+
+py_library(
+    name = "iat_spec",
+    srcs = ["iat_spec.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/config",
+        "@pip//pydantic",
+    ],
+)
+
+py_test(
+    name = "iat_spec_test",
+    srcs = ["iat_spec_test.py"],
+    deps = [
+        ":iat_spec",
+        "@pip//pydantic",
+        "@pip//pytest",
+    ],
+)
+
+py_test(
+    name = "config_test",
+    srcs = ["config_test.py"],
+    deps = [
+        ":config",
+        "@pip//pydantic",
+        "@pip//pytest",
+        "@pip//pyyaml",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

@@ -62,6 +62,7 @@ def _load_extending_mapping(
     Args:
         path: Config file path to load.
         extends_key: Mapping key used to declare inheritance.
+        config_format: Optional explicit config format override for the current file.
 
     Returns:
         The merged config mapping.
