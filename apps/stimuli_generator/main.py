@@ -8,7 +8,9 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 import typer
+from diffusers.utils import logging as diffusers_logging
 from huggingface_hub import utils
+from transformers.utils import logging as transformers_logging
 
 from apps.stimuli_generator.specs import (
     StimulusGenerationBatchSpec,
@@ -52,8 +54,12 @@ def _run_generation(
         show_progress: Whether to show Hugging Face progress bars.
     """
     if not show_progress:
+        diffusers_logging.disable_progress_bar()
+        transformers_logging.disable_progress_bar()
         utils.disable_progress_bars()
     else:
+        diffusers_logging.enable_progress_bar()
+        transformers_logging.enable_progress_bar()
         utils.enable_progress_bars()
 
     grouped_pairs = defaultdict(list)

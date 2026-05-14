@@ -25,7 +25,9 @@ py_binary(
         ":specs",
         ":stable_diffusion_3_5",
         "//libs/bazel:workspace",
+        "@pip//diffusers",
         "@pip//huggingface_hub",
+        "@pip//transformers",
         "@pip//typer",
     ],
 )
