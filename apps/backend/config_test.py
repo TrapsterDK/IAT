@@ -62,23 +62,6 @@ def test_iat_resource_settings_reject_unknown_fields(tmp_path: Path) -> None:
         IatResourcesSettings.from_file(settings_path)
 
 
-def test_iat_resource_settings_reject_removed_project_implicit_root_field(tmp_path: Path) -> None:
-    # Given: one YAML settings file that still uses the removed asset root field.
-    settings_path = tmp_path / "iat_spec.yaml"
-    _write_yaml(
-        settings_path,
-        {
-            "iat_directory": "resources/iats",
-            "project_implicit_root": "resources/project_implicit",
-        },
-    )
-
-    # When: the backend resource settings are loaded through the repo config library.
-    # Then: validation rejects the removed config field.
-    with pytest.raises(ValidationError, match="project_implicit_root"):
-        IatResourcesSettings.from_file(settings_path)
-
-
 def test_iat_resource_settings_reject_blank_enabled_iat_slug() -> None:
     # Given: one settings model with one blank enabled IAT slug.
 
