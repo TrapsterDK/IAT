@@ -1,0 +1,19 @@
+jobs:
+  - spec: ./face/asian.yaml
+    output_dir: ../stimuli/face/asian
+  - spec: ./face/black.yaml
+    output_dir: ../stimuli/face/black
+  - spec: ./face/men.yaml
+    output_dir: ../stimuli/face/men
+  - spec: ./face/old.yaml
+    output_dir: ../stimuli/face/old
+  - spec: ./face/white.yaml
+    output_dir: ../stimuli/face/white
+  - spec: ./face/women.yaml
+    output_dir: ../stimuli/face/women
+  - spec: ./face/young.yaml
+    output_dir: ../stimuli/face/young
+  - spec: ./landmark/american.yaml
+    output_dir: ../stimuli/landmark/american
+  - spec: ./landmark/foreign.yaml
+    output_dir: ../stimuli/landmark/foreign

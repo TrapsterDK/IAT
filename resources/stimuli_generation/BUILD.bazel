@@ -1,6 +1,12 @@
 package(default_visibility = ["//:__subpackages__"])
 
 filegroup(
+    name = "all",
+    srcs = ["all.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
     name = "base",
     srcs = ["base.yaml"],
     tags = ["yaml"],
