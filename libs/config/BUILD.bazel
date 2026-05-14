@@ -24,6 +24,7 @@ py_library(
     srcs = ["config.py"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":exceptions",
         ":utils",
         "@pip//pydantic",
     ],
