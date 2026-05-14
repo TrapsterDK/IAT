@@ -67,7 +67,7 @@ def _load_extending_mapping(
     Returns:
         The merged config mapping.
     """
-    return _load_extended_config_mapping(path.expanduser(), extends_key, set(), config_format)
+    return _load_extended_config_mapping(path, extends_key, set(), config_format)
 
 
 def _load_extended_config_mapping(
@@ -76,11 +76,10 @@ def _load_extended_config_mapping(
     visited_paths: set[Path],
     config_format: ConfigFormat | None = None,
 ) -> dict[str, Any]:
-    current_path = path.resolve()
-    if current_path in visited_paths:
-        raise ExtendingConfigCycleError(f"Cyclic config inheritance detected at: {current_path}")
+    if path in visited_paths:
+        raise ExtendingConfigCycleError(f"Cyclic config inheritance detected at: {path}")
 
-    payload = read_mapping_file(current_path, config_format)
+    payload = read_mapping_file(path, config_format)
     extends_value = payload.pop(extends_key, None)
     if extends_value is None:
         return payload
@@ -88,11 +87,11 @@ def _load_extended_config_mapping(
     if not isinstance(extends_value, str) or not extends_value:
         raise ExtendingConfigError("The 'extends' value must be a non-empty string.")
 
-    parent_path = Path(extends_value).expanduser()
+    parent_path = Path(extends_value)
     if not parent_path.is_absolute():
-        parent_path = current_path.parent / parent_path
+        parent_path = path.parent / parent_path
 
-    parent_payload = _load_extended_config_mapping(parent_path, extends_key, visited_paths | {current_path})
+    parent_payload = _load_extended_config_mapping(parent_path, extends_key, visited_paths | {path})
     return _merge_mappings(parent_payload, payload)
 
 

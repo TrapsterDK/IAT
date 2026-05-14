@@ -1,40 +1,27 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "formatter": {
-    "repo-javascript": {
-      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+    "prettier-js": {
+      "command": ["bazel", "run", "--config=ai", "//tools/format:format_JavaScript_with_prettier"],
       "extensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".mts", ".cts", ".json"]
     },
-    "repo-markdown": {
-      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+    "prettier-md": {
+      "command": ["bazel", "run", "--config=ai", "//tools/format:format_Markdown_with_prettier"],
       "extensions": [".md"]
     },
-    "repo-style": {
-      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
-      "extensions": [".css", ".scss", ".less", ".html"]
-    },
-    "repo-python": {
-      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+    "ruff": {
+      "command": ["bazel", "run", "--config=ai", "//tools/format:format_Python_with_ruff"],
       "extensions": [".py", ".pyi"]
     },
-    "repo-starlark": {
-      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
-      "extensions": [".bzl", ".bazel", "BUILD", "MODULE.bazel", "REPO.bazel"]
+    "buildifier": {
+      "command": ["bazel", "run", "--config=ai", "//tools/format:format_Starlark_with_buildifier"],
+      "extensions": [".bzl", ".bazel", "BUILD", "MODULE.bazel", "REPO.bazel", ".axl"]
     },
-    "repo-yaml": {
-      "command": ["bazel", "run", "--config=ai", "//tools/cli:main", "--", "format"],
+    "prettier-yaml": {
+      "command": ["bazel", "run", "--config=ai", "//tools/format:format_YAML_with_prettier"],
       "extensions": [".yaml", ".yml"]
     },
     "prettier": {
-      "disabled": true
-    },
-    "ruff": {
-      "disabled": true
-    },
-    "yamlfmt": {
-      "disabled": true
-    },
-    "buildifier": {
       "disabled": true
     },
     "taplo": {

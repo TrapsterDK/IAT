@@ -1,0 +1,30 @@
+extends: ./base.yaml
+slug: men
+description: Synthetic men face stimuli.
+stimuli_generation:
+  prompts:
+    prompt: >-
+      semi-realistic studio portrait,
+      centered headshot,
+      neutral expression,
+      plain soft background,
+      even lighting,
+      looking at camera,
+      shoulders visible,
+      photographic reference image,
+      controlled composition,
+      an adult man
+    prompt_3: >-
+      A controlled studio portrait
+      of one person
+      with a neutral expression.
+      The person is framed
+      as a centered head-and-shoulders portrait,
+      facing forward,
+      with even lighting,
+      a plain background,
+      no accessories,
+      no text,
+      and no other people.
+      The subject should read clearly
+      as an adult man.

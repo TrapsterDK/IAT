@@ -72,7 +72,7 @@
     "editor.defaultFormatter": "tamasfe.even-better-toml"
   },
   "[yaml]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[python]": {
     "diffEditor.ignoreTrimWhitespace": false,

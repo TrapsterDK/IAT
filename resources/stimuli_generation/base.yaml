@@ -1,0 +1,19 @@
+stimuli_generation:
+  count: 12
+  seed_start: 0
+  image:
+    width: 1024
+    height: 1024
+    color_mode: grayscale
+  model:
+    id: stabilityai/stable-diffusion-3.5-medium
+    revision: b940f670f0eda2d07fbb75229e779da1ad11eb80
+  sampling:
+    dtype: float16
+    guidance_scale: 7.0
+    max_sequence_length: 256
+    num_inference_steps: 28
+    skip_guidance_layers: [7, 8, 9]
+    skip_layer_guidance_scale: 2.8
+    skip_layer_guidance_start: 0.01
+    skip_layer_guidance_stop: 0.2
