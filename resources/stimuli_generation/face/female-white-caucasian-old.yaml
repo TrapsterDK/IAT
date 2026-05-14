@@ -4,34 +4,19 @@ description: Synthetic older White Caucasian women portrait stimuli.
 stimuli_generation:
   prompts:
     prompt: >-
-      standardized studio portrait,
-      waist-up portrait,
-      one person,
-      centered composition,
+      older White Caucasian woman age 65 to 80,
+      studio portrait photo,
+      one person, centered,
       facing camera,
       neutral expression,
       closed mouth,
       plain light gray background,
-      even soft lighting,
-      eye-level camera,
-      85mm portrait lens,
-      consistent camera distance,
-      consistent head size in frame,
-      photographic reference image,
-      highly controlled composition,
-      a White Caucasian older woman between 65 and 80 years old
+      soft even lighting,
+      highly detailed skin texture
     prompt_3: >-
-      A standardized studio portrait
-      of one person photographed from the waist up.
-      The person is centered in frame,
-      facing directly forward at eye level,
-      with a neutral expression and closed mouth.
-      The camera distance, subject scale,
-      lighting, and background should be consistent across images.
-      Use even soft lighting,
-      a plain light gray background,
-      no accessories,
-      no text,
-      and no other people.
-      The subject should read clearly
-      as a White Caucasian older woman between 65 and 80 years old.
+      A standardized studio portrait of a White Caucasian woman between 65 and 80 years old,
+      photographed from the waist up. The subject is perfectly centered and looking directly
+      into the lens. The background is a flat, solid light gray. The lighting is soft,
+      diffused, and shadowless across the face. The woman has a calm, neutral facial
+      expression with lips closed. The image is clean and minimalist with an unobstructed
+      face and empty background.

@@ -2,20 +2,10 @@ extends: ../base.yaml
 stimuli_generation:
   prompts:
     negative_prompt: >-
-      text, watermark, logo, signature,
-      multiple people, extra face,
-      extra limbs, cropped head, profile view,
-      three-quarter view, head turned away,
-      head tilt, dramatic lighting,
-      open mouth, smiling,
-      hat, glasses, jewelry,
-      busy background, blur, low quality,
-      deformed facial features,
-      full body, hands visible, arms visible,
-      extreme close-up, distant shot,
-      inconsistent framing,
-      inconsistent camera distance,
-      ambiguous ethnicity,
-      ambiguous gender,
-      ambiguous age,
-      ambiguous body shape
+      text, watermark, logo,
+      multiple people, extra face, extra limbs,
+      cropped head, profile view, head turned away,
+      dramatic lighting, open mouth, smiling,
+      accessories, busy background, blur, low quality,
+      deformed face, full body, visible hands, visible arms,
+      distant shot
