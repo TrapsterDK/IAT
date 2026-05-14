@@ -2,72 +2,37 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from pathlib import Path  # noqa: TC003
+from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
 from libs.config.config import ConfigModel
 from libs.config.extending_config import ExtendingConfigModel
+from libs.pydantic.types import NonBlankString  # noqa: TC001
 
 
 class ImageSettings(ConfigModel):
     """Output image settings."""
 
-    width: int = Field(gt=0)
-    height: int = Field(gt=0)
+    width: int = Field(gt=0, multiple_of=8)
+    height: int = Field(gt=0, multiple_of=8)
     color_mode: Literal["rgb", "grayscale"] = "rgb"
-
-    @model_validator(mode="after")
-    def validate_image_settings(self) -> ImageSettings:
-        """Validate one image-settings block.
-
-        Returns:
-            The validated image settings.
-        """
-        if self.width % 8 != 0 or self.height % 8 != 0:
-            raise ValueError("Image width and height must be divisible by 8.")
-        return self
 
 
 class PromptSettings(ConfigModel):
     """Prompt text sent to the model."""
 
-    prompt: str
-    prompt_3: str
+    prompt: NonBlankString
+    prompt_3: NonBlankString
     negative_prompt: str = ""
-
-    @model_validator(mode="after")
-    def validate_prompt_settings(self) -> PromptSettings:
-        """Validate one prompts block.
-
-        Returns:
-            The validated prompt settings.
-        """
-        if not self.prompt:
-            raise ValueError("The prompt must not be empty.")
-        if not self.prompt_3:
-            raise ValueError("The prompt_3 value must not be empty.")
-        return self
 
 
 class ModelReference(ConfigModel):
     """Model identifier and optional pinned revision."""
 
-    id: str
-    revision: str
-
-    @model_validator(mode="after")
-    def validate_model_reference(self) -> ModelReference:
-        """Validate one model block.
-
-        Returns:
-            The validated model reference.
-        """
-        if not self.id:
-            raise ValueError("Model identifiers must not be empty.")
-        if not self.revision:
-            raise ValueError("Model revisions must not be empty.")
-        return self
+    id: NonBlankString
+    revision: NonBlankString
 
 
 class SamplingSettings(ConfigModel):
@@ -108,19 +73,32 @@ class StimuliGenerationSettings(ConfigModel):
 class StimulusGenerationSpec(ExtendingConfigModel):
     """One runnable leaf spec for synthetic stimulus generation."""
 
-    slug: str
-    description: str
+    slug: NonBlankString
+    description: NonBlankString
     stimuli_generation: StimuliGenerationSettings
 
+
+class StimulusGenerationBatchJob(ConfigModel):
+    """One explicit generation job in a batch file."""
+
+    spec: Path
+    output_dir: Path
+
+
+class StimulusGenerationBatchSpec(ConfigModel):
+    """Explicit batch input for multiple generation jobs."""
+
+    jobs: list[StimulusGenerationBatchJob] = Field(min_length=1)
+
     @model_validator(mode="after")
-    def validate_spec(self) -> StimulusGenerationSpec:
-        """Validate one fully resolved leaf spec.
+    def validate_unique_output_directories(self) -> Self:
+        """Reject duplicate output directories within one batch.
 
         Returns:
-            The validated spec instance.
+            The validated batch spec.
         """
-        if not self.slug:
-            raise ValueError("Spec slugs must not be empty.")
-        if not self.description:
-            raise ValueError("Spec descriptions must not be empty.")
+        output_dirs = [job.output_dir for job in self.jobs]
+        if len(output_dirs) != len(set(output_dirs)):
+            raise ValueError("Each generated spec must use its own output directory.")
+
         return self

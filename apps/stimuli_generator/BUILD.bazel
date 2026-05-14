@@ -1,4 +1,4 @@
-load("//tools/python:defs.bzl", "py_binary", "py_library")
+load("//tools/python:defs.bzl", "py_binary", "py_library", "py_test")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -25,6 +25,7 @@ py_binary(
         ":specs",
         ":stable_diffusion_3_5",
         "//libs/bazel:workspace",
+        "@pip//huggingface_hub",
         "@pip//typer",
     ],
 )
@@ -36,7 +37,19 @@ py_library(
     deps = [
         "//libs/config",
         "//libs/config:extending_config",
+        "//libs/pydantic:types",
         "@pip//pydantic",
+    ],
+)
+
+py_test(
+    name = "specs_test",
+    srcs = ["specs_test.py"],
+    deps = [
+        ":specs",
+        "@pip//pydantic",
+        "@pip//pytest",
+        "@pip//pyyaml",
     ],
 )
 

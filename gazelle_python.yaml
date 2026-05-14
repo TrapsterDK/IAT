@@ -92,6 +92,7 @@ manifest:
     tomli_w: tomli_w
     torch: torch
     torchgen: torch
+    torchvision: torchvision
     tqdm: tqdm
     traitlets: traitlets
     transformers: transformers
@@ -108,4 +109,4 @@ manifest:
     zipp: zipp
   pip_repository:
     name: pip
-integrity: 288c79a4c470365288b6a96cd9f98eeba139dcc820410508eddba523f775f528
+integrity: 311b3d7cd001ce1ee87fe8a18e6b8f2494ad1ab3cc964e458930bce59c1edd98

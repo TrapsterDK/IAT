@@ -67,5 +67,5 @@ def test_iat_resource_settings_reject_blank_enabled_iat_slug() -> None:
 
     # When: the settings model is validated.
     # Then: validation rejects the blank slug.
-    with pytest.raises(ValidationError, match="Enabled IAT slugs must not be blank"):
+    with pytest.raises(ValidationError, match="at least 1 character"):
         IatResourcesSettings(enabled_iats=["   "])

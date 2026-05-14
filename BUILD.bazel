@@ -1,4 +1,5 @@
 load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -55,18 +56,6 @@ js_library(
 )
 
 js_library(
-    name = "package_json",
-    srcs = ["package.json"],
-    visibility = ["//:__subpackages__"],
-)
-
-js_library(
-    name = "tsconfig",
-    srcs = ["tsconfig.json"],
-    visibility = ["//:__subpackages__"],
-)
-
-js_library(
     name = "prettierrc",
     srcs = ["prettier.config.cjs"],
     visibility = ["//:__subpackages__"],
@@ -118,4 +107,12 @@ filegroup(
         "no-lint",
         "yaml",
     ],
+)
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    tags = ["no-lint"],
+    visibility = [":__subpackages__"],
+    deps = [":node_modules/@types/node"],
 )

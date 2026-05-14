@@ -162,3 +162,99 @@ def test_iat_spec_rejects_duplicate_category_slugs(tmp_path: Path) -> None:
     # Then: validation rejects the duplicate category slug.
     with pytest.raises(ValidationError, match="Category slugs must be unique within one IAT spec"):
         IatSpec.from_yaml_file(spec_path)
+
+
+def test_iat_spec_rejects_blank_category_label(tmp_path: Path) -> None:
+    # Given: one spec file with one category label that contains only whitespace.
+    spec_path = tmp_path / "blank-category-label.yaml"
+    _write_json(
+        spec_path,
+        {
+            "slug": "age-attitudes",
+            "title": "Age Attitudes IAT",
+            "description": "Measures associations about age.",
+            "categories": [
+                {
+                    "category": [
+                        {
+                            "slug": "young",
+                            "label": "Young",
+                            "stimuli": [{"text": "youth"}],
+                        },
+                        {
+                            "slug": "old",
+                            "label": "   ",
+                            "stimuli": [{"text": "elder"}],
+                        },
+                    ]
+                },
+                {
+                    "category": [
+                        {
+                            "slug": "pleasant",
+                            "label": "Pleasant",
+                            "stimuli": [{"text": "joy"}],
+                        },
+                        {
+                            "slug": "unpleasant",
+                            "label": "Unpleasant",
+                            "stimuli": [{"text": "pain"}],
+                        },
+                    ]
+                },
+            ],
+        },
+    )
+
+    # When: the invalid spec is loaded through the typed model.
+    # Then: validation rejects the blank category label.
+    with pytest.raises(ValidationError, match="at least 1 character"):
+        IatSpec.from_yaml_file(spec_path)
+
+
+def test_iat_spec_rejects_empty_category_stimuli_list(tmp_path: Path) -> None:
+    # Given: one spec file with one category that defines no stimuli.
+    spec_path = tmp_path / "empty-category-stimuli.yaml"
+    _write_json(
+        spec_path,
+        {
+            "slug": "age-attitudes",
+            "title": "Age Attitudes IAT",
+            "description": "Measures associations about age.",
+            "categories": [
+                {
+                    "category": [
+                        {
+                            "slug": "young",
+                            "label": "Young",
+                            "stimuli": [],
+                        },
+                        {
+                            "slug": "old",
+                            "label": "Old",
+                            "stimuli": [{"text": "elder"}],
+                        },
+                    ]
+                },
+                {
+                    "category": [
+                        {
+                            "slug": "pleasant",
+                            "label": "Pleasant",
+                            "stimuli": [{"text": "joy"}],
+                        },
+                        {
+                            "slug": "unpleasant",
+                            "label": "Unpleasant",
+                            "stimuli": [{"text": "pain"}],
+                        },
+                    ]
+                },
+            ],
+        },
+    )
+
+    # When: the invalid spec is loaded through the typed model.
+    # Then: validation rejects the empty category stimuli list.
+    with pytest.raises(ValidationError, match="at least 1 item"):
+        IatSpec.from_yaml_file(spec_path)
