@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Literal
 
 import accelerate  # noqa: F401
 import torch
+import torchvision  # noqa: F401
 import transformers  # noqa: F401
 from diffusers import StableDiffusion3Pipeline
 

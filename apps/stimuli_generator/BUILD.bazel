@@ -12,6 +12,7 @@ py_library(
         "@pip//diffusers",
         "@pip//pillow",
         "@pip//torch",
+        "@pip//torchvision",
         "@pip//transformers",
     ],
 )
