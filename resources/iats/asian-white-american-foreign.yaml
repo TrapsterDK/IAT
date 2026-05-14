@@ -1,38 +1,40 @@
 slug: asian-white-american-foreign
 title: Asian White American Foreign IAT
-# yamllint disable rule:line-length
-description: "Measures the implicit association between race and nationality. You will sort images of Asian and White faces with images of American and Foreign landmarks, often revealing stereotypes about who is considered 'American'."
-# yamllint enable rule:line-length
+description: >-
+  Measures the implicit association between race and nationality.
+  You will sort images of Asian and White faces
+  with images of American and Foreign landmarks,
+  often revealing stereotypes about who is considered 'American'.
 categories:
   - category:
       - slug: asian
         label: Asian
         stimuli:
-          - image: project-implicit/asian-white-faces-landmarks/AFE021.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AFE071.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AFE081.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AFE831.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AFE851.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AFE871.jpg
+          - image: ../stimuli/face/asian/images/asian-seed-0.png
+          - image: ../stimuli/face/asian/images/asian-seed-1.png
+          - image: ../stimuli/face/asian/images/asian-seed-2.png
+          - image: ../stimuli/face/asian/images/asian-seed-3.png
+          - image: ../stimuli/face/asian/images/asian-seed-4.png
+          - image: ../stimuli/face/asian/images/asian-seed-5.png
       - slug: white
         label: White
         stimuli:
-          - image: project-implicit/asian-white-faces-landmarks/AME002.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AME003.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AME006.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AME009.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AME011.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AME021.jpg
+          - image: ../stimuli/face/white/images/white-seed-0.png
+          - image: ../stimuli/face/white/images/white-seed-1.png
+          - image: ../stimuli/face/white/images/white-seed-2.png
+          - image: ../stimuli/face/white/images/white-seed-3.png
+          - image: ../stimuli/face/white/images/white-seed-4.png
+          - image: ../stimuli/face/white/images/white-seed-5.png
   - category:
       - slug: american
         label: American
         stimuli:
-          - image: project-implicit/asian-white-faces-landmarks/AME821.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AME831.jpg
-          - image: project-implicit/asian-white-faces-landmarks/AME871.jpg
+          - image: ../stimuli/landmark/american/images/american-seed-0.png
+          - image: ../stimuli/landmark/american/images/american-seed-1.png
+          - image: ../stimuli/landmark/american/images/american-seed-2.png
       - slug: foreign
         label: Foreign
         stimuli:
-          - image: project-implicit/asian-white-faces-landmarks/FOR001.jpg
-          - image: project-implicit/asian-white-faces-landmarks/FOR002.jpg
-          - image: project-implicit/asian-white-faces-landmarks/FOR003.jpg
+          - image: ../stimuli/landmark/foreign/images/foreign-seed-0.png
+          - image: ../stimuli/landmark/foreign/images/foreign-seed-1.png
+          - image: ../stimuli/landmark/foreign/images/foreign-seed-2.png

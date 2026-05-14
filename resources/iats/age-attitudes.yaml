@@ -1,24 +1,26 @@
 slug: age-attitudes
 title: Age Attitudes IAT
-# yamllint disable rule:line-length
-description: "Measures automatic preferences regarding age. You will sort images of young and old faces alongside 'Pleasant' and 'Unpleasant' words. This often reveals an implicit preference for younger people."
-# yamllint enable rule:line-length
+description: >-
+  Measures automatic preferences regarding age.
+  You will sort images of young and old faces
+  alongside 'Pleasant' and 'Unpleasant' words.
+  This often reveals an implicit preference for younger people.
 categories:
   - category:
       - slug: young
         label: Young
         stimuli:
-          - image: project-implicit/age-faces/yf1.jpg
-          - image: project-implicit/age-faces/yf4.jpg
-          - image: project-implicit/age-faces/ym2.jpg
-          - image: project-implicit/age-faces/ym3.jpg
+          - image: ../stimuli/face/young/images/young-seed-0.png
+          - image: ../stimuli/face/young/images/young-seed-1.png
+          - image: ../stimuli/face/young/images/young-seed-2.png
+          - image: ../stimuli/face/young/images/young-seed-3.png
       - slug: old
         label: Old
         stimuli:
-          - image: project-implicit/age-faces/of1.jpg
-          - image: project-implicit/age-faces/of2.jpg
-          - image: project-implicit/age-faces/om1.jpg
-          - image: project-implicit/age-faces/om2.jpg
+          - image: ../stimuli/face/old/images/old-seed-0.png
+          - image: ../stimuli/face/old/images/old-seed-1.png
+          - image: ../stimuli/face/old/images/old-seed-2.png
+          - image: ../stimuli/face/old/images/old-seed-3.png
   - category:
       - slug: pleasant
         label: Pleasant

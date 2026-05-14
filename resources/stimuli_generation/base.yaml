@@ -1,5 +1,5 @@
 stimuli_generation:
-  count: 12
+  count: 6
   seed_start: 0
   image:
     width: 1024

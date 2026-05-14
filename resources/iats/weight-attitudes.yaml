@@ -1,8 +1,10 @@
 slug: weight-attitudes
 title: Weight Attitudes IAT
-# yamllint disable rule:line-length
-description: "Measures automatic preferences regarding weight. You will sort words related to 'Thin' and 'Fat' alongside 'Pleasant' and 'Unpleasant' words. This often reveals an implicit preference for thin people over fat people."
-# yamllint enable rule:line-length
+description: >-
+  Measures automatic preferences regarding weight.
+  You will sort words related to 'Thin' and 'Fat'
+  alongside 'Pleasant' and 'Unpleasant' words.
+  This often reveals an implicit preference for thin people over fat people.
 categories:
   - category:
       - slug: thin

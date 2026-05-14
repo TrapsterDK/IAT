@@ -1,36 +1,38 @@
 slug: age-gender
 title: Age Gender IAT
-# yamllint disable rule:line-length
-description: "Measures the automatic association between age and gender. You will sort images of young/old faces and male/female faces, revealing potential stereotypes."
-# yamllint enable rule:line-length
+description: >-
+  Measures the automatic association between age and gender.
+  You will sort images of young and old faces
+  with images of women and men,
+  revealing potential stereotypes.
 categories:
   - category:
       - slug: young
         label: Young
         stimuli:
-          - image: project-implicit/age-faces/yf1.jpg
-          - image: project-implicit/age-faces/yf4.jpg
-          - image: project-implicit/age-faces/ym2.jpg
-          - image: project-implicit/age-faces/ym3.jpg
+          - image: ../stimuli/face/young/images/young-seed-0.png
+          - image: ../stimuli/face/young/images/young-seed-1.png
+          - image: ../stimuli/face/young/images/young-seed-2.png
+          - image: ../stimuli/face/young/images/young-seed-3.png
       - slug: old
         label: Old
         stimuli:
-          - image: project-implicit/age-faces/of1.jpg
-          - image: project-implicit/age-faces/of2.jpg
-          - image: project-implicit/age-faces/om1.jpg
-          - image: project-implicit/age-faces/om2.jpg
+          - image: ../stimuli/face/old/images/old-seed-0.png
+          - image: ../stimuli/face/old/images/old-seed-1.png
+          - image: ../stimuli/face/old/images/old-seed-2.png
+          - image: ../stimuli/face/old/images/old-seed-3.png
   - category:
       - slug: women
         label: Women
         stimuli:
-          - image: project-implicit/age-faces/yf5.jpg
-          - image: project-implicit/age-faces/of3.jpg
-          - image: project-implicit/age-faces/yf1.jpg
-          - image: project-implicit/age-faces/of2.jpg
+          - image: ../stimuli/face/women/images/women-seed-0.png
+          - image: ../stimuli/face/women/images/women-seed-1.png
+          - image: ../stimuli/face/women/images/women-seed-2.png
+          - image: ../stimuli/face/women/images/women-seed-3.png
       - slug: men
         label: Men
         stimuli:
-          - image: project-implicit/age-faces/ym5.jpg
-          - image: project-implicit/age-faces/om3.jpg
-          - image: project-implicit/age-faces/ym3.jpg
-          - image: project-implicit/age-faces/om1.jpg
+          - image: ../stimuli/face/men/images/men-seed-0.png
+          - image: ../stimuli/face/men/images/men-seed-1.png
+          - image: ../stimuli/face/men/images/men-seed-2.png
+          - image: ../stimuli/face/men/images/men-seed-3.png
