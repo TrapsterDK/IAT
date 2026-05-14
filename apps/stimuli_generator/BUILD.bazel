@@ -8,9 +8,11 @@ py_library(
     visibility = ["//:__subpackages__"],
     deps = [
         ":specs",
+        "@pip//accelerate",
         "@pip//diffusers",
         "@pip//pillow",
         "@pip//torch",
+        "@pip//transformers",
     ],
 )
 
