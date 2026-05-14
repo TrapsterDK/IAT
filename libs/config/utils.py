@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class ConfigFormat(Enum):
-    """Supported on-disk config serialization formats."""
+    """Supported file formats for typed config models."""
 
     YAML = "yaml"
     JSON = "json"

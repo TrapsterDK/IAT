@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Annotated, Literal
+from pathlib import Path
+from typing import Annotated, Literal
 
 import typer
 
 from apps.stimuli_generator.backend_sd35 import generate_images
 from apps.stimuli_generator.specs import StimulusGenerationSpec
 from libs.bazel.workspace import get_build_working_directory
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def generate(
