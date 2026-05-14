@@ -1,20 +1,12 @@
-slug: gender-science
-title: Gender Science IAT
+slug: female-male-science-liberal-arts
+title: Female Male Science Liberal Arts IAT
 description: >-
-  Measures the automatic association between gender and academic disciplines.
-  You will sort words related to 'Male' and 'Female'
-  with words related to 'Science' and 'Liberal Arts',
-  often revealing a stereotype associating men with science
-  and women with liberal arts.
+  Measures the automatic association between female and male terms
+  and academic disciplines.
+  You will sort words related to 'Female' and 'Male'
+  with words related to 'Science' and 'Liberal Arts'.
 categories:
   - category:
-      - slug: male
-        label: Male
-        stimuli:
-          - text: man
-          - text: boy
-          - text: father
-          - text: uncle
       - slug: female
         label: Female
         stimuli:
@@ -22,6 +14,13 @@ categories:
           - text: girl
           - text: mother
           - text: aunt
+      - slug: male
+        label: Male
+        stimuli:
+          - text: man
+          - text: boy
+          - text: father
+          - text: uncle
   - category:
       - slug: science
         label: Science

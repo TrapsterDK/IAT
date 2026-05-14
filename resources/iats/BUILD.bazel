@@ -1,20 +1,20 @@
 package(default_visibility = ["//:__subpackages__"])
 
 filegroup(
-    name = "age-attitudes",
-    srcs = ["age-attitudes.yaml"],
+    name = "young-old-pleasant-unpleasant",
+    srcs = ["young-old-pleasant-unpleasant.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "age-gender",
-    srcs = ["age-gender.yaml"],
+    name = "young-old-female-male",
+    srcs = ["young-old-female-male.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "asian-white-american-foreign",
-    srcs = ["asian-white-american-foreign.yaml"],
+    name = "asian-black-pleasant-unpleasant",
+    srcs = ["asian-black-pleasant-unpleasant.yaml"],
     tags = ["yaml"],
 )
 
@@ -25,20 +25,20 @@ filegroup(
 )
 
 filegroup(
-    name = "gender-science",
-    srcs = ["gender-science.yaml"],
+    name = "female-male-science-liberal-arts",
+    srcs = ["female-male-science-liberal-arts.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "race-attitudes",
-    srcs = ["race-attitudes.yaml"],
+    name = "white-black-pleasant-unpleasant",
+    srcs = ["white-black-pleasant-unpleasant.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "weight-attitudes",
-    srcs = ["weight-attitudes.yaml"],
+    name = "thin-fat-pleasant-unpleasant",
+    srcs = ["thin-fat-pleasant-unpleasant.yaml"],
     tags = ["yaml"],
 )
 

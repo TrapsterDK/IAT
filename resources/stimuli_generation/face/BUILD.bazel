@@ -1,50 +1,92 @@
 package(default_visibility = ["//:__subpackages__"])
 
 filegroup(
-    name = "asian",
-    srcs = ["asian.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
     name = "base",
     srcs = ["base.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "black",
-    srcs = ["black.yaml"],
+    name = "female-asian",
+    srcs = ["female-asian.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "men",
-    srcs = ["men.yaml"],
+    name = "female-black",
+    srcs = ["female-black.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "old",
-    srcs = ["old.yaml"],
+    name = "female-white-caucasian",
+    srcs = ["female-white-caucasian.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "white",
-    srcs = ["white.yaml"],
+    name = "female-white-caucasian-fat",
+    srcs = ["female-white-caucasian-fat.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "women",
-    srcs = ["women.yaml"],
+    name = "female-white-caucasian-old",
+    srcs = ["female-white-caucasian-old.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "young",
-    srcs = ["young.yaml"],
+    name = "female-white-caucasian-thin",
+    srcs = ["female-white-caucasian-thin.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "female-white-caucasian-young",
+    srcs = ["female-white-caucasian-young.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "male-asian",
+    srcs = ["male-asian.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "male-black",
+    srcs = ["male-black.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "male-white-caucasian",
+    srcs = ["male-white-caucasian.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "male-white-caucasian-fat",
+    srcs = ["male-white-caucasian-fat.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "male-white-caucasian-old",
+    srcs = ["male-white-caucasian-old.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "male-white-caucasian-thin",
+    srcs = ["male-white-caucasian-thin.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "male-white-caucasian-young",
+    srcs = ["male-white-caucasian-young.yaml"],
     tags = ["yaml"],
 )
 

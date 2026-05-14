@@ -1,0 +1,37 @@
+slug: thin-fat-pleasant-unpleasant
+title: Thin Fat Pleasant Unpleasant IAT
+description: >-
+  Measures automatic preferences regarding thin and fat people.
+  You will sort these images
+  alongside 'Pleasant' and 'Unpleasant' words.
+categories:
+  - category:
+      - slug: thin
+        label: Thin
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian-thin/images/seed-0.png
+          - image: ../stimuli/face/female-white-caucasian-thin/images/seed-1.png
+          - image: ../stimuli/face/male-white-caucasian-thin/images/seed-0.png
+          - image: ../stimuli/face/male-white-caucasian-thin/images/seed-1.png
+      - slug: fat
+        label: Fat
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian-fat/images/seed-0.png
+          - image: ../stimuli/face/female-white-caucasian-fat/images/seed-1.png
+          - image: ../stimuli/face/male-white-caucasian-fat/images/seed-0.png
+          - image: ../stimuli/face/male-white-caucasian-fat/images/seed-1.png
+  - category:
+      - slug: pleasant
+        label: Pleasant
+        stimuli:
+          - text: joy
+          - text: happy
+          - text: peace
+          - text: love
+      - slug: unpleasant
+        label: Unpleasant
+        stimuli:
+          - text: pain
+          - text: nasty
+          - text: evil
+          - text: awful

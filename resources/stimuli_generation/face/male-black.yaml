@@ -1,0 +1,37 @@
+extends: ./base.yaml
+slug: male-black
+description: Synthetic Black adult men portrait stimuli.
+stimuli_generation:
+  prompts:
+    prompt: >-
+      standardized studio portrait,
+      waist-up portrait,
+      one person,
+      centered composition,
+      facing camera,
+      neutral expression,
+      closed mouth,
+      plain light gray background,
+      even soft lighting,
+      eye-level camera,
+      85mm portrait lens,
+      consistent camera distance,
+      consistent head size in frame,
+      photographic reference image,
+      highly controlled composition,
+      a Black man between 30 and 45 years old
+    prompt_3: >-
+      A standardized studio portrait
+      of one person photographed from the waist up.
+      The person is centered in frame,
+      facing directly forward at eye level,
+      with a neutral expression and closed mouth.
+      The camera distance, subject scale,
+      lighting, and background should be consistent across images.
+      Use even soft lighting,
+      a plain light gray background,
+      no accessories,
+      no text,
+      and no other people.
+      The subject should read clearly
+      as a Black man between 30 and 45 years old.

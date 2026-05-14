@@ -1,0 +1,37 @@
+slug: young-old-pleasant-unpleasant
+title: Young Old Pleasant Unpleasant IAT
+description: >-
+  Measures automatic preferences regarding young and old faces.
+  You will sort these faces
+  alongside 'Pleasant' and 'Unpleasant' words.
+categories:
+  - category:
+      - slug: young
+        label: Young
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian-young/images/seed-0.png
+          - image: ../stimuli/face/female-white-caucasian-young/images/seed-1.png
+          - image: ../stimuli/face/male-white-caucasian-young/images/seed-0.png
+          - image: ../stimuli/face/male-white-caucasian-young/images/seed-1.png
+      - slug: old
+        label: Old
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian-old/images/seed-0.png
+          - image: ../stimuli/face/female-white-caucasian-old/images/seed-1.png
+          - image: ../stimuli/face/male-white-caucasian-old/images/seed-0.png
+          - image: ../stimuli/face/male-white-caucasian-old/images/seed-1.png
+  - category:
+      - slug: pleasant
+        label: Pleasant
+        stimuli:
+          - text: joy
+          - text: peace
+          - text: love
+          - text: wonderful
+      - slug: unpleasant
+        label: Unpleasant
+        stimuli:
+          - text: pain
+          - text: terrible
+          - text: horrible
+          - text: evil

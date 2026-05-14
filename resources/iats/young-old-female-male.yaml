@@ -1,0 +1,37 @@
+slug: young-old-female-male
+title: Young Old Female Male IAT
+description: >-
+  Measures the automatic association between age and gender.
+  You will sort images of young and old faces
+  with images of female and male faces.
+categories:
+  - category:
+      - slug: young
+        label: Young
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian-young/images/seed-2.png
+          - image: ../stimuli/face/female-white-caucasian-young/images/seed-3.png
+          - image: ../stimuli/face/male-white-caucasian-young/images/seed-2.png
+          - image: ../stimuli/face/male-white-caucasian-young/images/seed-3.png
+      - slug: old
+        label: Old
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian-old/images/seed-2.png
+          - image: ../stimuli/face/female-white-caucasian-old/images/seed-3.png
+          - image: ../stimuli/face/male-white-caucasian-old/images/seed-2.png
+          - image: ../stimuli/face/male-white-caucasian-old/images/seed-3.png
+  - category:
+      - slug: female
+        label: Female
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian/images/seed-0.png
+          - image: ../stimuli/face/female-white-caucasian/images/seed-1.png
+          - image: ../stimuli/face/female-white-caucasian/images/seed-2.png
+          - image: ../stimuli/face/female-white-caucasian/images/seed-3.png
+      - slug: male
+        label: Male
+        stimuli:
+          - image: ../stimuli/face/male-white-caucasian/images/seed-0.png
+          - image: ../stimuli/face/male-white-caucasian/images/seed-1.png
+          - image: ../stimuli/face/male-white-caucasian/images/seed-2.png
+          - image: ../stimuli/face/male-white-caucasian/images/seed-3.png

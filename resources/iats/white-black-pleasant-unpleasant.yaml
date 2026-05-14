@@ -1,0 +1,37 @@
+slug: white-black-pleasant-unpleasant
+title: White Black Pleasant Unpleasant IAT
+description: >-
+  Measures automatic preferences regarding White and Black faces.
+  You will sort these faces
+  alongside 'Pleasant' and 'Unpleasant' words.
+categories:
+  - category:
+      - slug: white
+        label: White
+        stimuli:
+          - image: ../stimuli/face/female-white-caucasian/images/seed-0.png
+          - image: ../stimuli/face/female-white-caucasian/images/seed-1.png
+          - image: ../stimuli/face/male-white-caucasian/images/seed-0.png
+          - image: ../stimuli/face/male-white-caucasian/images/seed-1.png
+      - slug: black
+        label: Black
+        stimuli:
+          - image: ../stimuli/face/female-black/images/seed-0.png
+          - image: ../stimuli/face/female-black/images/seed-1.png
+          - image: ../stimuli/face/male-black/images/seed-0.png
+          - image: ../stimuli/face/male-black/images/seed-1.png
+  - category:
+      - slug: pleasant
+        label: Pleasant
+        stimuli:
+          - text: joy
+          - text: peace
+          - text: love
+          - text: wonder
+      - slug: unpleasant
+        label: Unpleasant
+        stimuli:
+          - text: pain
+          - text: filth
+          - text: grief
+          - text: evil
