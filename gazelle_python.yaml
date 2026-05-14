@@ -8,6 +8,8 @@ manifest:
   modules_mapping:
     81d243bd2c585b0f4821__mypyc: charset_normalizer
     IPython: ipython
+    PIL: pillow
+    accelerate: accelerate
     annotated_doc: annotated_doc
     annotated_types: annotated_types
     anyio: anyio
@@ -16,30 +18,49 @@ manifest:
     certifi: certifi
     charset_normalizer: charset_normalizer
     click: click
+    cuda.bindings: cuda_bindings
+    cuda.pathfinder: cuda_pathfinder
     decorator: decorator
+    diffusers: diffusers
     docstring_parser: docstring_parser_fork
-    dotenv: python_dotenv
     executing: executing
     fastapi: fastapi
     filelock: filelock
+    fsspec: fsspec
+    functorch: torch
     gdown: gdown
+    google.protobuf: protobuf
     greenlet: greenlet
     h11: h11
+    hf_xet: hf_xet
     httpcore: httpcore
     httpx: httpx
+    huggingface_hub: huggingface_hub
     idna: idna
+    importlib_metadata: importlib_metadata
     iniconfig: iniconfig
     ipython_pygments_lexers: ipython_pygments_lexers
+    isympy: sympy
     jedi: jedi
+    jinja2: jinja2
     loguru: loguru
     markdown_it: markdown_it_py
+    markupsafe: markupsafe
     matplotlib_inline: matplotlib_inline
     mdurl: mdurl
+    mpmath: mpmath
     multipart: python_multipart
+    networkx: networkx
+    numpy: numpy
+    nvidia.cu13.lib.libcheckpoint: nvidia_cuda_cupti
+    nvidia.cu13.lib.libnvperf_host: nvidia_cuda_cupti
+    nvidia.cu13.lib.libnvperf_target: nvidia_cuda_cupti
+    nvidia.cu13.lib.libpcsamplingutil: nvidia_cuda_cupti
     packaging: packaging
     parso: parso
     pathspec: pathspec
     pexpect: pexpect
+    pkg_resources: setuptools
     pluggy: pluggy
     prompt_toolkit: prompt_toolkit
     psutil: psutil
@@ -48,14 +69,17 @@ manifest:
     py: pytest
     pydantic: pydantic
     pydantic_core: pydantic_core
-    pydantic_settings: pydantic_settings
     pydoclint: pydoclint
     pygments: pygments
     pytest: pytest
     python_multipart: python_multipart
+    regex: regex
     requests: requests
     rich: rich
     ruff: ruff
+    safetensors: safetensors
+    sentencepiece: sentencepiece
+    setuptools: setuptools
     shellingham: shellingham
     socks: PySocks
     sockshandler: PySocks
@@ -63,8 +87,15 @@ manifest:
     sqlalchemy: sqlalchemy
     stack_data: stack_data
     starlette: starlette
+    sympy: sympy
+    tokenizers: tokenizers
+    tomli_w: tomli_w
+    torch: torch
+    torchgen: torch
     tqdm: tqdm
     traitlets: traitlets
+    transformers: transformers
+    triton: triton
     ty: ty
     typer: typer
     typing_extensions: typing_extensions
@@ -74,6 +105,7 @@ manifest:
     wcwidth: wcwidth
     yaml: pyyaml
     yamllint: yamllint
+    zipp: zipp
   pip_repository:
     name: pip
-integrity: c205905d9f054626b4946838a1d16ac3d576d86885413e4d4f7874e15f36a04b
+integrity: 288c79a4c470365288b6a96cd9f98eeba139dcc820410508eddba523f775f528

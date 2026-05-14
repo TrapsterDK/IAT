@@ -24,6 +24,8 @@ bazel_env_rule(
         "buildifier": "@buildifier_prebuilt//:buildifier",
         "configure": "//tools/cli:configure",
         "format": "//tools/cli:format",
+        "hf": "//tools/python:hf",
+        "huggingface-cli": "//tools/python:hf",
         "lint": "//tools/cli:lint",
         "node": "$(NODE_PATH)",
         "npm": "$(NPM_PATH)",
