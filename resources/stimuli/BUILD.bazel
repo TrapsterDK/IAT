@@ -1,0 +1,28 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "pngs",
+    srcs = [
+        "//resources/stimuli/face/female-asian:images",
+        "//resources/stimuli/face/female-black:images",
+        "//resources/stimuli/face/female-white-caucasian:images",
+        "//resources/stimuli/face/female-white-caucasian-fat:images",
+        "//resources/stimuli/face/female-white-caucasian-old:images",
+        "//resources/stimuli/face/female-white-caucasian-thin:images",
+        "//resources/stimuli/face/female-white-caucasian-young:images",
+        "//resources/stimuli/face/male-asian:images",
+        "//resources/stimuli/face/male-black:images",
+        "//resources/stimuli/face/male-white-caucasian:images",
+        "//resources/stimuli/face/male-white-caucasian-fat:images",
+        "//resources/stimuli/face/male-white-caucasian-old:images",
+        "//resources/stimuli/face/male-white-caucasian-thin:images",
+        "//resources/stimuli/face/male-white-caucasian-young:images",
+    ],
+    tags = ["png"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

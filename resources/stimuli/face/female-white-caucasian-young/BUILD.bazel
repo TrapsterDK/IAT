@@ -1,0 +1,22 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "images",
+    srcs = glob(["images/*.png"]),
+    tags = ["png"],
+)
+
+filegroup(
+    name = "manifest",
+    srcs = ["manifest.yaml"],
+    tags = [
+        "no-lint",
+        "yaml",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

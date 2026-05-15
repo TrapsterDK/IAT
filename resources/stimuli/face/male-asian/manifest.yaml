@@ -30,9 +30,9 @@ stimuli_generation:
     max_sequence_length: 256
     num_inference_steps: 32
     skip_guidance_layers:
-    - 7
-    - 8
-    - 9
+      - 7
+      - 8
+      - 9
     skip_layer_guidance_scale: 2.8
     skip_layer_guidance_start: 0.01
     skip_layer_guidance_stop: 0.2

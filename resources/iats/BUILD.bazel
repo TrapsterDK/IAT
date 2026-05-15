@@ -1,6 +1,20 @@
 package(default_visibility = ["//:__subpackages__"])
 
 filegroup(
+    name = "all",
+    srcs = [
+        ":asian-black-pleasant-unpleasant",
+        ":asian-white-pleasant-unpleasant",
+        ":female-male-science-liberal-arts",
+        ":thin-fat-pleasant-unpleasant",
+        ":white-black-pleasant-unpleasant",
+        ":young-old-female-male",
+        ":young-old-pleasant-unpleasant",
+    ],
+    tags = ["yaml"],
+)
+
+filegroup(
     name = "young-old-pleasant-unpleasant",
     srcs = ["young-old-pleasant-unpleasant.yaml"],
     tags = ["yaml"],
