@@ -8,7 +8,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-from apps.backend.config import IatResourcesSettings
+from apps.backend.config import DEFAULT_ENABLED_IATS, IatResourcesSettings
 
 
 def _write_yaml(path: Path, payload: object) -> None:
@@ -42,7 +42,7 @@ def test_iat_resource_settings_default_paths_and_enabled_iats() -> None:
 
     # Then: the model uses the default IAT path and enabled slug list.
     assert settings.iat_directory == Path("resources/iats")
-    assert settings.enabled_iats == []
+    assert settings.enabled_iats == DEFAULT_ENABLED_IATS
 
 
 def test_iat_resource_settings_reject_unknown_fields(tmp_path: Path) -> None:
