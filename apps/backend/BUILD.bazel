@@ -114,9 +114,12 @@ py_test(
     srcs = ["app_test.py"],
     deps = [
         ":app",
+        ":models",
         ":settings",
         "//libs/testing:io",
         "//third_party/python/fastapi:testclient",
+        "@pip//pydantic",
+        "@pip//pytest",
     ],
 )
 
