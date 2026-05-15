@@ -5,17 +5,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
-import yaml
 from pydantic import ValidationError
 
 from apps.stimuli_generator.specs import StimulusGenerationBatchSpec, StimulusGenerationSpec
+from libs.testing.io import write_yaml
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-
-def _write_yaml(path: Path, payload: object) -> None:
-    path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
 
 def _valid_spec_payload() -> dict[str, Any]:
@@ -46,7 +42,7 @@ def _valid_spec_payload() -> dict[str, Any]:
 def test_stimulus_generation_spec_loads_valid_yaml_file(tmp_path: Path) -> None:
     # Given: one valid generation spec file written in YAML.
     spec_path = tmp_path / "valid-spec.yaml"
-    _write_yaml(spec_path, _valid_spec_payload())
+    write_yaml(spec_path, _valid_spec_payload())
 
     # When: the spec is loaded through the typed model.
     resolved_spec = StimulusGenerationSpec.from_file(spec_path)
@@ -61,7 +57,7 @@ def test_stimulus_generation_spec_merges_extended_yaml_files(tmp_path: Path) -> 
     # Given: one base YAML spec file and one child YAML spec file that overrides nested fields.
     base_path = tmp_path / "base.yaml"
     child_path = tmp_path / "white.yaml"
-    _write_yaml(
+    write_yaml(
         base_path,
         {
             "stimuli_generation": {
@@ -81,7 +77,7 @@ def test_stimulus_generation_spec_merges_extended_yaml_files(tmp_path: Path) -> 
             }
         },
     )
-    _write_yaml(
+    write_yaml(
         child_path,
         {
             "extends": "./base.yaml",
@@ -114,7 +110,7 @@ def test_stimulus_generation_spec_rejects_image_width_not_divisible_by_8(tmp_pat
     spec_path = tmp_path / "invalid-image-width.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["stimuli_generation"]["image"]["width"] = 510
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the invalid image dimensions.
@@ -127,7 +123,7 @@ def test_stimulus_generation_spec_rejects_image_height_not_divisible_by_8(tmp_pa
     spec_path = tmp_path / "invalid-image-height.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["stimuli_generation"]["image"]["height"] = 510
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the invalid image dimensions.
@@ -140,7 +136,7 @@ def test_stimulus_generation_spec_rejects_empty_prompt(tmp_path: Path) -> None:
     spec_path = tmp_path / "invalid-prompt.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["stimuli_generation"]["prompts"]["prompt"] = ""
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the blank prompt.
@@ -153,7 +149,7 @@ def test_stimulus_generation_spec_rejects_empty_prompt_3(tmp_path: Path) -> None
     spec_path = tmp_path / "invalid-prompt-3.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["stimuli_generation"]["prompts"]["prompt_3"] = ""
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the blank prompt_3 value.
@@ -166,7 +162,7 @@ def test_stimulus_generation_spec_rejects_empty_model_identifier(tmp_path: Path)
     spec_path = tmp_path / "invalid-model.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["stimuli_generation"]["model"]["id"] = ""
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the blank model identifier.
@@ -179,7 +175,7 @@ def test_stimulus_generation_spec_rejects_empty_model_revision(tmp_path: Path) -
     spec_path = tmp_path / "invalid-model-revision.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["stimuli_generation"]["model"]["revision"] = ""
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the blank model revision.
@@ -195,7 +191,7 @@ def test_stimulus_generation_spec_rejects_skip_layer_guidance_stop_before_start(
         "skip_layer_guidance_start": 0.4,
         "skip_layer_guidance_stop": 0.2,
     }
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the invalid skip-layer guidance range.
@@ -211,7 +207,7 @@ def test_stimulus_generation_spec_rejects_empty_slug(tmp_path: Path) -> None:
     spec_path = tmp_path / "invalid-slug.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["slug"] = ""
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the blank spec slug.
@@ -224,7 +220,7 @@ def test_stimulus_generation_spec_rejects_empty_description(tmp_path: Path) -> N
     spec_path = tmp_path / "invalid-description.yaml"
     invalid_payload = _valid_spec_payload()
     invalid_payload["description"] = ""
-    _write_yaml(spec_path, invalid_payload)
+    write_yaml(spec_path, invalid_payload)
 
     # When: the invalid spec is loaded through the typed model.
     # Then: validation rejects the blank spec description.
@@ -235,7 +231,7 @@ def test_stimulus_generation_spec_rejects_empty_description(tmp_path: Path) -> N
 def test_stimulus_generation_batch_spec_rejects_duplicate_output_directories(tmp_path: Path) -> None:
     # Given: one batch file with two jobs that use the same output directory.
     batch_path = tmp_path / "duplicate-output-dir.yaml"
-    _write_yaml(
+    write_yaml(
         batch_path,
         {
             "jobs": [
@@ -255,3 +251,29 @@ def test_stimulus_generation_batch_spec_rejects_duplicate_output_directories(tmp
     # Then: validation rejects duplicate output directories.
     with pytest.raises(ValidationError, match=r"Each generated spec must use its own output directory\."):
         StimulusGenerationBatchSpec.from_file(batch_path)
+
+
+def test_stimulus_generation_batch_spec_resolves_paths_relative_to_batch_file(tmp_path: Path) -> None:
+    # Given: one batch file with relative spec and output_dir paths.
+    batch_path = tmp_path / "jobs/batch.yaml"
+    write_yaml(
+        batch_path,
+        {
+            "jobs": [
+                {
+                    "spec": "../specs/white.yaml",
+                    "output_dir": "../out/white",
+                }
+            ]
+        },
+    )
+    spec_path = tmp_path / "specs/white.yaml"
+    write_yaml(spec_path, _valid_spec_payload())
+    output_dir = tmp_path / "out/white"
+
+    # When: the batch spec is resolved against the batch file directory.
+    resolved_batch = StimulusGenerationBatchSpec.from_file(batch_path).resolve(batch_path.parent)
+
+    # Then: both paths resolve to absolute validated paths.
+    assert resolved_batch.jobs[0].spec == spec_path.resolve()
+    assert resolved_batch.jobs[0].output_dir == output_dir.resolve()

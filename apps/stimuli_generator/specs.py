@@ -9,7 +9,8 @@ from pydantic import Field, model_validator
 
 from libs.config.config import ConfigModel
 from libs.config.extending_config import ExtendingConfigModel
-from libs.pydantic.types import NonBlankString  # noqa: TC001
+from libs.path.path import resolve_path
+from libs.pydantic.types import AbsoluteFilePath, AbsolutePath, NonBlankString  # noqa: TC001
 
 
 class ImageSettings(ConfigModel):
@@ -84,6 +85,20 @@ class StimulusGenerationBatchJob(ConfigModel):
     spec: Path
     output_dir: Path
 
+    def resolve(self, base_directory: Path) -> ResolvedStimulusGenerationBatchJob:
+        """Resolve one batch job against one batch-file directory.
+
+        Args:
+            base_directory: Directory used for relative path resolution.
+
+        Returns:
+            The resolved batch job.
+        """
+        return ResolvedStimulusGenerationBatchJob(
+            spec=resolve_path(self.spec, base_directory),
+            output_dir=resolve_path(self.output_dir, base_directory),
+        )
+
 
 class StimulusGenerationBatchSpec(ConfigModel):
     """Explicit batch input for multiple generation jobs."""
@@ -102,3 +117,29 @@ class StimulusGenerationBatchSpec(ConfigModel):
             raise ValueError("Each generated spec must use its own output directory.")
 
         return self
+
+    def resolve(self, base_directory: Path) -> ResolvedStimulusGenerationBatchSpec:
+        """Resolve one batch spec against one batch-file directory.
+
+        Args:
+            base_directory: Directory used for relative path resolution.
+
+        Returns:
+            The resolved batch spec.
+        """
+        return ResolvedStimulusGenerationBatchSpec(
+            jobs=[job.resolve(base_directory) for job in self.jobs],
+        )
+
+
+class ResolvedStimulusGenerationBatchJob(StimulusGenerationBatchJob):
+    """One batch job whose paths have been resolved to absolute paths."""
+
+    spec: AbsoluteFilePath
+    output_dir: AbsolutePath
+
+
+class ResolvedStimulusGenerationBatchSpec(StimulusGenerationBatchSpec):
+    """One batch spec whose jobs have been resolved to absolute paths."""
+
+    jobs: list[ResolvedStimulusGenerationBatchJob] = Field(min_length=1)

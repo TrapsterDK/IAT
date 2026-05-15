@@ -21,24 +21,9 @@ from apps.stimuli_generator.stable_diffusion_3_5 import (
     load_pipeline,
 )
 from libs.bazel.workspace import get_build_working_directory
+from libs.path.path import resolve_path
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
-
-
-def _resolve_path(path: Path, working_directory: Path) -> Path:
-    """Resolve one CLI path against the Bazel working directory.
-
-    Args:
-        path: The user-supplied path.
-        working_directory: The Bazel-aware working directory.
-
-    Returns:
-        The resolved absolute path.
-    """
-    resolved_path = path.expanduser()
-    if not resolved_path.is_absolute():
-        resolved_path = working_directory / resolved_path
-    return resolved_path.resolve()
 
 
 def _run_generation(
@@ -107,11 +92,12 @@ def generate_command(
         show_progress: Whether to show Hugging Face progress bars.
     """
     working_directory = get_build_working_directory(os.environ) or Path.cwd()
+    resolved_spec_path = resolve_path(spec_path.expanduser(), working_directory)
     _run_generation(
         [
             (
-                StimulusGenerationSpec.from_file(_resolve_path(spec_path, working_directory)),
-                _resolve_path(output_dir, working_directory),
+                StimulusGenerationSpec.from_file(resolved_spec_path),
+                resolve_path(output_dir.expanduser(), working_directory),
             )
         ],
         device,
@@ -133,17 +119,13 @@ def batch_command(
         show_progress: Whether to show Hugging Face progress bars.
     """
     working_directory = get_build_working_directory(os.environ) or Path.cwd()
-    resolved_batch_path = _resolve_path(batch_path, working_directory)
-    batch = StimulusGenerationBatchSpec.from_file(resolved_batch_path)
+    resolved_batch_path = resolve_path(batch_path.expanduser(), working_directory)
+    batch = StimulusGenerationBatchSpec.from_file(resolved_batch_path).resolve(resolved_batch_path.parent)
     _run_generation(
         [
             (
-                StimulusGenerationSpec.from_file(
-                    (resolved_batch_path.parent / job.spec).resolve() if not job.spec.is_absolute() else job.spec
-                ),
-                (resolved_batch_path.parent / job.output_dir).resolve()
-                if not job.output_dir.is_absolute()
-                else job.output_dir,
+                StimulusGenerationSpec.from_file(job.spec),
+                job.output_dir,
             )
             for job in batch.jobs
         ],

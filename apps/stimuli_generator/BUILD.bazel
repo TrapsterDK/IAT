@@ -25,6 +25,7 @@ py_binary(
         ":specs",
         ":stable_diffusion_3_5",
         "//libs/bazel:workspace",
+        "//libs/path",
         "@pip//diffusers",
         "@pip//huggingface_hub",
         "@pip//transformers",
@@ -39,6 +40,7 @@ py_library(
     deps = [
         "//libs/config",
         "//libs/config:extending_config",
+        "//libs/path",
         "//libs/pydantic:types",
         "@pip//pydantic",
     ],
@@ -49,9 +51,9 @@ py_test(
     srcs = ["specs_test.py"],
     deps = [
         ":specs",
+        "//libs/testing:io",
         "@pip//pydantic",
         "@pip//pytest",
-        "@pip//pyyaml",
     ],
 )
 
