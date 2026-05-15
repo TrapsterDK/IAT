@@ -10,7 +10,7 @@ from libs.pydantic.types import NonBlankString  # noqa: TC001
 class StimulusResponse(BaseModel):
     """One public text or image stimulus returned by the backend."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     text: NonBlankString | None = None
     image_url: NonBlankString | None = None
@@ -31,7 +31,7 @@ class StimulusResponse(BaseModel):
 class CategoryResponse(BaseModel):
     """One labeled category in one public IAT response."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     slug: NonBlankString
     label: NonBlankString
@@ -41,7 +41,7 @@ class CategoryResponse(BaseModel):
 class CategoryPairResponse(BaseModel):
     """One two-category block in one public IAT response."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     category: tuple[CategoryResponse, CategoryResponse]
 
@@ -49,7 +49,7 @@ class CategoryPairResponse(BaseModel):
 class IatSummaryResponse(BaseModel):
     """Summary metadata for one IAT."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     slug: NonBlankString
     title: NonBlankString

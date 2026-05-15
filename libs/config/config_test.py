@@ -267,6 +267,19 @@ def test_config_model_validation_runs_after_mapping_file_loading(tmp_path: Path)
         ExampleConfig.from_file(config_path)
 
 
+def test_config_model_is_frozen() -> None:
+    # Given: one validated config model instance.
+    class ExampleConfig(ConfigModel):
+        name: str
+
+    resolved_config = ExampleConfig(name="stable")
+
+    # When: one field is reassigned after validation.
+    # Then: the frozen config model rejects mutation.
+    with pytest.raises(ValidationError, match="Instance is frozen"):
+        resolved_config.name = "changed"
+
+
 def test_config_model_rejects_unsupported_suffix(tmp_path: Path) -> None:
     # Given: one unsupported config file extension.
     config_path = tmp_path / "config.ini"

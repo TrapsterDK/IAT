@@ -112,6 +112,55 @@ def test_iat_spec_coerces_yaml_lists_to_tuples(tmp_path: Path) -> None:
     assert resolved_spec.slug == "tuple-shape"
 
 
+def test_iat_spec_is_frozen_after_loading(tmp_path: Path) -> None:
+    # Given: one valid IAT spec file written in YAML.
+    spec_path = tmp_path / "valid-spec.yaml"
+    write_json(
+        spec_path,
+        {
+            "slug": "age-attitudes",
+            "title": "Age Attitudes IAT",
+            "description": "Measures associations about age.",
+            "categories": [
+                {
+                    "category": [
+                        {
+                            "slug": "young",
+                            "label": "Young",
+                            "stimuli": [{"text": "youth"}],
+                        },
+                        {
+                            "slug": "old",
+                            "label": "Old",
+                            "stimuli": [{"text": "elder"}],
+                        },
+                    ]
+                },
+                {
+                    "category": [
+                        {
+                            "slug": "pleasant",
+                            "label": "Pleasant",
+                            "stimuli": [{"text": "joy"}],
+                        },
+                        {
+                            "slug": "unpleasant",
+                            "label": "Unpleasant",
+                            "stimuli": [{"text": "pain"}],
+                        },
+                    ]
+                },
+            ],
+        },
+    )
+    resolved_spec = IatSpec.from_yaml_file(spec_path)
+
+    # When: one top-level field is reassigned after loading.
+    # Then: the frozen spec model rejects mutation.
+    with pytest.raises(ValidationError, match="Instance is frozen"):
+        resolved_spec.slug = "changed"
+
+
 def test_iat_spec_resolve_returns_absolute_png_paths(tmp_path: Path) -> None:
     # Given: one valid IAT spec that references one relative PNG file.
     spec_path = tmp_path / "resources/iats/sample-iat.yaml"

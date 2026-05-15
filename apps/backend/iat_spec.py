@@ -14,7 +14,7 @@ from libs.pydantic.types import AbsoluteFilePath, NonBlankString  # noqa: TC001
 class StimulusSpec(BaseModel):
     """One text or image stimulus inside one IAT category."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     text: NonBlankString | None = None
     image: Path | None = None
@@ -58,7 +58,7 @@ class StimulusSpec(BaseModel):
 class CategorySpec(BaseModel):
     """One labeled category inside an IAT pair."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     slug: NonBlankString
     label: NonBlankString
@@ -83,7 +83,7 @@ class CategorySpec(BaseModel):
 class CategoryPairSpec(BaseModel):
     """One two-category block in an IAT spec."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     category: tuple[CategorySpec, CategorySpec]
 

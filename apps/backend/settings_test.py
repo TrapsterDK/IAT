@@ -64,6 +64,16 @@ def test_iat_resource_settings_reject_duplicate_iat_paths() -> None:
         IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"), Path("resources/iats/sample-iat.yaml")))
 
 
+def test_iat_resource_settings_are_frozen() -> None:
+    # Given: one validated backend settings model.
+    settings = IatResourcesSettings(iats=())
+
+    # When: one field is reassigned after validation.
+    # Then: the frozen settings model rejects mutation.
+    with pytest.raises(ValidationError, match="Instance is frozen"):
+        settings.debug = False
+
+
 def test_iat_resource_settings_resolve_rejects_missing_iat_file(tmp_path: Path) -> None:
     # Given: one settings model that references one IAT file that does not exist.
     settings = IatResourcesSettings(iats=(Path("resources/iats/missing-iat.yaml"),))

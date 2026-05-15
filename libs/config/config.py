@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class ConfigModel(BaseModel):
     """Typed config model loaded from one file without inheritance."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     @classmethod
     def from_file(cls, path: Path) -> Self:

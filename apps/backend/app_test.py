@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from apps.backend.app import create_app
+from apps.backend.models import StimulusResponse
 from apps.backend.settings import IAT_RESOURCES_CONFIG_PATH_ENV_VAR, IatResourcesSettings, load_settings
 from libs.testing.io import TEST_PNG_SIGNATURE, write_json, write_png
 
@@ -175,3 +178,13 @@ def test_create_app_uses_debug_setting(tmp_path: Path) -> None:
 
     # Then: the FastAPI debug mode follows the provided settings.
     assert app.debug is False
+
+
+def test_backend_response_models_are_frozen() -> None:
+    # Given: one validated public response model.
+    stimulus = StimulusResponse(text="alpha")
+
+    # When: one field is reassigned after validation.
+    # Then: the frozen response model rejects mutation.
+    with pytest.raises(ValidationError, match="Instance is frozen"):
+        stimulus.text = "beta"
