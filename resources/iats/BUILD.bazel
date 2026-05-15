@@ -1,29 +1,9 @@
 package(default_visibility = ["//:__subpackages__"])
 
 filegroup(
-    name = "all",
-    srcs = [
-        ":asian-black-pleasant-unpleasant",
-        ":asian-white-pleasant-unpleasant",
-        ":female-male-science-liberal-arts",
-        ":thin-fat-pleasant-unpleasant",
-        ":white-black-pleasant-unpleasant",
-        ":young-old-female-male",
-        ":young-old-pleasant-unpleasant",
-    ],
-    tags = ["yaml"],
-)
-
-filegroup(
-    name = "young-old-pleasant-unpleasant",
-    srcs = ["young-old-pleasant-unpleasant.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
-    name = "young-old-female-male",
-    srcs = ["young-old-female-male.yaml"],
-    tags = ["yaml"],
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
 )
 
 filegroup(
@@ -45,19 +25,25 @@ filegroup(
 )
 
 filegroup(
-    name = "white-black-pleasant-unpleasant",
-    srcs = ["white-black-pleasant-unpleasant.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
     name = "thin-fat-pleasant-unpleasant",
     srcs = ["thin-fat-pleasant-unpleasant.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "build_bazel",
-    srcs = ["BUILD.bazel"],
-    tags = ["starlark"],
+    name = "white-black-pleasant-unpleasant",
+    srcs = ["white-black-pleasant-unpleasant.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "young-old-female-male",
+    srcs = ["young-old-female-male.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "young-old-pleasant-unpleasant",
+    srcs = ["young-old-pleasant-unpleasant.yaml"],
+    tags = ["yaml"],
 )

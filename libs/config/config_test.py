@@ -46,53 +46,6 @@ def test_config_model_loads_each_supported_file_format(
     assert resolved_config.count == expected_count
 
 
-def test_config_model_loads_from_environment_variable(tmp_path: Path) -> None:
-    # Given: one config file path stored in one explicit environment mapping.
-    config_path = tmp_path / "config.yaml"
-    config_path.write_text("name: yaml\ncount: 1\n", encoding="utf-8")
-
-    class ExampleConfig(ConfigModel):
-        name: str
-        count: int
-
-    explicit_environment = {"EXAMPLE_CONFIG_PATH": str(config_path)}
-
-    # When: the model is loaded from that environment variable.
-    resolved_config = ExampleConfig.from_env("EXAMPLE_CONFIG_PATH", explicit_environment)
-
-    # Then: the environment variable path is decoded and validated as one config model.
-    assert resolved_config is not None
-    assert resolved_config.name == "yaml"
-    assert resolved_config.count == 1
-
-
-def test_config_model_from_environment_variable_returns_none_when_unset() -> None:
-    # Given: one explicit environment mapping without the requested config variable.
-    class ExampleConfig(ConfigModel):
-        name: str
-
-    explicit_environment: dict[str, str] = {}
-
-    # When: the model is loaded from the missing environment variable.
-    resolved_config = ExampleConfig.from_env("EXAMPLE_CONFIG_PATH", explicit_environment)
-
-    # Then: the caller receives `None` and can fall back to in-code defaults.
-    assert resolved_config is None
-
-
-def test_config_model_from_environment_variable_rejects_blank_paths() -> None:
-    # Given: one explicit environment mapping with a blank config path.
-    class ExampleConfig(ConfigModel):
-        name: str
-
-    explicit_environment = {"EXAMPLE_CONFIG_PATH": "   "}
-
-    # When: the model is loaded from the blank environment variable.
-    # Then: the loader rejects the invalid path value.
-    with pytest.raises(ExtendingConfigError, match="EXAMPLE_CONFIG_PATH"):
-        ExampleConfig.from_env("EXAMPLE_CONFIG_PATH", explicit_environment)
-
-
 def test_config_model_supports_yaml_explicit_loader(tmp_path: Path) -> None:
     # Given: one YAML config file.
     config_path = tmp_path / "config.yaml"

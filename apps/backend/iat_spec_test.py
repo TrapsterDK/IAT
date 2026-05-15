@@ -2,26 +2,22 @@
 
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING
 
 import pytest
 from pydantic import ValidationError
 
 from apps.backend.iat_spec import IatSpec
+from libs.testing.io import write_json, write_png
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
-def _write_json(path: Path, payload: object) -> None:
-    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-
-
 def test_iat_spec_loads_valid_yaml_file(tmp_path: Path) -> None:
     # Given: one valid IAT spec file written in YAML.
     spec_path = tmp_path / "valid-spec.yaml"
-    _write_json(
+    write_json(
         spec_path,
         {
             "slug": "age-attitudes",
@@ -67,10 +63,10 @@ def test_iat_spec_loads_valid_yaml_file(tmp_path: Path) -> None:
     assert resolved_spec.slug == "age-attitudes"
 
 
-def test_iat_spec_coerces_yaml_lists_to_fixed_length_tuples(tmp_path: Path) -> None:
-    # Given: one spec file written with YAML lists for its category pairs and categories.
+def test_iat_spec_coerces_yaml_lists_to_tuples(tmp_path: Path) -> None:
+    # Given: one spec file written with YAML lists for category pairs, categories, and stimuli.
     spec_path = tmp_path / "tuple-shape.yaml"
-    _write_json(
+    write_json(
         spec_path,
         {
             "slug": "tuple-shape",
@@ -116,10 +112,111 @@ def test_iat_spec_coerces_yaml_lists_to_fixed_length_tuples(tmp_path: Path) -> N
     assert resolved_spec.slug == "tuple-shape"
 
 
+def test_iat_spec_resolve_returns_absolute_png_paths(tmp_path: Path) -> None:
+    # Given: one valid IAT spec that references one relative PNG file.
+    spec_path = tmp_path / "resources/iats/sample-iat.yaml"
+    image_path = tmp_path / "resources/stimuli/face/example/images/seed-0.png"
+    write_png(image_path)
+    write_json(
+        spec_path,
+        {
+            "slug": "sample-iat",
+            "title": "Sample IAT",
+            "description": "Measures one sample association.",
+            "categories": [
+                {
+                    "category": [
+                        {
+                            "slug": "alpha",
+                            "label": "Alpha",
+                            "stimuli": [{"image": "../stimuli/face/example/images/seed-0.png"}],
+                        },
+                        {
+                            "slug": "beta",
+                            "label": "Beta",
+                            "stimuli": [{"text": "beta"}],
+                        },
+                    ]
+                },
+                {
+                    "category": [
+                        {
+                            "slug": "gamma",
+                            "label": "Gamma",
+                            "stimuli": [{"text": "gamma"}],
+                        },
+                        {
+                            "slug": "delta",
+                            "label": "Delta",
+                            "stimuli": [{"text": "delta"}],
+                        },
+                    ]
+                },
+            ],
+        },
+    )
+    raw_spec = IatSpec.from_yaml_file(spec_path)
+
+    # When: the spec resolves its image paths against the spec directory.
+    resolved_spec = raw_spec.resolve(spec_path.parent)
+
+    # Then: the image path becomes one absolute file path.
+    assert resolved_spec.categories[0].category[0].stimuli[0].image == image_path
+
+
+def test_iat_spec_resolve_rejects_missing_image_files(tmp_path: Path) -> None:
+    # Given: one valid IAT spec that references one PNG file that does not exist.
+    spec_path = tmp_path / "resources/iats/sample-iat.yaml"
+    write_json(
+        spec_path,
+        {
+            "slug": "sample-iat",
+            "title": "Sample IAT",
+            "description": "Measures one sample association.",
+            "categories": [
+                {
+                    "category": [
+                        {
+                            "slug": "alpha",
+                            "label": "Alpha",
+                            "stimuli": [{"image": "../stimuli/face/example/images/seed-0.png"}],
+                        },
+                        {
+                            "slug": "beta",
+                            "label": "Beta",
+                            "stimuli": [{"text": "beta"}],
+                        },
+                    ]
+                },
+                {
+                    "category": [
+                        {
+                            "slug": "gamma",
+                            "label": "Gamma",
+                            "stimuli": [{"text": "gamma"}],
+                        },
+                        {
+                            "slug": "delta",
+                            "label": "Delta",
+                            "stimuli": [{"text": "delta"}],
+                        },
+                    ]
+                },
+            ],
+        },
+    )
+    raw_spec = IatSpec.from_yaml_file(spec_path)
+
+    # When: the spec resolves its image paths against the spec directory.
+    # Then: the missing file is rejected.
+    with pytest.raises(ValueError, match="Stimulus file does not exist"):
+        raw_spec.resolve(spec_path.parent)
+
+
 def test_iat_spec_rejects_duplicate_category_slugs(tmp_path: Path) -> None:
     # Given: one spec file that reuses one category slug across the two category pairs.
     spec_path = tmp_path / "duplicate-category.yaml"
-    _write_json(
+    write_json(
         spec_path,
         {
             "slug": "invalid-spec",
@@ -167,7 +264,7 @@ def test_iat_spec_rejects_duplicate_category_slugs(tmp_path: Path) -> None:
 def test_iat_spec_rejects_blank_category_label(tmp_path: Path) -> None:
     # Given: one spec file with one category label that contains only whitespace.
     spec_path = tmp_path / "blank-category-label.yaml"
-    _write_json(
+    write_json(
         spec_path,
         {
             "slug": "age-attitudes",
@@ -215,7 +312,7 @@ def test_iat_spec_rejects_blank_category_label(tmp_path: Path) -> None:
 def test_iat_spec_rejects_empty_category_stimuli_list(tmp_path: Path) -> None:
     # Given: one spec file with one category that defines no stimuli.
     spec_path = tmp_path / "empty-category-stimuli.yaml"
-    _write_json(
+    write_json(
         spec_path,
         {
             "slug": "age-attitudes",

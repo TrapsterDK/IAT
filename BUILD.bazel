@@ -41,6 +41,7 @@ exports_files(
 # gazelle:map_kind py_binary py_binary //tools/python:defs.bzl
 # gazelle:map_kind py_library py_library //tools/python:defs.bzl
 # gazelle:map_kind py_test py_test //tools/python:defs.bzl
+# gazelle:resolve py fastapi.testclient //third_party/python/fastapi:testclient
 
 npm_link_all_packages(name = "node_modules")
 

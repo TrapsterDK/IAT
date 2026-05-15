@@ -1,13 +1,61 @@
-load("//tools/python:defs.bzl", "py_library", "py_test")
+load("//tools/python:defs.bzl", "py_binary", "py_library", "py_test")
 
 package(default_visibility = ["//:__subpackages__"])
 
 py_library(
-    name = "config",
-    srcs = ["config.py"],
+    name = "models",
+    srcs = ["models.py"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//libs/pydantic:types",
+        "@pip//pydantic",
+    ],
+)
+
+py_library(
+    name = "dependencies",
+    srcs = ["dependencies.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend/services:iat",
+        "@pip//fastapi",
+    ],
+)
+
+py_library(
+    name = "app",
+    srcs = ["app.py"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":dependencies",
+        ":settings",
+        "//apps/backend/repositories:iat",
+        "//apps/backend/routers:iats",
+        "//apps/backend/routers:stimuli",
+        "//apps/backend/services:iat",
+        "@pip//fastapi",
+    ],
+)
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":app",
+        ":settings",
+        "@pip//uvicorn",
+    ],
+)
+
+py_library(
+    name = "settings",
+    srcs = ["settings.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/bazel:workspace",
         "//libs/config",
+        "//libs/path",
         "//libs/pydantic:types",
         "@pip//pydantic",
     ],
@@ -19,6 +67,7 @@ py_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//libs/config",
+        "//libs/path",
         "//libs/pydantic:types",
         "@pip//pydantic",
     ],
@@ -29,19 +78,45 @@ py_test(
     srcs = ["iat_spec_test.py"],
     deps = [
         ":iat_spec",
+        "//libs/testing:io",
         "@pip//pydantic",
         "@pip//pytest",
     ],
 )
 
 py_test(
-    name = "config_test",
-    srcs = ["config_test.py"],
+    name = "settings_test",
+    srcs = ["settings_test.py"],
     deps = [
-        ":config",
+        ":settings",
+        "//libs/testing:io",
         "@pip//pydantic",
         "@pip//pytest",
-        "@pip//pyyaml",
+    ],
+)
+
+py_test(
+    name = "dependencies_test",
+    srcs = ["dependencies_test.py"],
+    deps = [
+        ":dependencies",
+        ":settings",
+        "//apps/backend/repositories:iat",
+        "//apps/backend/services:iat",
+        "//third_party/python/fastapi:testclient",
+        "@pip//fastapi",
+        "@pip//pytest",
+    ],
+)
+
+py_test(
+    name = "app_test",
+    srcs = ["app_test.py"],
+    deps = [
+        ":app",
+        ":settings",
+        "//libs/testing:io",
+        "//third_party/python/fastapi:testclient",
     ],
 )
 

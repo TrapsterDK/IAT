@@ -1,22 +1,24 @@
 load("//tools/python:defs.bzl", "py_library", "py_test")
 
-package(default_visibility = ["//:__subpackages__"])
+package(
+    default_testonly = True,
+    default_visibility = ["//:__subpackages__"],
+)
 
 py_library(
-    name = "types",
-    srcs = ["types.py"],
+    name = "io",
+    srcs = ["io.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "@pip//pydantic",
+        "@pip//pyyaml",
     ],
 )
 
 py_test(
-    name = "types_test",
-    srcs = ["types_test.py"],
+    name = "io_test",
+    srcs = ["io_test.py"],
     deps = [
-        ":types",
-        "@pip//pydantic",
+        ":io",
         "@pip//pytest",
     ],
 )

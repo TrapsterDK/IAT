@@ -3,20 +3,22 @@ load("//tools/python:defs.bzl", "py_library", "py_test")
 package(default_visibility = ["//:__subpackages__"])
 
 py_library(
-    name = "types",
-    srcs = ["types.py"],
+    name = "iat",
+    srcs = ["iat.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "@pip//pydantic",
+        "//apps/backend:iat_spec",
+        "//apps/backend:settings",
     ],
 )
 
 py_test(
-    name = "types_test",
-    srcs = ["types_test.py"],
+    name = "iat_test",
+    srcs = ["iat_test.py"],
     deps = [
-        ":types",
-        "@pip//pydantic",
+        ":iat",
+        "//apps/backend:settings",
+        "//libs/testing:io",
         "@pip//pytest",
     ],
 )
