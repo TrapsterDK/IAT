@@ -24,9 +24,9 @@ Use `--bazel_flag=--config=ai` for quieter output.
 ## Examples
 
 ```bash
-tool lint --bazel_flag=--config=ai docs/README.md
-tool test --bazel_flag=--config=ai //tools/javascript:lock_test
-tool lint --bazel_flag=--config=ai --no-fix
+tool lint docs/README.md
+tool test //tools/javascript:lock_test
+tool lint --no-fix
 ```
 
 `tool format` takes file paths. `tool build`, `tool test`, and `tool lint` take Bazel labels, workspace-relative paths, or both.
