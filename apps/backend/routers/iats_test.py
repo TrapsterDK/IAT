@@ -7,13 +7,21 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from apps.backend.dependencies import BackendServices
+from apps.backend.dependencies import get_iat_service
 from apps.backend.repositories.iat import IatRepository
 from apps.backend.routers.iats import router
 from apps.backend.routers.stimuli import router as stimuli_router
 from apps.backend.services.iat import IatService
 from apps.backend.settings import IatResourcesSettings
 from libs.testing.io import write_json, write_png
+
+
+def _app_with_iat_service(iat_service: IatService) -> FastAPI:
+    app = FastAPI()
+    app.include_router(router, prefix="/api")
+    app.include_router(stimuli_router, prefix="/api")
+    app.dependency_overrides[get_iat_service] = lambda: iat_service
+    return app
 
 
 def test_list_iats_returns_summaries(tmp_path: Path) -> None:
@@ -41,10 +49,8 @@ def test_list_iats_returns_summaries(tmp_path: Path) -> None:
             ],
         },
     )
-    app = FastAPI()
-    app.include_router(router, prefix="/api")
-    app.state.services = BackendServices(
-        iat_service=IatService(
+    app = _app_with_iat_service(
+        IatService(
             IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
         )
     )
@@ -95,11 +101,8 @@ def test_get_iat_returns_detail_with_public_image_url(tmp_path: Path) -> None:
         },
     )
     write_png(image_path)
-    app = FastAPI()
-    app.include_router(router, prefix="/api")
-    app.include_router(stimuli_router, prefix="/api")
-    app.state.services = BackendServices(
-        iat_service=IatService(
+    app = _app_with_iat_service(
+        IatService(
             IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
         )
     )
@@ -117,11 +120,7 @@ def test_get_iat_returns_detail_with_public_image_url(tmp_path: Path) -> None:
 
 def test_get_iat_returns_not_found_for_unknown_slug(tmp_path: Path) -> None:
     # Given: one app with one empty IAT service.
-    app = FastAPI()
-    app.include_router(router, prefix="/api")
-    app.state.services = BackendServices(
-        iat_service=IatService(IatRepository(IatResourcesSettings(iats=()).resolve(tmp_path)))
-    )
+    app = _app_with_iat_service(IatService(IatRepository(IatResourcesSettings(iats=()).resolve(tmp_path))))
 
     # When: the client requests one unavailable IAT.
     with TestClient(app) as client:

@@ -8,12 +8,19 @@ import httpx
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from apps.backend.dependencies import BackendServices
+from apps.backend.dependencies import get_iat_service
 from apps.backend.repositories.iat import IatRepository
 from apps.backend.routers.stimuli import router
 from apps.backend.services.iat import IatService
 from apps.backend.settings import IatResourcesSettings
 from libs.testing.io import TEST_PNG_SIGNATURE, write_json, write_png
+
+
+def _app_with_iat_service(iat_service: IatService) -> FastAPI:
+    app = FastAPI()
+    app.include_router(router, prefix="/api")
+    app.dependency_overrides[get_iat_service] = lambda: iat_service
+    return app
 
 
 def test_get_stimulus_serves_png(tmp_path: Path) -> None:
@@ -54,9 +61,7 @@ def test_get_stimulus_serves_png(tmp_path: Path) -> None:
     assert published_iat is not None
     published_image = published_iat.categories[0][0].stimuli[0].image
     assert published_image is not None
-    app = FastAPI()
-    app.include_router(router, prefix="/api")
-    app.state.services = BackendServices(iat_service=service)
+    app = _app_with_iat_service(service)
 
     # When: the client requests the published PNG stimulus.
     with TestClient(app) as client:
@@ -70,11 +75,7 @@ def test_get_stimulus_serves_png(tmp_path: Path) -> None:
 
 def test_get_stimulus_returns_not_found_for_unknown_path(tmp_path: Path) -> None:
     # Given: one app with one empty IAT service.
-    app = FastAPI()
-    app.include_router(router, prefix="/api")
-    app.state.services = BackendServices(
-        iat_service=IatService(IatRepository(IatResourcesSettings(iats=()).resolve(tmp_path)))
-    )
+    app = _app_with_iat_service(IatService(IatRepository(IatResourcesSettings(iats=()).resolve(tmp_path))))
 
     # When: the client requests one unpublished stimulus path.
     with TestClient(app) as client:
