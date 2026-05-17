@@ -1,0 +1,42 @@
+--- a/py/private/run.tmpl.sh
++++ b/py/private/run.tmpl.sh
+@@ -35,9 +35,17 @@ function python_location {
+ }
+ 
+ VENV_TOOL="$(rlocation {{VENV_TOOL}})"
+-VIRTUAL_ENV="$(alocation "${RUNFILES_DIR}/{{ARG_VENV_NAME}}")"
++VENV_ROOT="$(alocation "${RUNFILES_DIR}")"
++VENV_TEMPLATE="${VENV_ROOT}/{{ARG_VENV_NAME}}.XXXXXX"
++VIRTUAL_ENV="$(mktemp -d "${VENV_TEMPLATE}")"
+ export VIRTUAL_ENV
+ 
++cleanup() {
++  rm -rf "${VIRTUAL_ENV}"
++}
++
++trap cleanup EXIT
++
+ "${VENV_TOOL}" \
+     --location "${VIRTUAL_ENV}" \
+     --python "$(python_location)" \
+@@ -45,7 +53,7 @@ VIRTUAL_ENV="$(alocation "${RUNFILES_DIR}/{{ARG_VENV_NAME}}")"
+     --python "$(python_location)" \
+     --pth-file "$(rlocation {{ARG_PTH_FILE}})" \
+     --collision-strategy "{{ARG_COLLISION_STRATEGY}}" \
+-    --venv-name "{{ARG_VENV_NAME}}"
++    --venv-name "$(basename "${VIRTUAL_ENV}")"
+ 
+ PATH="${VIRTUAL_ENV}/bin:${PATH}"
+ export PATH
+@@ -58,4 +66,10 @@ if [ -n "${BASH:-}" -o -n "${ZSH_VERSION:-}" ] ; then
+     hash -r 2> /dev/null
+ fi
+ 
+-exec "{{EXEC_PYTHON_BIN}}" {{INTERPRETER_FLAGS}} "$(rlocation {{ENTRYPOINT}})" "$@"
++set +e
++"{{EXEC_PYTHON_BIN}}" {{INTERPRETER_FLAGS}} "$(rlocation {{ENTRYPOINT}})" "$@"
++status=$?
++set -e
++trap - EXIT
++cleanup
++exit "$status"

@@ -1,0 +1,11 @@
+package(default_visibility = ["//:__subpackages__"])
+
+exports_files([
+    "unique_runtime_venv.patch",
+])
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

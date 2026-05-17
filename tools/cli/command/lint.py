@@ -22,7 +22,7 @@ def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
-def _apply_patch(path: Path, patch_executable: str, workspace: Path, *, dry_run: bool = False) -> None:
+def _apply_patch(path: Path, patch_executable: str, workspace: Path, dry_run: bool = False) -> None:
     command = [patch_executable]
     if dry_run:
         command.append("--dry-run")
