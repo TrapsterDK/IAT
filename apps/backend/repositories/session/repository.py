@@ -288,14 +288,18 @@ def _analyze_stored_trial_history(
 
         if not saw_history:
             if trial_event.trial_id != current_trial_id:
-                raise SessionConflictError("The block upload could not be committed because the session state is invalid.")
+                raise SessionConflictError(
+                    "The block upload could not be committed because the session state is invalid."
+                )
             saw_history = True
         elif trial_event.trial_id == current_trial_id + 1:
             if not current_trial_events or (
                 current_trial_events[-1].event_type is not TrialEventType.TIMEOUT
                 and current_trial_events[-1].elapsed_ms < anticipation_threshold_ms
             ):
-                raise SessionConflictError("The block upload could not be committed because the session state is invalid.")
+                raise SessionConflictError(
+                    "The block upload could not be committed because the session state is invalid."
+                )
             current_trial_id = trial_event.trial_id
             current_trial_events = []
         elif trial_event.trial_id != current_trial_id:
