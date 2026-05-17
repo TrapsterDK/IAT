@@ -1,16 +1,16 @@
-"""Runtime settings for backend IAT resource discovery."""
+"""Runtime settings for backend IAT resource and database discovery."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from libs.bazel.workspace import get_build_workspace_directory
 from libs.config.config import ConfigModel
 from libs.path.path import resolve_path
-from libs.pydantic.types import AbsoluteFilePath, NonBlankString, UniqueHashable  # noqa: TC001
+from libs.pydantic.types import AbsoluteFilePath, AbsolutePath, NonBlankString, UniqueHashable  # noqa: TC001
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -19,11 +19,14 @@ IAT_RESOURCES_CONFIG_PATH_ENV_VAR = "IAT_RESOURCES_CONFIG_PATH"
 
 
 class IatResourcesSettings(ConfigModel):
-    """Config that describes where backend IAT resources live."""
+    """Config that describes where backend resources and the local database live."""
 
     host: NonBlankString = "127.0.0.1"
     port: int = Field(default=8000, ge=0, le=65535)
     debug: bool = True
+    database_path: Path = Path("instance/backend.sqlite3")
+    anticipation_threshold_ms: int = Field(default=300, ge=0)
+    response_timeout_ms: int = Field(default=10_000, gt=0)
     iats: UniqueHashable[tuple[Path, ...]] = Field(
         default_factory=lambda: (
             Path("resources/iats/asian-black-pleasant-unpleasant.yaml"),
@@ -35,6 +38,18 @@ class IatResourcesSettings(ConfigModel):
             Path("resources/iats/young-old-pleasant-unpleasant.yaml"),
         )
     )
+
+    @model_validator(mode="after")
+    def validate_thresholds(self) -> IatResourcesSettings:
+        """Ensure response timing thresholds are internally consistent.
+
+        Returns:
+            The validated backend settings instance.
+        """
+        if self.anticipation_threshold_ms >= self.response_timeout_ms:
+            raise ValueError("The anticipation threshold must be smaller than the response timeout.")
+
+        return self
 
     def resolve(self, base_directory: Path) -> ResolvedIatResources:
         """Resolve configured resource paths against one base directory.
@@ -49,13 +64,17 @@ class IatResourcesSettings(ConfigModel):
             host=self.host,
             port=self.port,
             debug=self.debug,
+            database_path=resolve_path(self.database_path, base_directory),
+            anticipation_threshold_ms=self.anticipation_threshold_ms,
+            response_timeout_ms=self.response_timeout_ms,
             iats=tuple(resolve_path(iat_path, base_directory) for iat_path in self.iats),
         )
 
 
 class ResolvedIatResources(IatResourcesSettings):
-    """Resolved backend IAT resource config with absolute IAT file paths."""
+    """Resolved backend config with absolute paths for IAT files and the database."""
 
+    database_path: AbsolutePath
     iats: UniqueHashable[tuple[AbsoluteFilePath, ...]]
 
 

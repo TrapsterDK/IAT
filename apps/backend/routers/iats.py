@@ -7,19 +7,18 @@ from typing import TYPE_CHECKING, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from apps.backend.dependencies import get_iat_service
-from apps.backend.models import (
+from apps.backend.models.iat import (
     CategoryPairResponse,
     CategoryResponse,
     IatResponse,
     IatSummaryResponse,
     StimulusResponse,
 )
+from apps.backend.routers.stimuli import build_stimulus_url
 from apps.backend.services.iat import IatService  # noqa: TC001
 
 if TYPE_CHECKING:
-    from pathlib import PurePosixPath
-
-    from apps.backend.repositories.iat import (
+    from apps.backend.domain.iat.models import (
         PublishedCategory,
         PublishedCategoryPair,
         PublishedIat,
@@ -111,11 +110,7 @@ def _build_stimulus(stimulus: PublishedStimulus, request: Request) -> StimulusRe
     if stimulus.text is not None:
         return StimulusResponse(text=stimulus.text)
 
-    if stimulus.image is None:
+    if stimulus.image_path is None:
         raise ValueError("Published image stimuli must define one public image path.")
 
-    return StimulusResponse(image_url=_build_stimulus_url(request, stimulus.image))
-
-
-def _build_stimulus_url(request: Request, image: PurePosixPath) -> str:
-    return str(request.url_for("get_stimulus", stimulus_path=image.as_posix()).path)
+    return StimulusResponse(image_url=build_stimulus_url(request, stimulus.image_path))

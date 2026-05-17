@@ -7,10 +7,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path, PurePosixPath
 
-    from apps.backend.repositories.iat import (
-        IatRepository,
-        PublishedIat,
-    )
+    from apps.backend.domain.iat.models import PublishedIat
+    from apps.backend.repositories.iat import IatRepository
 
 
 class IatService:
@@ -52,4 +50,4 @@ class IatService:
         Returns:
             The resolved PNG path, or `None` when invalid.
         """
-        return self._repository.get_stimuli(image)
+        return self._repository.get_stimulus(image)

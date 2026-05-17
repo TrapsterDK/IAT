@@ -7,8 +7,9 @@ py_library(
     srcs = ["iat.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//apps/backend:iat_spec",
         "//apps/backend:settings",
+        "//apps/backend/domain/iat:models",
+        "//apps/backend/domain/iat:spec_models",
     ],
 )
 
@@ -17,9 +18,25 @@ py_test(
     srcs = ["iat_test.py"],
     deps = [
         ":iat",
+        "//apps/backend:conftest",
         "//apps/backend:settings",
         "//libs/testing:io",
         "@pip//pytest",
+    ],
+)
+
+py_test(
+    name = "session_test",
+    srcs = ["session_test.py"],
+    deps = [
+        "//apps/backend:conftest",
+        "//apps/backend:database",
+        "//apps/backend/domain/session:exceptions",
+        "//apps/backend/domain/session:models",
+        "//apps/backend/repositories/session:repository",
+        "//apps/backend/repositories/session:schema",
+        "@pip//pytest",
+        "@pip//sqlalchemy",
     ],
 )
 

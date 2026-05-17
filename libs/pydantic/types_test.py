@@ -7,7 +7,15 @@ from pathlib import Path
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from libs.pydantic.types import AbsoluteDirectoryPath, AbsoluteFilePath, AbsolutePath, UniqueHashable, UniqueUnhashable
+from libs.pydantic.types import (
+    AbsoluteDirectoryPath,
+    AbsoluteFilePath,
+    AbsolutePath,
+    NonBlankString,
+    NonBlankString255,
+    UniqueHashable,
+    UniqueUnhashable,
+)
 
 
 def test_absolute_path_accepts_absolute_path(tmp_path: Path) -> None:
@@ -19,6 +27,92 @@ def test_absolute_path_accepts_absolute_path(tmp_path: Path) -> None:
 
     # Then: the absolute path is accepted without existence checks.
     assert validated_path == absolute_path
+
+
+@pytest.mark.parametrize(
+    "string_type",
+    [
+        pytest.param(NonBlankString, id="non_blank_string"),
+        pytest.param(NonBlankString255, id="non_blank_string_255"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("raw_value", "expected_value"),
+    [
+        pytest.param("alpha", "alpha", id="already_trimmed"),
+        pytest.param(" alpha ", "alpha", id="surrounding_spaces"),
+        pytest.param("\tbravo\n", "bravo", id="tabs_and_newlines"),
+    ],
+)
+def test_non_blank_string_aliases_strip_whitespace(string_type: object, raw_value: str, expected_value: str) -> None:
+    # Given: one shared non-blank string alias and one value with optional surrounding whitespace.
+    adapter = TypeAdapter(string_type)
+
+    # When: the shared string alias validates the value.
+    validated_value = adapter.validate_python(raw_value)
+
+    # Then: surrounding whitespace is stripped while preserving the inner text.
+    assert validated_value == expected_value
+
+
+@pytest.mark.parametrize(
+    "string_type",
+    [
+        pytest.param(NonBlankString, id="non_blank_string"),
+        pytest.param(NonBlankString255, id="non_blank_string_255"),
+    ],
+)
+@pytest.mark.parametrize(
+    "raw_value",
+    [
+        pytest.param("", id="empty"),
+        pytest.param("   ", id="spaces"),
+        pytest.param("\t\n", id="tabs_and_newlines"),
+    ],
+)
+def test_non_blank_string_aliases_reject_blank_values(string_type: object, raw_value: str) -> None:
+    # Given: one shared non-blank string alias and one value that becomes blank after trimming.
+    adapter = TypeAdapter(string_type)
+
+    # When: the shared string alias validates the value.
+    # Then: blank values are rejected.
+    with pytest.raises(ValidationError, match="at least 1 character"):
+        adapter.validate_python(raw_value)
+
+
+@pytest.mark.parametrize(
+    ("raw_value", "expected_value"),
+    [
+        pytest.param("x" * 255, "x" * 255, id="exact_length_limit"),
+        pytest.param(f" {'x' * 255} ", "x" * 255, id="trimmed_to_length_limit"),
+    ],
+)
+def test_non_blank_string_255_accepts_values_up_to_its_length_limit(raw_value: str, expected_value: str) -> None:
+    # Given: one bounded non-blank string value at the maximum allowed length.
+    adapter = TypeAdapter(NonBlankString255)
+
+    # When: the bounded string alias validates the value.
+    validated_value = adapter.validate_python(raw_value)
+
+    # Then: values up to the length limit are accepted.
+    assert validated_value == expected_value
+
+
+@pytest.mark.parametrize(
+    ("raw_value", "expected_fragment"),
+    [
+        pytest.param("x" * 256, "at most 255 characters", id="one_over_limit"),
+        pytest.param(f" {'x' * 256} ", "at most 255 characters", id="trimmed_value_still_over_limit"),
+    ],
+)
+def test_non_blank_string_255_rejects_values_over_its_length_limit(raw_value: str, expected_fragment: str) -> None:
+    # Given: one bounded non-blank string value beyond the maximum length.
+    adapter = TypeAdapter(NonBlankString255)
+
+    # When: the shared string alias validates the value.
+    # Then: overlong values are rejected with the configured length limit.
+    with pytest.raises(ValidationError, match=expected_fragment):
+        adapter.validate_python(raw_value)
 
 
 def test_absolute_path_rejects_relative_path() -> None:

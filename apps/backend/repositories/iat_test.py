@@ -125,9 +125,11 @@ def test_get_iat_returns_published_stimuli(tmp_path: Path) -> None:
     assert published_iat.title == "Sample-Iat"
     assert published_iat.description == "sample-iat description."
     assert published_iat.categories[0][0].stimuli[0].text is None
-    assert published_iat.categories[0][0].stimuli[0].image == _published_image_path("sample-iat", "left", image_path)
+    assert published_iat.categories[0][0].stimuli[0].image_path == _published_image_path(
+        "sample-iat", "left", image_path
+    )
     assert published_iat.categories[0][0].stimuli[1].text == "left"
-    assert published_iat.categories[0][0].stimuli[1].image is None
+    assert published_iat.categories[0][0].stimuli[1].image_path is None
     assert published_iat.categories[0][1].stimuli[0].text == "right"
     assert published_iat.categories[1][0].stimuli[0].text == "up"
     assert published_iat.categories[1][1].stimuli[0].text == "down"
@@ -167,7 +169,7 @@ def test_get_iat_returns_none_for_unknown_slug(tmp_path: Path) -> None:
     assert published_iat is None
 
 
-def test_get_stimuli_returns_published_source_path(tmp_path: Path) -> None:
+def test_get_stimulus_returns_published_source_path(tmp_path: Path) -> None:
     # Given: one configured IAT that publishes one image outside the shared stimuli directory.
     resources_root = tmp_path / "resources"
     source_image_path = resources_root / "private/seed-0.png"
@@ -197,7 +199,7 @@ def test_get_stimuli_returns_published_source_path(tmp_path: Path) -> None:
     repository = IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
 
     # When: the repository resolves the published image path.
-    resolved_source_path = repository.get_stimuli(_published_image_path("sample-iat", "left", source_image_path))
+    resolved_source_path = repository.get_stimulus(_published_image_path("sample-iat", "left", source_image_path))
 
     # Then: the repository returns the original source image path.
     assert resolved_source_path == source_image_path
@@ -269,7 +271,7 @@ def test_rejects_duplicate_iat_slugs(tmp_path: Path) -> None:
         pytest.param(PurePosixPath("face/example/manifest.yaml"), id="unpublished_non_png_file"),
     ],
 )
-def test_get_stimuli_returns_none_for_unpublished_images(
+def test_get_stimulus_returns_none_for_unpublished_images(
     tmp_path: Path,
     published_image: PurePosixPath,
 ) -> None:
@@ -280,7 +282,7 @@ def test_get_stimuli_returns_none_for_unpublished_images(
     repository = IatRepository(IatResourcesSettings(iats=()).resolve(tmp_path))
 
     # When: the repository resolves one unpublished image path.
-    resolved_source_path = repository.get_stimuli(published_image)
+    resolved_source_path = repository.get_stimulus(published_image)
 
     # Then: the unpublished image path is rejected.
     assert resolved_source_path is None
@@ -328,6 +330,6 @@ def test_reuses_published_path_for_same_image(tmp_path: Path) -> None:
     # Then: the repeated source image gets the same published image key both times.
     assert published_iat is not None
     expected_image = _published_image_path("sample-iat", "left", image_path)
-    assert published_iat.categories[0][0].stimuli[0].image == expected_image
-    assert published_iat.categories[0][0].stimuli[1].image == expected_image
-    assert repository.get_stimuli(expected_image) == image_path
+    assert published_iat.categories[0][0].stimuli[0].image_path == expected_image
+    assert published_iat.categories[0][0].stimuli[1].image_path == expected_image
+    assert repository.get_stimulus(expected_image) == image_path

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 from pydantic import ValidationError
 
-from apps.backend.iat_spec import IatSpec
+from apps.backend.domain.iat.spec_models import IatSpec
 from libs.testing.io import write_json, write_png
 
 if TYPE_CHECKING:

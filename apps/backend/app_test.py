@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from apps.backend.app import create_app
-from apps.backend.models import StimulusResponse
+from apps.backend.models.iat import StimulusResponse
 from apps.backend.settings import IAT_RESOURCES_CONFIG_PATH_ENV_VAR, IatResourcesSettings, load_settings
 from libs.testing.io import TEST_PNG_SIGNATURE, write_json, write_png
 
@@ -178,6 +178,42 @@ def test_create_app_uses_debug_setting(tmp_path: Path) -> None:
 
     # Then: the FastAPI debug mode follows the provided settings.
     assert app.debug is False
+
+
+def test_create_app_wires_session_creation_route(tmp_path: Path) -> None:
+    # Given: one configured backend app with one published text-only IAT.
+    spec_path = tmp_path / "resources/iats/sample-iat.yaml"
+    write_json(
+        spec_path,
+        {
+            "slug": "sample-iat",
+            "title": "Sample IAT",
+            "description": "Measures one sample association.",
+            "categories": [
+                {
+                    "category": [
+                        {"slug": "alpha", "label": "Alpha", "stimuli": [{"text": "alpha"}]},
+                        {"slug": "beta", "label": "Beta", "stimuli": [{"text": "beta"}]},
+                    ]
+                },
+                {
+                    "category": [
+                        {"slug": "gamma", "label": "Gamma", "stimuli": [{"text": "gamma"}]},
+                        {"slug": "delta", "label": "Delta", "stimuli": [{"text": "delta"}]},
+                    ]
+                },
+            ],
+        },
+    )
+    settings = IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path)
+
+    # When: the client creates one participant session.
+    with TestClient(create_app(settings)) as client:
+        created_response = client.post("/api/sessions", json={"iat_slug": "sample-iat"})
+
+    # Then: the composed app exposes the session creation route and returns one bootstrap payload.
+    assert created_response.status_code == 201
+    assert created_response.json()["session_key"]
 
 
 def test_backend_response_models_are_frozen() -> None:

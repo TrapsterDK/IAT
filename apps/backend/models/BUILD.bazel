@@ -7,8 +7,8 @@ py_library(
     srcs = ["iat.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//apps/backend/domain/iat:models",
-        "//apps/backend/repositories:iat",
+        "//libs/pydantic:types",
+        "@pip//pydantic",
     ],
 )
 
@@ -17,12 +17,9 @@ py_library(
     srcs = ["session.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//apps/backend/domain/session:exceptions",
-        "//apps/backend/domain/session:execution",
         "//apps/backend/domain/session:models",
-        "//apps/backend/domain/session:run_plan_builder",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/repositories/session:repository",
+        "//libs/pydantic:types",
+        "@pip//pydantic",
     ],
 )
 
@@ -32,9 +29,8 @@ py_test(
     deps = [
         ":iat",
         "//apps/backend:conftest",
-        "//apps/backend:settings",
-        "//apps/backend/repositories:iat",
-        "//libs/testing:io",
+        "@pip//pydantic",
+        "@pip//pytest",
     ],
 )
 
@@ -44,11 +40,7 @@ py_test(
     deps = [
         ":session",
         "//apps/backend:conftest",
-        "//apps/backend/domain/iat:models",
-        "//apps/backend/domain/session:exceptions",
-        "//apps/backend/domain/session:models",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/repositories/session:repository",
+        "@pip//pydantic",
         "@pip//pytest",
     ],
 )

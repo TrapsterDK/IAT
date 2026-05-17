@@ -64,7 +64,7 @@ def test_get_iat_returns_published_iat(tmp_path: Path) -> None:
     assert resolved_iat is not None
     assert resolved_iat.slug == "sample-iat"
     assert resolved_iat.categories[0][0].stimuli[0].text is None
-    assert resolved_iat.categories[0][0].stimuli[0].image is not None
+    assert resolved_iat.categories[0][0].stimuli[0].image_path is not None
 
 
 def test_list_iats_returns_published_iats(tmp_path: Path) -> None:
@@ -169,7 +169,7 @@ def test_get_stimulus_returns_published_source_path(tmp_path: Path) -> None:
     # When: the service resolves one published stimulus path.
     published_iat = service.get_iat("sample-iat")
     assert published_iat is not None
-    published_image = published_iat.categories[0][0].stimuli[0].image
+    published_image = published_iat.categories[0][0].stimuli[0].image_path
     assert published_image is not None
     resolved_source_path = service.get_stimulus(published_image)
 

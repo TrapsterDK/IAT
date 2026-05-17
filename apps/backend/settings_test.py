@@ -25,6 +25,7 @@ def test_iat_resource_settings_load_from_yaml_file(tmp_path: Path) -> None:
             "host": "0.0.0.2",
             "port": 9000,
             "debug": False,
+            "database_path": "instance/test.sqlite3",
             "iats": ["resources/iats/age-attitudes.yaml"],
         },
     )
@@ -36,6 +37,7 @@ def test_iat_resource_settings_load_from_yaml_file(tmp_path: Path) -> None:
     assert settings.host == "0.0.0.2"
     assert settings.port == 9000
     assert settings.debug is False
+    assert settings.database_path == Path("instance/test.sqlite3")
     assert settings.iats == (Path("resources/iats/age-attitudes.yaml"),)
 
 
@@ -62,6 +64,15 @@ def test_iat_resource_settings_reject_duplicate_iat_paths() -> None:
     # Then: duplicate configured IAT paths are rejected.
     with pytest.raises(ValidationError, match="Collection items must be unique"):
         IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"), Path("resources/iats/sample-iat.yaml")))
+
+
+def test_iat_resource_settings_reject_inverted_response_thresholds() -> None:
+    # Given: one backend settings model whose anticipation threshold is not below the response timeout.
+
+    # When: the settings model is validated.
+    # Then: the inconsistent response timing configuration is rejected.
+    with pytest.raises(ValidationError, match="anticipation threshold must be smaller than the response timeout"):
+        IatResourcesSettings(anticipation_threshold_ms=1_000, response_timeout_ms=1_000, iats=())
 
 
 def test_iat_resource_settings_are_frozen() -> None:
@@ -102,6 +113,7 @@ def test_iat_resource_settings_resolve_returns_absolute_existing_iat_paths(tmp_p
     assert resolved_settings.host == "0.0.0.2"
     assert resolved_settings.port == 9002
     assert resolved_settings.debug is False
+    assert resolved_settings.database_path == (tmp_path / "instance/backend.sqlite3").resolve()
     assert resolved_settings.iats == (iat_path.resolve(),)
 
 
@@ -125,7 +137,7 @@ def test_resolved_iat_resources_reject_relative_iat_path(tmp_path: Path) -> None
     # When: the resolved settings model is validated.
     # Then: the relative IAT path is rejected by file validation before the absolute-path check.
     with pytest.raises(ValidationError, match="Path does not point to a file"):
-        ResolvedIatResources(iats=(Path("sample-iat.yaml"),))
+        ResolvedIatResources(database_path=tmp_path / "instance/backend.sqlite3", iats=(Path("sample-iat.yaml"),))
 
 
 def test_load_settings_uses_config_file_directory(tmp_path: Path) -> None:
@@ -141,6 +153,7 @@ def test_load_settings_uses_config_file_directory(tmp_path: Path) -> None:
             "host": "0.0.0.2",
             "port": 9001,
             "debug": False,
+            "database_path": "instance/iat.sqlite3",
             "iats": ["bundled-resources/iats/sample-iat.yaml"],
         },
     )
@@ -153,6 +166,7 @@ def test_load_settings_uses_config_file_directory(tmp_path: Path) -> None:
     assert resolved_settings.host == "0.0.0.2"
     assert resolved_settings.port == 9001
     assert resolved_settings.debug is False
+    assert resolved_settings.database_path == (config_directory / "instance/iat.sqlite3").resolve()
     assert resolved_settings.iats == (iat_path.resolve(),)
 
 
@@ -175,6 +189,7 @@ def test_load_settings_uses_workspace_default_without_config(tmp_path: Path) -> 
     resolved_settings = load_settings(environment)
 
     # Then: the default IAT paths resolve relative to the workspace root.
+    assert resolved_settings.database_path == (tmp_path / "instance/backend.sqlite3").resolve()
     assert resolved_settings.iats[0] == default_iat_paths[0].resolve()
 
 

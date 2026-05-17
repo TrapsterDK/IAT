@@ -5,13 +5,26 @@ from __future__ import annotations
 from pathlib import PurePosixPath
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 
 from apps.backend.dependencies import get_iat_service
 from apps.backend.services.iat import IatService  # noqa: TC001
 
 router = APIRouter(prefix="/stimuli", tags=["stimuli"])
+
+
+def build_stimulus_url(request: Request, image_path: PurePosixPath) -> str:
+    """Return the public API path for one published stimulus image.
+
+    Args:
+        request: Current request used for route generation.
+        image_path: Published stimulus path below the stimuli router.
+
+    Returns:
+        The public API path for the published stimulus image.
+    """
+    return str(request.url_for("get_stimulus", stimulus_path=image_path.as_posix()).path)
 
 
 @router.get("/{stimulus_path:path}")

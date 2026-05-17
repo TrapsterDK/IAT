@@ -7,9 +7,10 @@ py_library(
     srcs = ["iats.py"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":stimuli",
         "//apps/backend:dependencies",
-        "//apps/backend:models",
-        "//apps/backend/repositories:iat",
+        "//apps/backend/domain/iat:models",
+        "//apps/backend/models:iat",
         "//apps/backend/services:iat",
         "@pip//fastapi",
     ],
@@ -26,19 +27,28 @@ py_library(
     ],
 )
 
+py_library(
+    name = "sessions",
+    srcs = ["sessions.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":stimuli",
+        "//apps/backend:dependencies",
+        "//apps/backend/domain/session:exceptions",
+        "//apps/backend/domain/session:models",
+        "//apps/backend/models:session",
+        "//apps/backend/services:session",
+        "@pip//fastapi",
+    ],
+)
+
 py_test(
     name = "iats_test",
     srcs = ["iats_test.py"],
     deps = [
-        ":iats",
-        ":stimuli",
-        "//apps/backend:dependencies",
-        "//apps/backend:settings",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/services:iat",
-        "//libs/testing:io",
+        ":conftest",
+        "//apps/backend:conftest",
         "//third_party/python/fastapi:testclient",
-        "@pip//fastapi",
     ],
 )
 
@@ -46,15 +56,27 @@ py_test(
     name = "stimuli_test",
     srcs = ["stimuli_test.py"],
     deps = [
-        ":stimuli",
-        "//apps/backend:dependencies",
-        "//apps/backend:settings",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/services:iat",
+        ":conftest",
+        "//apps/backend:conftest",
         "//libs/testing:io",
         "//third_party/python/fastapi:testclient",
-        "@pip//fastapi",
         "@pip//httpx",
+    ],
+)
+
+py_test(
+    name = "sessions_test",
+    srcs = ["sessions_test.py"],
+    deps = [
+        ":conftest",
+        "//apps/backend:conftest",
+        "//apps/backend/domain/session:models",
+        "//apps/backend/models:session",
+        "//apps/backend/repositories/session:schema",
+        "//third_party/python/fastapi:testclient",
+        "@pip//fastapi",
+        "@pip//pytest",
+        "@pip//sqlalchemy",
     ],
 )
 
@@ -62,4 +84,26 @@ filegroup(
     name = "build_bazel",
     srcs = ["BUILD.bazel"],
     tags = ["starlark"],
+)
+
+py_library(
+    name = "conftest",
+    testonly = True,
+    srcs = ["conftest.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":iats",
+        ":stimuli",
+        "//apps/backend:app",
+        "//apps/backend:database",
+        "//apps/backend:dependencies",
+        "//apps/backend:settings",
+        "//apps/backend/repositories:iat",
+        "//apps/backend/services:iat",
+        "//libs/testing:io",
+        "//third_party/python/fastapi:testclient",
+        "@pip//fastapi",
+        "@pip//pytest",
+        "@pip//sqlalchemy",
+    ],
 )

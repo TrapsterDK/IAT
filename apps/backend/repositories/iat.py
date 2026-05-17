@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import base64
 import hashlib
-from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
 
-from apps.backend.iat_spec import (
+from apps.backend.domain.iat.models import PublishedCategory, PublishedIat, PublishedStimulus
+from apps.backend.domain.iat.spec_models import (
     IatSpec,
     ResolvedCategorySpec,
     ResolvedIatSpec,
@@ -19,36 +19,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from apps.backend.settings import ResolvedIatResources
-
-
-@dataclass(frozen=True, slots=True)
-class PublishedStimulus:
-    """One text or publicly exposed image stimulus."""
-
-    text: str | None = None
-    image: PurePosixPath | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class PublishedCategory:
-    """One published category in one IAT."""
-
-    slug: str
-    label: str
-    stimuli: tuple[PublishedStimulus, ...]
-
-
-type PublishedCategoryPair = tuple[PublishedCategory, PublishedCategory]
-
-
-@dataclass(frozen=True, slots=True)
-class PublishedIat:
-    """One published IAT with public stimulus paths."""
-
-    slug: str
-    title: str
-    description: str
-    categories: tuple[PublishedCategoryPair, PublishedCategoryPair]
 
 
 class IatRepository:
@@ -83,7 +53,7 @@ class IatRepository:
         """
         return self._slug_to_iat.get(slug)
 
-    def get_stimuli(self, image: PurePosixPath) -> Path | None:
+    def get_stimulus(self, image: PurePosixPath) -> Path | None:
         """Resolve one public image request into a file path.
 
         Args:
@@ -148,4 +118,4 @@ class IatRepository:
         if existing_source_path != stimulus.image:
             raise ValueError(f"Public stimulus path must be unique: {image.as_posix()}")
 
-        return PublishedStimulus(image=image)
+        return PublishedStimulus(image_path=image)

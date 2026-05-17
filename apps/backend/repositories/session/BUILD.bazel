@@ -1,0 +1,33 @@
+load("//tools/python:defs.bzl", "py_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+py_library(
+    name = "schema",
+    srcs = ["schema.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend:database_base",
+        "//apps/backend/domain/session:models",
+        "//libs/sqlalchemy:types",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_library(
+    name = "repository",
+    srcs = ["repository.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":schema",
+        "//apps/backend/domain/session:exceptions",
+        "//apps/backend/domain/session:models",
+        "@pip//sqlalchemy",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

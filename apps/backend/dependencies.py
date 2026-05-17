@@ -3,42 +3,56 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from secrets import randbelow, token_urlsafe
+from typing import TYPE_CHECKING, Annotated
 
-from fastapi import Request  # noqa: TC002
+from fastapi import Depends, Request
+from sqlalchemy.orm import Session  # noqa: TC002
+
+from apps.backend.repositories.session.repository import SessionRepository
+from apps.backend.services.session import SessionService
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from sqlalchemy.orm import sessionmaker
+
+    from apps.backend.repositories.iat import IatRepository
     from apps.backend.services.iat import IatService
+    from apps.backend.settings import ResolvedIatResources
 
 
 @dataclass(slots=True)
-class BackendServices:
-    """Application services stored on FastAPI application state."""
+class BackendRuntime:
+    """Application runtime dependencies stored on FastAPI application state."""
 
+    iat_repository: IatRepository
     iat_service: IatService
+    session_factory: sessionmaker[Session]
+    settings: ResolvedIatResources
 
 
-def get_services(request: Request) -> BackendServices:
-    """Return the configured backend services from application state.
+def get_runtime(request: Request) -> BackendRuntime:
+    """Return the configured backend runtime dependencies from application state.
 
     Args:
         request: Current request used to access application state.
 
     Returns:
-        The configured backend services.
+        The configured backend runtime dependencies.
 
     Raises:
-        RuntimeError: Backend application services have not been configured.
-        TypeError: The configured backend services have one unexpected type.
+        RuntimeError: Backend application runtime dependencies have not been configured.
+        TypeError: The configured backend runtime dependencies have one unexpected type.
     """
-    services = getattr(request.app.state, "services", None)
-    if services is None:
-        raise RuntimeError("Backend services are not configured.")
+    runtime = getattr(request.app.state, "runtime", None)
+    if runtime is None:
+        raise RuntimeError("Backend runtime dependencies are not configured.")
 
-    if not isinstance(services, BackendServices):
-        raise TypeError("Backend services have one unexpected type.")
+    if not isinstance(runtime, BackendRuntime):
+        raise TypeError("Backend runtime dependencies have one unexpected type.")
 
-    return services
+    return runtime
 
 
 def get_iat_service(request: Request) -> IatService:
@@ -51,7 +65,68 @@ def get_iat_service(request: Request) -> IatService:
         The configured backend IAT service.
 
     Raises:
-        RuntimeError: Backend application services have not been configured.
-        TypeError: The configured backend services have one unexpected type.
+        RuntimeError: Backend application runtime dependencies have not been configured.
+        TypeError: The configured backend runtime dependencies have one unexpected type.
     """
-    return get_services(request).iat_service
+    return get_runtime(request).iat_service
+
+
+def get_db_session(request: Request) -> Iterator[Session]:
+    """Yield one request-scoped SQLAlchemy session.
+
+    Args:
+        request: Current request used to access application state.
+
+    Yields:
+        One request-scoped SQLAlchemy session.
+    """
+    database_session = get_runtime(request).session_factory()
+    try:
+        yield database_session
+        database_session.commit()
+    except Exception:
+        database_session.rollback()
+        raise
+    finally:
+        database_session.close()
+
+
+def get_session_service(
+    request: Request,
+    database_session: Annotated[Session, Depends(get_db_session)],
+) -> SessionService:
+    """Return one request-scoped participant session service.
+
+    Args:
+        request: Current request used to access application state.
+        database_session: Request-scoped SQLAlchemy session.
+
+    Returns:
+        The configured request-scoped session service.
+    """
+    runtime = get_runtime(request)
+    return SessionService(
+        iat_repository=runtime.iat_repository,
+        session_repository=SessionRepository(database_session, session_key_factory=build_session_key),
+        plan_seed_provider=build_plan_seed,
+        anticipation_threshold_ms=runtime.settings.anticipation_threshold_ms,
+        response_timeout_ms=runtime.settings.response_timeout_ms,
+    )
+
+
+def build_plan_seed() -> int:
+    """Return one random seed for deterministic session run-plan generation.
+
+    Returns:
+        One random seed for deterministic session run-plan generation.
+    """
+    return randbelow(2**31)
+
+
+def build_session_key() -> str:
+    """Return one opaque public session identifier for client-facing routes.
+
+    Returns:
+        One opaque public session identifier for client-facing routes.
+    """
+    return token_urlsafe(18)

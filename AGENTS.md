@@ -16,6 +16,7 @@ Code rules:
 - Treat warnings as errors.
 - Do not add `__init__.py` files unless there is a concrete non-Bazel need.
 - Keep Bazel metadata up to date. Run `configure` when BUILD files need regeneration.
+- Do not force keyword arguments with `*` in function signatures.
 
 Test rules:
 

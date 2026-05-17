@@ -7,9 +7,11 @@ from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
 
-from apps.backend.dependencies import BackendServices
+from apps.backend.database import create_database_schema, create_session_factory, create_sqlite_engine
+from apps.backend.dependencies import BackendRuntime
 from apps.backend.repositories.iat import IatRepository
 from apps.backend.routers.iats import router as iats_router
+from apps.backend.routers.sessions import router as sessions_router
 from apps.backend.routers.stimuli import router as stimuli_router
 from apps.backend.services.iat import IatService
 
@@ -31,11 +33,23 @@ def create_app(settings: ResolvedIatResources) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        app.state.services = BackendServices(iat_service=IatService(IatRepository(settings)))
-        yield
+        engine = create_sqlite_engine(settings.database_path)
+        iat_repository = IatRepository(settings)
+        try:
+            create_database_schema(engine)
+            app.state.runtime = BackendRuntime(
+                iat_repository=iat_repository,
+                iat_service=IatService(iat_repository),
+                session_factory=create_session_factory(engine),
+                settings=settings,
+            )
+            yield
+        finally:
+            engine.dispose()
 
     app = FastAPI(title="IAT Backend", debug=settings.debug, lifespan=lifespan)
     app.include_router(iats_router, prefix="/api")
+    app.include_router(sessions_router, prefix="/api")
     app.include_router(stimuli_router, prefix="/api")
 
     return app

@@ -37,7 +37,7 @@ ignore = [
 convention = "google"
 
 [lint.extend-per-file-ignores]
-"{**/*_test.py,**/testing/**/*.py}" = [
+"{**/*_test.py,**/testing/**/*.py,**/conftest.py}" = [
   "S101",
   "ARG",
   "FBT",

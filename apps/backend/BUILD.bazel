@@ -3,12 +3,27 @@ load("//tools/python:defs.bzl", "py_binary", "py_library", "py_test")
 package(default_visibility = ["//:__subpackages__"])
 
 py_library(
-    name = "models",
-    srcs = ["models.py"],
+    name = "database_base",
+    srcs = ["database_base.py"],
+    visibility = ["//:__subpackages__"],
+    deps = ["@pip//sqlalchemy"],
+)
+
+py_library(
+    name = "database_schema",
+    srcs = ["database_schema.py"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//apps/backend/repositories/session:schema"],
+)
+
+py_library(
+    name = "database",
+    srcs = ["database.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//libs/pydantic:types",
-        "@pip//pydantic",
+        ":database_base",
+        ":database_schema",
+        "@pip//sqlalchemy",
     ],
 )
 
@@ -17,8 +32,13 @@ py_library(
     srcs = ["dependencies.py"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":settings",
+        "//apps/backend/repositories:iat",
+        "//apps/backend/repositories/session:repository",
         "//apps/backend/services:iat",
+        "//apps/backend/services:session",
         "@pip//fastapi",
+        "@pip//sqlalchemy",
     ],
 )
 
@@ -27,10 +47,12 @@ py_library(
     srcs = ["app.py"],
     visibility = ["//visibility:public"],
     deps = [
+        ":database",
         ":dependencies",
         ":settings",
         "//apps/backend/repositories:iat",
         "//apps/backend/routers:iats",
+        "//apps/backend/routers:sessions",
         "//apps/backend/routers:stimuli",
         "//apps/backend/services:iat",
         "@pip//fastapi",
@@ -61,33 +83,11 @@ py_library(
     ],
 )
 
-py_library(
-    name = "iat_spec",
-    srcs = ["iat_spec.py"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//libs/config",
-        "//libs/path",
-        "//libs/pydantic:types",
-        "@pip//pydantic",
-    ],
-)
-
-py_test(
-    name = "iat_spec_test",
-    srcs = ["iat_spec_test.py"],
-    deps = [
-        ":iat_spec",
-        "//libs/testing:io",
-        "@pip//pydantic",
-        "@pip//pytest",
-    ],
-)
-
 py_test(
     name = "settings_test",
     srcs = ["settings_test.py"],
     deps = [
+        ":conftest",
         ":settings",
         "//libs/testing:io",
         "@pip//pydantic",
@@ -99,13 +99,12 @@ py_test(
     name = "dependencies_test",
     srcs = ["dependencies_test.py"],
     deps = [
+        ":conftest",
         ":dependencies",
-        ":settings",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/services:iat",
+        "//apps/backend/domain/session:models",
         "//third_party/python/fastapi:testclient",
         "@pip//fastapi",
-        "@pip//pytest",
+        "@pip//sqlalchemy",
     ],
 )
 
@@ -114,8 +113,9 @@ py_test(
     srcs = ["app_test.py"],
     deps = [
         ":app",
-        ":models",
+        ":conftest",
         ":settings",
+        "//apps/backend/models:iat",
         "//libs/testing:io",
         "//third_party/python/fastapi:testclient",
         "@pip//pydantic",
@@ -123,8 +123,40 @@ py_test(
     ],
 )
 
+py_test(
+    name = "database_test",
+    srcs = ["database_test.py"],
+    deps = [
+        ":conftest",
+        ":database",
+        "@pip//sqlalchemy",
+    ],
+)
+
+filegroup(
+    name = "readme",
+    srcs = ["README.md"],
+    tags = ["markdown"],
+)
+
 filegroup(
     name = "build_bazel",
     srcs = ["BUILD.bazel"],
     tags = ["starlark"],
+)
+
+py_library(
+    name = "conftest",
+    testonly = True,
+    srcs = ["conftest.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":database",
+        ":dependencies",
+        ":settings",
+        "//apps/backend/repositories:iat",
+        "//apps/backend/services:iat",
+        "//libs/testing:io",
+        "@pip//pytest",
+    ],
 )
