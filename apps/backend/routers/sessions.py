@@ -100,9 +100,12 @@ def upload_block(
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Session not found.") from exc
     except SessionConflictError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=409,
+            detail="The block upload could not be committed because the session state is invalid.",
+        ) from exc
     except SessionInputError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+        raise HTTPException(status_code=422, detail="The block upload payload is invalid.") from exc
 
     return Response(status_code=204)
 

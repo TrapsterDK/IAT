@@ -156,7 +156,7 @@ def test_upload_block_rejects_out_of_order_block_index(session_client: TestClien
 
     # Then: the route reports the block-order conflict.
     assert response.status_code == 409
-    assert response.json() == {"detail": "Uploaded blocks must be committed in deterministic run-plan order."}
+    assert response.json() == {"detail": "The block upload could not be committed because the session state is invalid."}
 
 
 def test_upload_block_rejects_out_of_range_positive_block_index(session_client: TestClient) -> None:
@@ -173,7 +173,7 @@ def test_upload_block_rejects_out_of_range_positive_block_index(session_client: 
 
     # Then: the route rejects the out-of-range block index as invalid input.
     assert response.status_code == 422
-    assert response.json() == {"detail": "Block indexes must reference one configured run-plan block."}
+    assert response.json() == {"detail": "The block upload payload is invalid."}
 
 
 def test_upload_block_returns_no_content_for_successful_upload(session_client: TestClient) -> None:
@@ -221,7 +221,7 @@ def test_upload_block_rejects_partial_block_payload(session_client: TestClient) 
 
     # Then: the route rejects uploads that do not include the full block.
     assert response.status_code == 422
-    assert response.json() == {"detail": "Uploaded blocks must include the full deterministic block payload."}
+    assert response.json() == {"detail": "The block upload payload is invalid."}
 
 
 def test_upload_block_completes_session_after_final_block(session_client: TestClient) -> None:
@@ -266,7 +266,9 @@ def test_upload_block_completes_session_after_final_block(session_client: TestCl
     assert final_upload_response.status_code == 204
     assert final_upload_response.content == b""
     assert follow_up_response.status_code == 409
-    assert follow_up_response.json() == {"detail": "Only running sessions can accept block uploads."}
+    assert follow_up_response.json() == {
+        "detail": "The block upload could not be committed because the session state is invalid."
+    }
 
 
 def test_upload_block_rejects_reupload_of_committed_block(session_client: TestClient) -> None:
@@ -295,7 +297,7 @@ def test_upload_block_rejects_reupload_of_committed_block(session_client: TestCl
     # Then: committed blocks cannot be uploaded again.
     assert first_upload_response.status_code == 204
     assert response.status_code == 409
-    assert response.json() == {"detail": "Uploaded blocks must be committed in deterministic run-plan order."}
+    assert response.json() == {"detail": "The block upload could not be committed because the session state is invalid."}
 
 
 def test_upload_block_rejects_trial_sequence_ending_with_anticipatory_response(session_client: TestClient) -> None:
@@ -322,9 +324,7 @@ def test_upload_block_rejects_trial_sequence_ending_with_anticipatory_response(s
 
     # Then: the incomplete raw-event sequence is rejected.
     assert upload_response.status_code == 422
-    assert upload_response.json() == {
-        "detail": "Uploaded trial event sequences must end with one non-anticipatory response or timeout."
-    }
+    assert upload_response.json() == {"detail": "The block upload payload is invalid."}
 
 
 def test_upload_block_returns_generic_conflict_for_invalid_stored_session_state(session_client: TestClient) -> None:
