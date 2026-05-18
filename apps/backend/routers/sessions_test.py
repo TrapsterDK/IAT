@@ -2,18 +2,51 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from fastapi import FastAPI
-from sqlalchemy import select
 
-from apps.backend.domain.session.models import TrialEventType
-from apps.backend.models.session import SessionBootstrapResponse
-from apps.backend.repositories.session.schema import SessionRecord, SessionTrialEventRecord
+from apps.backend.schemas.session import SessionBootstrapResponse, SessionScoreResponse
 
 if TYPE_CHECKING:
     from fastapi.testclient import TestClient
+
+
+def _validation_error_details(response: Any) -> list[dict[str, object]]:
+    return response.json()["detail"]
+
+
+def _assert_has_validation_error(
+    response: Any,
+    expected_loc: tuple[str | int, ...],
+    expected_type: str,
+) -> None:
+    validation_errors = _validation_error_details(response)
+    assert any(
+        validation_error["loc"] == list(expected_loc) and validation_error["type"] == expected_type
+        for validation_error in validation_errors
+    )
+
+
+def _upload_completed_sample_session(session_client: TestClient) -> SessionBootstrapResponse:
+    created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
+    assert created_response.status_code == 201
+    created_session = SessionBootstrapResponse.model_validate(created_response.json())
+
+    for block_index, block in enumerate(created_session.blocks, start=1):
+        block_trial_payloads = [
+            {
+                "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": 350 + block_index * 50}],
+            }
+            for trial in block.trials
+        ]
+        upload_response = session_client.put(
+            f"/api/sessions/{created_session.session_key}/blocks/{block_index}",
+            json={"trials": block_trial_payloads},
+        )
+        assert upload_response.status_code == 204
+
+    return created_session
 
 
 def test_create_session_returns_minimal_bootstrap(session_client: TestClient) -> None:
@@ -29,7 +62,6 @@ def test_create_session_returns_minimal_bootstrap(session_client: TestClient) ->
     first_block = created_session.blocks[0]
 
     assert created_session.session_key
-    assert created_session.anticipation_threshold_ms < created_session.response_timeout_ms
     assert [block.is_practice for block in created_session.blocks] == [True, True, True, False, True, True, False]
     assert first_block.left_labels == ("Alpha",)
     assert first_block.right_labels == ("Beta",)
@@ -80,16 +112,22 @@ def test_create_session_returns_server_error_for_invalid_iat_configuration(
 
 
 @pytest.mark.parametrize(
-    ("payload", "expected_fragment"),
+    ("payload", "expected_loc", "expected_type"),
     [
-        pytest.param({}, "iat_slug", id="missing_iat_slug"),
-        pytest.param({"iat_slug": "", "client_context": None}, "at least 1 character", id="blank_iat_slug"),
+        pytest.param({}, ("body", "iat_slug"), "missing", id="missing_iat_slug"),
+        pytest.param(
+            {"iat_slug": "", "client_context": None},
+            ("body", "iat_slug"),
+            "string_too_short",
+            id="blank_iat_slug",
+        ),
     ],
 )
 def test_create_session_rejects_invalid_payloads(
     session_client: TestClient,
     payload: dict[str, object],
-    expected_fragment: str,
+    expected_loc: tuple[str, ...],
+    expected_type: str,
 ) -> None:
     # Given: one invalid session-creation payload.
 
@@ -98,7 +136,7 @@ def test_create_session_rejects_invalid_payloads(
 
     # Then: request validation rejects the payload.
     assert response.status_code == 422
-    assert expected_fragment in str(response.json())
+    _assert_has_validation_error(response, expected_loc, expected_type)
 
 
 def test_upload_block_returns_not_found_for_unknown_session_key(session_client: TestClient) -> None:
@@ -113,6 +151,45 @@ def test_upload_block_returns_not_found_for_unknown_session_key(session_client: 
     # Then: the route reports the session as missing.
     assert response.status_code == 404
     assert response.json() == {"detail": "Session not found."}
+
+
+def test_get_score_returns_not_found_for_unknown_session_key(session_client: TestClient) -> None:
+    # Given: one unknown public session key.
+
+    # When: the client requests one completed-session score.
+    response = session_client.get("/api/sessions/missing-session/score")
+
+    # Then: the route reports the session as missing.
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Session not found."}
+
+
+def test_get_score_returns_conflict_for_running_session(session_client: TestClient) -> None:
+    # Given: one running participant session with no completed uploads yet.
+    created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
+    assert created_response.status_code == 201
+    created_session = SessionBootstrapResponse.model_validate(created_response.json())
+
+    # When: the client requests one score before the session is completed.
+    response = session_client.get(f"/api/sessions/{created_session.session_key}/score")
+
+    # Then: the route reports the score as unavailable.
+    assert response.status_code == 409
+    assert response.json() == {"detail": "The session score is unavailable."}
+
+
+def test_get_score_returns_completed_session_score(session_client: TestClient) -> None:
+    # Given: one completed participant session with every deterministic block uploaded.
+    created_session = _upload_completed_sample_session(session_client)
+
+    # When: the client requests the completed-session score.
+    response = session_client.get(f"/api/sessions/{created_session.session_key}/score")
+
+    # Then: the route returns the computed D-score and public headline.
+    assert response.status_code == 200
+    score_response = SessionScoreResponse.model_validate(response.json())
+    assert score_response.d_score > 0.65
+    assert score_response.headline == "Strong automatic association of Alpha with Gamma."
 
 
 @pytest.mark.parametrize(
@@ -139,7 +216,7 @@ def test_upload_block_rejects_non_positive_block_index(
 
     # Then: request validation rejects the invalid path parameter.
     assert response.status_code == 422
-    assert "greater than or equal to 1" in str(response.json())
+    _assert_has_validation_error(response, ("path", "block_index"), "greater_than_equal")
 
 
 def test_upload_block_rejects_out_of_order_block_index(session_client: TestClient) -> None:
@@ -156,7 +233,9 @@ def test_upload_block_rejects_out_of_order_block_index(session_client: TestClien
 
     # Then: the route reports the block-order conflict.
     assert response.status_code == 409
-    assert response.json() == {"detail": "The block upload could not be committed because the session state is invalid."}
+    assert response.json() == {
+        "detail": "The block upload could not be committed because the session state is invalid."
+    }
 
 
 def test_upload_block_rejects_out_of_range_positive_block_index(session_client: TestClient) -> None:
@@ -297,88 +376,21 @@ def test_upload_block_rejects_reupload_of_committed_block(session_client: TestCl
     # Then: committed blocks cannot be uploaded again.
     assert first_upload_response.status_code == 204
     assert response.status_code == 409
-    assert response.json() == {"detail": "The block upload could not be committed because the session state is invalid."}
-
-
-def test_upload_block_rejects_trial_sequence_ending_with_anticipatory_response(session_client: TestClient) -> None:
-    # Given: one running session waiting for the first trial in the first deterministic block.
-    created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
-    assert created_response.status_code == 201
-    created_session = SessionBootstrapResponse.model_validate(created_response.json())
-    first_block = created_session.blocks[0]
-    first_block_trial_payloads = [
-        {
-            "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": 350}],
-        }
-        for trial in first_block.trials
-    ]
-    first_block_trial_payloads[0] = {
-        "events": [{"event_type": "left", "elapsed_ms": 100}],
-    }
-
-    # When: one uploaded block contains one trial ending with one anticipatory response instead of one final action.
-    upload_response = session_client.put(
-        f"/api/sessions/{created_session.session_key}/blocks/1",
-        json={"trials": first_block_trial_payloads},
-    )
-
-    # Then: the incomplete raw-event sequence is rejected.
-    assert upload_response.status_code == 422
-    assert upload_response.json() == {"detail": "The block upload payload is invalid."}
-
-
-def test_upload_block_returns_generic_conflict_for_invalid_stored_session_state(session_client: TestClient) -> None:
-    # Given: one running session whose stored event history has been corrupted between requests.
-    created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
-    assert created_response.status_code == 201
-    created_session = SessionBootstrapResponse.model_validate(created_response.json())
-    app = session_client.app
-    assert isinstance(app, FastAPI)
-    runtime = app.state.runtime
-    first_block = created_session.blocks[0]
-    first_block_trial_payloads = [
-        {
-            "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": 350}],
-        }
-        for trial in first_block.trials
-    ]
-
-    with runtime.session_factory() as database_session:
-        persisted_session = database_session.scalar(
-            select(SessionRecord).where(SessionRecord.session_key == created_session.session_key)
-        )
-
-        assert persisted_session is not None
-
-        database_session.add(
-            SessionTrialEventRecord(
-                session_id=persisted_session.id,
-                trial_id=1,
-                event_index=1,
-                elapsed_ms=350,
-                event_type=TrialEventType.LEFT,
-            )
-        )
-        database_session.commit()
-
-    # When: the client uploads the first block against that corrupted stored session state.
-    upload_response = session_client.put(
-        f"/api/sessions/{created_session.session_key}/blocks/1",
-        json={"trials": first_block_trial_payloads},
-    )
-
-    # Then: the route returns one generic conflict instead of exposing internal corruption details.
-    assert upload_response.status_code == 409
-    assert upload_response.json() == {
+    assert response.json() == {
         "detail": "The block upload could not be committed because the session state is invalid."
     }
 
 
 @pytest.mark.parametrize(
-    ("payload", "expected_fragment"),
+    ("payload", "expected_loc", "expected_type"),
     [
-        pytest.param({}, "trials", id="missing_trials"),
-        pytest.param({"trials": []}, "at least 1 item", id="empty_trials"),
+        pytest.param({}, ("body", "trials"), "missing", id="missing_trials"),
+        pytest.param(
+            {"trials": []},
+            ("body", "trials"),
+            "too_short",
+            id="empty_trials",
+        ),
         pytest.param(
             {
                 "trials": [
@@ -387,7 +399,8 @@ def test_upload_block_returns_generic_conflict_for_invalid_stored_session_state(
                     }
                 ]
             },
-            "event_type",
+            ("body", "trials", 0, "events", 0, "event_type"),
+            "enum",
             id="invalid_event_type",
         ),
     ],
@@ -395,7 +408,8 @@ def test_upload_block_returns_generic_conflict_for_invalid_stored_session_state(
 def test_upload_block_rejects_invalid_request_payloads(
     session_client: TestClient,
     payload: dict[str, object],
-    expected_fragment: str,
+    expected_loc: tuple[str | int, ...],
+    expected_type: str,
 ) -> None:
     # Given: one running session and one invalid block-upload payload.
     created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
@@ -407,4 +421,4 @@ def test_upload_block_rejects_invalid_request_payloads(
 
     # Then: request validation rejects the payload.
     assert response.status_code == 422
-    assert expected_fragment in str(response.json())
+    _assert_has_validation_error(response, expected_loc, expected_type)

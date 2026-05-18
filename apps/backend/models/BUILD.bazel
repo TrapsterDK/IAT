@@ -1,47 +1,32 @@
-load("//tools/python:defs.bzl", "py_library", "py_test")
+load("//tools/python:defs.bzl", "py_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
 py_library(
-    name = "iat",
-    srcs = ["iat.py"],
+    name = "catalog",
+    srcs = ["catalog.py"],
     visibility = ["//:__subpackages__"],
-    deps = [
-        "//libs/pydantic:types",
-        "@pip//pydantic",
-    ],
+)
+
+py_library(
+    name = "plan",
+    srcs = ["plan.py"],
+    visibility = ["//:__subpackages__"],
 )
 
 py_library(
     name = "session",
     srcs = ["session.py"],
     visibility = ["//:__subpackages__"],
-    deps = [
-        "//apps/backend/domain/session:models",
-        "//libs/pydantic:types",
-        "@pip//pydantic",
-    ],
 )
 
-py_test(
-    name = "iat_test",
-    srcs = ["iat_test.py"],
+py_library(
+    name = "scoring",
+    srcs = ["scoring.py"],
+    visibility = ["//:__subpackages__"],
     deps = [
-        ":iat",
-        "//apps/backend:conftest",
-        "@pip//pydantic",
-        "@pip//pytest",
-    ],
-)
-
-py_test(
-    name = "session_test",
-    srcs = ["session_test.py"],
-    deps = [
+        ":plan",
         ":session",
-        "//apps/backend:conftest",
-        "@pip//pydantic",
-        "@pip//pytest",
     ],
 )
 

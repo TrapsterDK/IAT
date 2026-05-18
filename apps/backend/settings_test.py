@@ -11,6 +11,7 @@ from apps.backend.settings import (
     IAT_RESOURCES_CONFIG_PATH_ENV_VAR,
     IatResourcesSettings,
     ResolvedIatResources,
+    SessionScoreInterpretationSettings,
     load_settings,
 )
 from libs.testing.io import write_yaml
@@ -66,13 +67,17 @@ def test_iat_resource_settings_reject_duplicate_iat_paths() -> None:
         IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"), Path("resources/iats/sample-iat.yaml")))
 
 
-def test_iat_resource_settings_reject_inverted_response_thresholds() -> None:
-    # Given: one backend settings model whose anticipation threshold is not below the response timeout.
+def test_session_score_interpretation_settings_reject_non_increasing_thresholds() -> None:
+    # Given: one score interpretation settings model whose thresholds do not increase strictly.
 
-    # When: the settings model is validated.
-    # Then: the inconsistent response timing configuration is rejected.
-    with pytest.raises(ValidationError, match="anticipation threshold must be smaller than the response timeout"):
-        IatResourcesSettings(anticipation_threshold_ms=1_000, response_timeout_ms=1_000, iats=())
+    # When: the score interpretation settings are validated.
+    # Then: the inconsistent score interpretation thresholds are rejected.
+    with pytest.raises(ValidationError, match="session score interpretation thresholds must increase strictly"):
+        SessionScoreInterpretationSettings(
+            little_to_no_association_upper_bound=0.15,
+            slight_association_upper_bound=0.15,
+            moderate_association_upper_bound=0.65,
+        )
 
 
 def test_iat_resource_settings_are_frozen() -> None:
@@ -103,6 +108,11 @@ def test_iat_resource_settings_resolve_returns_absolute_existing_iat_paths(tmp_p
         host="0.0.0.2",
         port=9002,
         debug=False,
+        session_score_interpretation=SessionScoreInterpretationSettings(
+            little_to_no_association_upper_bound=0.1,
+            slight_association_upper_bound=0.3,
+            moderate_association_upper_bound=0.6,
+        ),
         iats=(Path("resources/iats/age-attitudes.yaml"),),
     )
 

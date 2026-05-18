@@ -3,12 +3,12 @@ load("//tools/python:defs.bzl", "py_library", "py_test")
 package(default_visibility = ["//:__subpackages__"])
 
 py_library(
-    name = "iat",
-    srcs = ["iat.py"],
+    name = "catalog",
+    srcs = ["catalog.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//apps/backend/domain/iat:models",
-        "//apps/backend/repositories:iat",
+        "//apps/backend/models:catalog",
+        "//apps/backend/repositories:catalog",
     ],
 )
 
@@ -17,23 +17,28 @@ py_library(
     srcs = ["session.py"],
     visibility = ["//:__subpackages__"],
     deps = [
+        "//apps/backend:settings",
         "//apps/backend/domain/session:exceptions",
-        "//apps/backend/domain/session:execution",
-        "//apps/backend/domain/session:models",
         "//apps/backend/domain/session:run_plan_builder",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/repositories/session:repository",
+        "//apps/backend/domain/session:scoring",
+        "//apps/backend/models:plan",
+        "//apps/backend/models:scoring",
+        "//apps/backend/models:session",
+        "//apps/backend/repositories:catalog",
+        "//apps/backend/repositories/session",
+        "//apps/backend/repositories/session:plan",
+        "//apps/backend/repositories/session:scoring",
     ],
 )
 
 py_test(
-    name = "iat_test",
-    srcs = ["iat_test.py"],
+    name = "catalog_test",
+    srcs = ["catalog_test.py"],
     deps = [
-        ":iat",
+        ":catalog",
         "//apps/backend:conftest",
         "//apps/backend:settings",
-        "//apps/backend/repositories:iat",
+        "//apps/backend/repositories:catalog",
         "//libs/testing:io",
     ],
 )
@@ -44,11 +49,16 @@ py_test(
     deps = [
         ":session",
         "//apps/backend:conftest",
-        "//apps/backend/domain/iat:models",
+        "//apps/backend:settings",
         "//apps/backend/domain/session:exceptions",
-        "//apps/backend/domain/session:models",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/repositories/session:repository",
+        "//apps/backend/models:catalog",
+        "//apps/backend/models:plan",
+        "//apps/backend/models:scoring",
+        "//apps/backend/models:session",
+        "//apps/backend/repositories:catalog",
+        "//apps/backend/repositories/session",
+        "//apps/backend/repositories/session:plan",
+        "//apps/backend/repositories/session:scoring",
         "@pip//pytest",
     ],
 )

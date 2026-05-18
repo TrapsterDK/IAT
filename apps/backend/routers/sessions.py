@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Request, Response
 
@@ -14,26 +14,15 @@ from apps.backend.domain.session.exceptions import (
     SessionInputError,
     SessionNotFoundError,
 )
-from apps.backend.domain.session.models import (
-    BlockUploadInput,
-    ClientContext,
-    TrialEventUploadInput,
-    TrialUploadInput,
-)
-from apps.backend.models.session import (
-    ClientContextRequest,
-    CreateSessionRequest,
-    RunPlanBlockResponse,
-    RunPlanTrialResponse,
-    SessionBootstrapResponse,
-    SessionStimulusResponse,
-    UploadBlockRequest,
-)
 from apps.backend.routers.stimuli import build_stimulus_url
+from apps.backend.schemas.session import (
+    CompletedBlockRequest,
+    CreateSessionRequest,
+    SessionBootstrapResponse,
+    SessionScoreResponse,
+    StimulusUrlBuilder,
+)
 from apps.backend.services.session import SessionService  # noqa: TC001
-
-if TYPE_CHECKING:
-    from apps.backend.domain.session.models import BlockPlan, RunPlan, SessionState
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -58,23 +47,20 @@ def create_session(
         HTTPException: The requested IAT does not exist.
     """
     try:
-        state, run_plan = session_service.create_session(
-            create_request.iat_slug,
-            client_context=_build_client_context(create_request.client_context),
-        )
+        state, run_plan = session_service.create_session(create_request.to_business())
     except IatNotFoundError as exc:
         raise HTTPException(status_code=404, detail="IAT not found.") from exc
     except SessionConfigurationError as exc:
         raise HTTPException(status_code=500, detail="IAT configuration is invalid.") from exc
 
-    return _build_session_bootstrap_response(state, run_plan, request)
+    return SessionBootstrapResponse.from_business(state, run_plan, _build_stimulus_url_builder(request))
 
 
 @router.put("/{session_key}/blocks/{block_index}", status_code=204)
-def upload_block(
+def complete_block(
     session_key: str,
     block_index: Annotated[int, Path(ge=1)],
-    upload_request: UploadBlockRequest,
+    upload_request: CompletedBlockRequest,
     session_service: Annotated[SessionService, Depends(get_session_service)],
 ) -> Response:
     """Commit one completed deterministic block upload.
@@ -92,10 +78,10 @@ def upload_block(
         HTTPException: The session is missing, conflicted, or invalid for the submitted payload.
     """
     try:
-        session_service.upload_block(
+        session_service.complete_block(
             session_key,
             block_index,
-            _build_block_upload_input(upload_request),
+            upload_request.to_business(),
         )
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Session not found.") from exc
@@ -110,65 +96,32 @@ def upload_block(
     return Response(status_code=204)
 
 
-def _build_client_context(client_context_request: ClientContextRequest | None) -> ClientContext:
-    if client_context_request is None:
-        return ClientContext()
-    return ClientContext(
-        user_agent=client_context_request.user_agent,
-        platform=client_context_request.platform,
-        viewport_width_px=client_context_request.viewport_width_px,
-        viewport_height_px=client_context_request.viewport_height_px,
-        device_pixel_ratio=client_context_request.device_pixel_ratio,
-    )
+@router.get("/{session_key}/score")
+def get_score(
+    session_key: str,
+    session_service: Annotated[SessionService, Depends(get_session_service)],
+) -> SessionScoreResponse:
+    """Return one computed score for one completed participant session.
+
+    Args:
+        session_key: Opaque public session key.
+        session_service: Request-scoped participant session service.
+
+    Returns:
+        The computed D-score and one user-facing headline.
+
+    Raises:
+        HTTPException: The session is missing or not scoreable yet.
+    """
+    try:
+        session_score = session_service.get_score(session_key)
+    except SessionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Session not found.") from exc
+    except SessionConflictError as exc:
+        raise HTTPException(status_code=409, detail="The session score is unavailable.") from exc
+
+    return SessionScoreResponse.from_business(session_score)
 
 
-def _build_block_upload_input(upload_request: UploadBlockRequest) -> BlockUploadInput:
-    return BlockUploadInput(
-        trials=tuple(
-            TrialUploadInput(
-                events=tuple(
-                    TrialEventUploadInput(
-                        event_type=uploaded_event.event_type,
-                        elapsed_ms=uploaded_event.elapsed_ms,
-                    )
-                    for uploaded_event in uploaded_trial.events
-                )
-            )
-            for uploaded_trial in upload_request.trials
-        )
-    )
-
-
-def _build_session_bootstrap_response(
-    state: SessionState,
-    run_plan: RunPlan,
-    request: Request,
-) -> SessionBootstrapResponse:
-    return SessionBootstrapResponse(
-        session_key=state.session_key,
-        anticipation_threshold_ms=run_plan.anticipation_threshold_ms,
-        response_timeout_ms=run_plan.response_timeout_ms,
-        blocks=tuple(_build_block_response(block, request) for block in run_plan.blocks),
-    )
-
-
-def _build_block_response(block: BlockPlan, request: Request) -> RunPlanBlockResponse:
-    return RunPlanBlockResponse(
-        left_labels=block.left_labels,
-        right_labels=block.right_labels,
-        is_practice=block.is_practice,
-        trials=tuple(
-            RunPlanTrialResponse(
-                stimulus=SessionStimulusResponse(
-                    text=trial.stimulus.text,
-                    image_url=(
-                        None
-                        if trial.stimulus.image_path is None
-                        else build_stimulus_url(request, trial.stimulus.image_path)
-                    ),
-                ),
-                correct_response_side=trial.correct_response_side,
-            )
-            for trial in block.trials
-        ),
-    )
+def _build_stimulus_url_builder(request: Request) -> StimulusUrlBuilder:
+    return lambda image_path: build_stimulus_url(request, image_path)

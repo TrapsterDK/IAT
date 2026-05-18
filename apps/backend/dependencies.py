@@ -9,7 +9,9 @@ from typing import TYPE_CHECKING, Annotated
 from fastapi import Depends, Request
 from sqlalchemy.orm import Session  # noqa: TC002
 
-from apps.backend.repositories.session.repository import SessionRepository
+from apps.backend.repositories.session.plan import SessionPlanRepository
+from apps.backend.repositories.session.scoring import SessionScoringRepository
+from apps.backend.repositories.session.session import SessionRepository
 from apps.backend.services.session import SessionService
 
 if TYPE_CHECKING:
@@ -17,8 +19,8 @@ if TYPE_CHECKING:
 
     from sqlalchemy.orm import sessionmaker
 
-    from apps.backend.repositories.iat import IatRepository
-    from apps.backend.services.iat import IatService
+    from apps.backend.repositories.catalog import CatalogRepository
+    from apps.backend.services.catalog import CatalogService
     from apps.backend.settings import ResolvedIatResources
 
 
@@ -26,8 +28,8 @@ if TYPE_CHECKING:
 class BackendRuntime:
     """Application runtime dependencies stored on FastAPI application state."""
 
-    iat_repository: IatRepository
-    iat_service: IatService
+    catalog_repository: CatalogRepository
+    catalog_service: CatalogService
     session_factory: sessionmaker[Session]
     settings: ResolvedIatResources
 
@@ -55,20 +57,20 @@ def get_runtime(request: Request) -> BackendRuntime:
     return runtime
 
 
-def get_iat_service(request: Request) -> IatService:
-    """Return the configured backend IAT service from application state.
+def get_catalog_service(request: Request) -> CatalogService:
+    """Return the configured backend catalog service from application state.
 
     Args:
         request: Current request used to access application state.
 
     Returns:
-        The configured backend IAT service.
+        The configured backend catalog service.
 
     Raises:
         RuntimeError: Backend application runtime dependencies have not been configured.
         TypeError: The configured backend runtime dependencies have one unexpected type.
     """
-    return get_runtime(request).iat_service
+    return get_runtime(request).catalog_service
 
 
 def get_db_session(request: Request) -> Iterator[Session]:
@@ -106,11 +108,12 @@ def get_session_service(
     """
     runtime = get_runtime(request)
     return SessionService(
-        iat_repository=runtime.iat_repository,
+        catalog_repository=runtime.catalog_repository,
         session_repository=SessionRepository(database_session, session_key_factory=build_session_key),
+        plan_repository=SessionPlanRepository(database_session),
+        scoring_repository=SessionScoringRepository(database_session),
         plan_seed_provider=build_plan_seed,
-        anticipation_threshold_ms=runtime.settings.anticipation_threshold_ms,
-        response_timeout_ms=runtime.settings.response_timeout_ms,
+        score_interpretation=runtime.settings.session_score_interpretation,
     )
 
 

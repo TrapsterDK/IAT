@@ -18,6 +18,30 @@ if TYPE_CHECKING:
 IAT_RESOURCES_CONFIG_PATH_ENV_VAR = "IAT_RESOURCES_CONFIG_PATH"
 
 
+class SessionScoreInterpretationSettings(ConfigModel):
+    """Magnitude thresholds used to convert one D-score into one headline."""
+
+    little_to_no_association_upper_bound: float = Field(default=0.15, ge=0)
+    slight_association_upper_bound: float = Field(default=0.35, gt=0)
+    moderate_association_upper_bound: float = Field(default=0.65, gt=0)
+
+    @model_validator(mode="after")
+    def validate_thresholds(self) -> SessionScoreInterpretationSettings:
+        """Ensure score interpretation thresholds increase strictly.
+
+        Returns:
+            The validated score interpretation settings instance.
+        """
+        if not (
+            self.little_to_no_association_upper_bound
+            < self.slight_association_upper_bound
+            < self.moderate_association_upper_bound
+        ):
+            raise ValueError("The session score interpretation thresholds must increase strictly.")
+
+        return self
+
+
 class IatResourcesSettings(ConfigModel):
     """Config that describes where backend resources and the local database live."""
 
@@ -25,8 +49,9 @@ class IatResourcesSettings(ConfigModel):
     port: int = Field(default=8000, ge=0, le=65535)
     debug: bool = True
     database_path: Path = Path("instance/backend.sqlite3")
-    anticipation_threshold_ms: int = Field(default=300, ge=0)
-    response_timeout_ms: int = Field(default=10_000, gt=0)
+    session_score_interpretation: SessionScoreInterpretationSettings = Field(
+        default_factory=SessionScoreInterpretationSettings
+    )
     iats: UniqueHashable[tuple[Path, ...]] = Field(
         default_factory=lambda: (
             Path("resources/iats/asian-black-pleasant-unpleasant.yaml"),
@@ -38,18 +63,6 @@ class IatResourcesSettings(ConfigModel):
             Path("resources/iats/young-old-pleasant-unpleasant.yaml"),
         )
     )
-
-    @model_validator(mode="after")
-    def validate_thresholds(self) -> IatResourcesSettings:
-        """Ensure response timing thresholds are internally consistent.
-
-        Returns:
-            The validated backend settings instance.
-        """
-        if self.anticipation_threshold_ms >= self.response_timeout_ms:
-            raise ValueError("The anticipation threshold must be smaller than the response timeout.")
-
-        return self
 
     def resolve(self, base_directory: Path) -> ResolvedIatResources:
         """Resolve configured resource paths against one base directory.
@@ -65,8 +78,7 @@ class IatResourcesSettings(ConfigModel):
             port=self.port,
             debug=self.debug,
             database_path=resolve_path(self.database_path, base_directory),
-            anticipation_threshold_ms=self.anticipation_threshold_ms,
-            response_timeout_ms=self.response_timeout_ms,
+            session_score_interpretation=self.session_score_interpretation,
             iats=tuple(resolve_path(iat_path, base_directory) for iat_path in self.iats),
         )
 

@@ -1,13 +1,19 @@
-"""Tests for backend IAT service lookups."""
+"""Tests for backend catalog service lookups."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from apps.backend.repositories.iat import IatRepository
-from apps.backend.services.iat import IatService
+from apps.backend.repositories.catalog import CatalogRepository
+from apps.backend.services.catalog import CatalogService
 from apps.backend.settings import IatResourcesSettings
 from libs.testing.io import write_json, write_png
+
+
+def _build_catalog_service(settings: IatResourcesSettings, tmp_path: Path) -> CatalogService:
+    resolved_settings = settings.resolve(tmp_path)
+    catalog_repository = CatalogRepository(resolved_settings)
+    return CatalogService(catalog_repository)
 
 
 def test_get_iat_returns_published_iat(tmp_path: Path) -> None:
@@ -53,9 +59,7 @@ def test_get_iat_returns_published_iat(tmp_path: Path) -> None:
         },
     )
     write_png(image_path)
-    service = IatService(
-        IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
-    )
+    service = _build_catalog_service(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)), tmp_path)
 
     # When: the service resolves one configured IAT.
     resolved_iat = service.get_iat("sample-iat")
@@ -108,9 +112,7 @@ def test_list_iats_returns_published_iats(tmp_path: Path) -> None:
             ],
         },
     )
-    service = IatService(
-        IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
-    )
+    service = _build_catalog_service(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)), tmp_path)
 
     # When: the service lists the available IATs.
     iat_summaries = service.get_iats()
@@ -162,9 +164,7 @@ def test_get_stimulus_returns_published_source_path(tmp_path: Path) -> None:
         },
     )
     write_png(image_path)
-    service = IatService(
-        IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
-    )
+    service = _build_catalog_service(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)), tmp_path)
 
     # When: the service resolves one published stimulus path.
     published_iat = service.get_iat("sample-iat")

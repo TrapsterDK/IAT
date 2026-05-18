@@ -1,110 +1,68 @@
-"""Public API models for session bootstrap and block uploads."""
+"""Shared internal models for runtime state and uploads."""
 
 from __future__ import annotations
 
-from typing import Self
+from dataclasses import dataclass
+from enum import StrEnum
+from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
-
-from apps.backend.domain.session.models import ResponseSide, TrialEventType  # noqa: TC001
-from libs.pydantic.types import NonBlankString, NonBlankString255
-
-type BlockLabels = tuple[NonBlankString255] | tuple[NonBlankString255, NonBlankString255]
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
-class ClientContextRequest(BaseModel):
-    """Optional client metadata accepted when starting one session."""
+class TrialEventType(StrEnum):
+    """Primitive participant actions captured while one trial is active."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    user_agent: NonBlankString | None = None
-    platform: NonBlankString255 | None = None
-    viewport_width_px: int | None = Field(default=None, gt=0)
-    viewport_height_px: int | None = Field(default=None, gt=0)
-    device_pixel_ratio: float | None = Field(default=None, gt=0)
+    LEFT = "left"
+    RIGHT = "right"
 
 
-class CreateSessionRequest(BaseModel):
-    """Public request payload for creating and starting one IAT session."""
+@dataclass(frozen=True, slots=True)
+class ClientContext:
+    """Non-identifying client metadata stored for later analysis."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    iat_slug: NonBlankString255
-    client_context: ClientContextRequest | None = None
-
-
-class SessionStimulusResponse(BaseModel):
-    """One public text or image stimulus returned in one run plan."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    text: NonBlankString255 | None = None
-    image_url: NonBlankString255 | None = None
-
-    @model_validator(mode="after")
-    def validate_stimulus(self) -> Self:
-        """Require exactly one public stimulus representation.
-
-        Returns:
-            The validated session stimulus response.
-        """
-        if (self.text is None) == (self.image_url is None):
-            raise ValueError("Each session stimulus must define exactly one of 'text' or 'image_url'.")
-
-        return self
+    user_agent: str | None = None
+    platform: str | None = None
+    viewport_width_px: int | None = None
+    viewport_height_px: int | None = None
+    device_pixel_ratio: float | None = None
 
 
-class RunPlanTrialResponse(BaseModel):
-    """One deterministic trial returned to the client runtime."""
+@dataclass(frozen=True, slots=True)
+class SessionCreateInput:
+    """Typed session-creation payload passed beyond the API boundary."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    stimulus: SessionStimulusResponse
-    correct_response_side: ResponseSide
-
-
-class RunPlanBlockResponse(BaseModel):
-    """One deterministic block returned to the client runtime."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    left_labels: BlockLabels
-    right_labels: BlockLabels
-    is_practice: bool
-    trials: tuple[RunPlanTrialResponse, ...] = Field(min_length=1)
+    iat_slug: str
+    client_context: ClientContext
 
 
-class SessionBootstrapResponse(BaseModel):
-    """Public session bootstrap returned when one session is created."""
+@dataclass(frozen=True, slots=True)
+class SessionState:
+    """Mutable session lifecycle metadata stored on the session root row."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    session_key: NonBlankString255
-    anticipation_threshold_ms: int = Field(ge=0)
-    response_timeout_ms: int = Field(gt=0)
-    blocks: tuple[RunPlanBlockResponse, ...] = Field(min_length=1)
+    session_id: int
+    session_key: str
+    created_at_utc: datetime
+    completed_at_utc: datetime | None = None
 
 
-class UploadTrialEventRequest(BaseModel):
-    """One raw participant action captured while one trial was active."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
+@dataclass(frozen=True, slots=True)
+class TrialEventInput:
+    """One typed raw participant action before completion semantics are validated."""
 
     event_type: TrialEventType
-    elapsed_ms: int = Field(ge=0)
+    elapsed_ms: int
 
 
-class UploadBlockTrialRequest(BaseModel):
-    """One completed trial uploaded within one deterministic block prefix."""
+@dataclass(frozen=True, slots=True)
+class CompletedTrialInput:
+    """One typed raw completed-trial payload before completion semantics are validated."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    events: tuple[UploadTrialEventRequest, ...] = Field(min_length=1)
+    events: tuple[TrialEventInput, ...]
 
 
-class UploadBlockRequest(BaseModel):
-    """One deterministic block uploaded from the client runtime."""
+@dataclass(frozen=True, slots=True)
+class CompletedBlockInput:
+    """One typed raw completed-block payload before completion semantics are validated."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    trials: tuple[UploadBlockTrialRequest, ...] = Field(min_length=1)
+    trials: tuple[CompletedTrialInput, ...]

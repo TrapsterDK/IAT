@@ -1,11 +1,11 @@
-"""Tests for backend session API models."""
+"""Tests for backend session API schemas."""
 
 from __future__ import annotations
 
 import pytest
 from pydantic import ValidationError
 
-from apps.backend.models.session import SessionStimulusResponse, UploadBlockRequest
+from apps.backend.schemas.session import CompletedBlockRequest, SessionStimulusResponse
 
 
 @pytest.mark.parametrize(
@@ -44,10 +44,10 @@ def test_session_stimulus_response_rejects_invalid_representation_count(payload:
         SessionStimulusResponse.model_validate(payload)
 
 
-def test_upload_block_request_rejects_empty_trials() -> None:
+def test_completed_block_request_rejects_empty_trials() -> None:
     # Given: one block-upload payload with no uploaded trials.
 
     # When: the request model is validated.
     # Then: request validation rejects the empty block payload.
     with pytest.raises(ValidationError, match="at least 1 item"):
-        UploadBlockRequest.model_validate({"trials": []})
+        CompletedBlockRequest.model_validate({"trials": []})

@@ -4,42 +4,39 @@ from __future__ import annotations
 
 from pathlib import PurePosixPath
 
-import pytest
-
-from apps.backend.domain.iat.models import PublishedCategory, PublishedIat, PublishedStimulus
-from apps.backend.domain.session.exceptions import SessionConfigurationError
-from apps.backend.domain.session.models import BlockPlan, ResponseSide
 from apps.backend.domain.session.run_plan_builder import build_run_plan
+from apps.backend.models.catalog import CatalogCategory, CatalogIat, CatalogStimulus
+from apps.backend.models.plan import BlockPlan, ResponseSide
 
 
-def _build_published_iat() -> PublishedIat:
-    return PublishedIat(
+def _build_catalog_iat() -> CatalogIat:
+    return CatalogIat(
         slug="sample-iat",
         title="Sample IAT",
         description="sample description",
         categories=(
             (
-                PublishedCategory(
+                CatalogCategory(
                     slug="alpha",
                     label="Alpha",
-                    stimuli=(PublishedStimulus(text="alpha-1"), PublishedStimulus(text="alpha-2")),
+                    stimuli=(CatalogStimulus(text="alpha-1"), CatalogStimulus(text="alpha-2")),
                 ),
-                PublishedCategory(
+                CatalogCategory(
                     slug="beta",
                     label="Beta",
-                    stimuli=(PublishedStimulus(text="beta-1"), PublishedStimulus(text="beta-2")),
+                    stimuli=(CatalogStimulus(text="beta-1"), CatalogStimulus(text="beta-2")),
                 ),
             ),
             (
-                PublishedCategory(
+                CatalogCategory(
                     slug="good",
                     label="Good",
-                    stimuli=(PublishedStimulus(text="good-1"), PublishedStimulus(text="good-2")),
+                    stimuli=(CatalogStimulus(text="good-1"), CatalogStimulus(text="good-2")),
                 ),
-                PublishedCategory(
+                CatalogCategory(
                     slug="bad",
                     label="Bad",
-                    stimuli=(PublishedStimulus(text="bad-1"), PublishedStimulus(text="bad-2")),
+                    stimuli=(CatalogStimulus(text="bad-1"), CatalogStimulus(text="bad-2")),
                 ),
             ),
         ),
@@ -52,19 +49,15 @@ def _sorted_text_trial_pairs(block: BlockPlan) -> list[tuple[str | None, Respons
 
 def test_build_run_plan_builds_expected_seven_block_layout() -> None:
     # Given: one published IAT with two category pairs and two stimuli per category.
-    published_iat = _build_published_iat()
+    catalog_iat = _build_catalog_iat()
 
     # When: one deterministic run plan is generated.
     run_plan = build_run_plan(
-        published_iat,
-        anticipation_threshold_ms=300,
-        response_timeout_ms=10_000,
+        catalog_iat,
         seed=123,
     )
 
     # Then: the generated plan keeps the expected IAT block layout and trial counts.
-    assert run_plan.anticipation_threshold_ms == 300
-    assert run_plan.response_timeout_ms == 10_000
     assert [block.left_labels for block in run_plan.blocks] == [
         ("Alpha",),
         ("Good",),
@@ -89,13 +82,11 @@ def test_build_run_plan_builds_expected_seven_block_layout() -> None:
 
 def test_build_run_plan_populates_expected_trials_in_representative_blocks() -> None:
     # Given: one published IAT with distinct text stimuli in each category.
-    published_iat = _build_published_iat()
+    catalog_iat = _build_catalog_iat()
 
     # When: one deterministic run plan is generated.
     run_plan = build_run_plan(
-        published_iat,
-        anticipation_threshold_ms=300,
-        response_timeout_ms=10_000,
+        catalog_iat,
         seed=123,
     )
 
@@ -136,19 +127,15 @@ def test_build_run_plan_populates_expected_trials_in_representative_blocks() -> 
 
 def test_build_run_plan_keeps_shuffle_order_stable_for_one_seed() -> None:
     # Given: one published IAT and one fixed deterministic seed.
-    published_iat = _build_published_iat()
+    catalog_iat = _build_catalog_iat()
 
     # When: two plans are generated from the same seed.
     first_run_plan = build_run_plan(
-        published_iat,
-        anticipation_threshold_ms=300,
-        response_timeout_ms=10_000,
+        catalog_iat,
         seed=99,
     )
     second_run_plan = build_run_plan(
-        published_iat,
-        anticipation_threshold_ms=300,
-        response_timeout_ms=10_000,
+        catalog_iat,
         seed=99,
     )
 
@@ -158,13 +145,11 @@ def test_build_run_plan_keeps_shuffle_order_stable_for_one_seed() -> None:
 
 def test_build_run_plan_preserves_expected_trial_order_for_seed() -> None:
     # Given: one published IAT and one seed whose trial order is persisted and consumed downstream.
-    published_iat = _build_published_iat()
+    catalog_iat = _build_catalog_iat()
 
     # When: one deterministic run plan is generated.
     run_plan = build_run_plan(
-        published_iat,
-        anticipation_threshold_ms=300,
-        response_timeout_ms=10_000,
+        catalog_iat,
         seed=123,
     )
 
@@ -221,33 +206,33 @@ def test_build_run_plan_preserves_expected_trial_order_for_seed() -> None:
 
 def test_build_run_plan_keeps_published_image_paths_in_trials() -> None:
     # Given: one published IAT containing one image stimulus.
-    published_iat = PublishedIat(
+    catalog_iat = CatalogIat(
         slug="sample-iat",
         title="Sample IAT",
         description="sample description",
         categories=(
             (
-                PublishedCategory(
+                CatalogCategory(
                     slug="alpha",
                     label="Alpha",
-                    stimuli=(PublishedStimulus(image_path=PurePosixPath("sample-iat/alpha/example.png")),),
+                    stimuli=(CatalogStimulus(image_path=PurePosixPath("sample-iat/alpha/example.png")),),
                 ),
-                PublishedCategory(
+                CatalogCategory(
                     slug="beta",
                     label="Beta",
-                    stimuli=(PublishedStimulus(text="beta"),),
+                    stimuli=(CatalogStimulus(text="beta"),),
                 ),
             ),
             (
-                PublishedCategory(
+                CatalogCategory(
                     slug="good",
                     label="Good",
-                    stimuli=(PublishedStimulus(text="good"),),
+                    stimuli=(CatalogStimulus(text="good"),),
                 ),
-                PublishedCategory(
+                CatalogCategory(
                     slug="bad",
                     label="Bad",
-                    stimuli=(PublishedStimulus(text="bad"),),
+                    stimuli=(CatalogStimulus(text="bad"),),
                 ),
             ),
         ),
@@ -255,9 +240,7 @@ def test_build_run_plan_keeps_published_image_paths_in_trials() -> None:
 
     # When: one deterministic run plan is built.
     run_plan = build_run_plan(
-        published_iat,
-        anticipation_threshold_ms=300,
-        response_timeout_ms=10_000,
+        catalog_iat,
         seed=123,
     )
 
@@ -267,33 +250,3 @@ def test_build_run_plan_keeps_published_image_paths_in_trials() -> None:
     ]
     assert image_trials
     assert {trial.stimulus.image_path for trial in image_trials} == {PurePosixPath("sample-iat/alpha/example.png")}
-
-
-@pytest.mark.parametrize(
-    ("anticipation_threshold_ms", "response_timeout_ms"),
-    [
-        pytest.param(-1, 10_000, id="negative_anticipation_threshold"),
-        pytest.param(300, 0, id="non_positive_response_timeout"),
-        pytest.param(300, 300, id="equal_thresholds"),
-        pytest.param(301, 300, id="anticipation_after_timeout"),
-    ],
-)
-def test_build_run_plan_rejects_invalid_timing_configuration(
-    anticipation_threshold_ms: int,
-    response_timeout_ms: int,
-) -> None:
-    # Given: one published IAT and one invalid timing configuration.
-    published_iat = _build_published_iat()
-
-    # When: one deterministic run plan is generated.
-    # Then: the builder rejects timing that cannot produce one valid session plan.
-    with pytest.raises(
-        SessionConfigurationError,
-        match="Session anticipation thresholds must be lower than response timeouts",
-    ):
-        build_run_plan(
-            published_iat,
-            anticipation_threshold_ms=anticipation_threshold_ms,
-            response_timeout_ms=response_timeout_ms,
-            seed=123,
-        )

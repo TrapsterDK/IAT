@@ -7,9 +7,22 @@ py_library(
     srcs = ["catalog.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//apps/backend:settings",
-        "//apps/backend/domain/iat:spec_models",
         "//apps/backend/models:catalog",
+        "//libs/pydantic:types",
+        "@pip//pydantic",
+    ],
+)
+
+py_library(
+    name = "session",
+    srcs = ["session.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend/models:plan",
+        "//apps/backend/models:scoring",
+        "//apps/backend/models:session",
+        "//libs/pydantic:types",
+        "@pip//pydantic",
     ],
 )
 
@@ -19,8 +32,7 @@ py_test(
     deps = [
         ":catalog",
         "//apps/backend:conftest",
-        "//apps/backend:settings",
-        "//libs/testing:io",
+        "@pip//pydantic",
         "@pip//pytest",
     ],
 )
@@ -29,18 +41,10 @@ py_test(
     name = "session_test",
     srcs = ["session_test.py"],
     deps = [
+        ":session",
         "//apps/backend:conftest",
-        "//apps/backend:database",
-        "//apps/backend/domain/session:exceptions",
-        "//apps/backend/models:plan",
-        "//apps/backend/models:scoring",
-        "//apps/backend/models:session",
-        "//apps/backend/repositories/session",
-        "//apps/backend/repositories/session:plan",
-        "//apps/backend/repositories/session:schema",
-        "//apps/backend/repositories/session:scoring",
+        "@pip//pydantic",
         "@pip//pytest",
-        "@pip//sqlalchemy",
     ],
 )
 

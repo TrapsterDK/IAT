@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from apps.backend.app import create_app
-from apps.backend.models.iat import StimulusResponse
+from apps.backend.schemas.catalog import StimulusResponse
 from apps.backend.settings import IAT_RESOURCES_CONFIG_PATH_ENV_VAR, IatResourcesSettings, load_settings
 from libs.testing.io import TEST_PNG_SIGNATURE, write_json, write_png
 

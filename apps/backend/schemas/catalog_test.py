@@ -1,11 +1,11 @@
-"""Tests for backend IAT API models."""
+"""Tests for backend catalog API schemas."""
 
 from __future__ import annotations
 
 import pytest
 from pydantic import ValidationError
 
-from apps.backend.models.iat import StimulusResponse
+from apps.backend.schemas.catalog import StimulusResponse
 
 
 @pytest.mark.parametrize(

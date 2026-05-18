@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+INVALID_SESSION_STATE_MESSAGE = "The block upload could not be committed because the session state is invalid."
+
 
 class SessionError(Exception):
     """Base exception for session runtime failures."""

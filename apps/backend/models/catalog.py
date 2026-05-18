@@ -1,4 +1,4 @@
-"""Published IAT domain models exposed beyond the repository boundary."""
+"""Catalog IAT models shared across backend layers."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, slots=True)
-class PublishedStimulus:
+class CatalogStimulus:
     """One text or publicly exposed image stimulus."""
 
     text: str | None = None
@@ -18,22 +18,22 @@ class PublishedStimulus:
 
 
 @dataclass(frozen=True, slots=True)
-class PublishedCategory:
-    """One published category in one IAT."""
+class CatalogCategory:
+    """One catalog category in one IAT."""
 
     slug: str
     label: str
-    stimuli: tuple[PublishedStimulus, ...]
+    stimuli: tuple[CatalogStimulus, ...]
 
 
-type PublishedCategoryPair = tuple[PublishedCategory, PublishedCategory]
+type CatalogCategoryPair = tuple[CatalogCategory, CatalogCategory]
 
 
 @dataclass(frozen=True, slots=True)
-class PublishedIat:
-    """One published IAT with public stimulus paths."""
+class CatalogIat:
+    """One catalog IAT with public stimulus paths."""
 
     slug: str
     title: str
     description: str
-    categories: tuple[PublishedCategoryPair, PublishedCategoryPair]
+    categories: tuple[CatalogCategoryPair, CatalogCategoryPair]

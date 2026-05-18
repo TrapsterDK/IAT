@@ -8,20 +8,44 @@ py_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//apps/backend:database_base",
-        "//apps/backend/domain/session:models",
+        "//apps/backend/models:plan",
+        "//apps/backend/models:session",
         "//libs/sqlalchemy:types",
         "@pip//sqlalchemy",
     ],
 )
 
 py_library(
-    name = "repository",
-    srcs = ["repository.py"],
+    name = "session",
+    srcs = ["session.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":schema",
         "//apps/backend/domain/session:exceptions",
-        "//apps/backend/domain/session:models",
+        "//apps/backend/models:session",
+        "//libs/sqlalchemy:types",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_library(
+    name = "plan",
+    srcs = ["plan.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend/models:plan",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_library(
+    name = "scoring",
+    srcs = ["scoring.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend/domain/session:exceptions",
+        "//apps/backend/models:plan",
+        "//apps/backend/models:scoring",
+        "//apps/backend/models:session",
         "@pip//sqlalchemy",
     ],
 )

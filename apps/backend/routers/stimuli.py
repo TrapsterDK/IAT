@@ -8,8 +8,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 
-from apps.backend.dependencies import get_iat_service
-from apps.backend.services.iat import IatService  # noqa: TC001
+from apps.backend.dependencies import get_catalog_service
+from apps.backend.services.catalog import CatalogService  # noqa: TC001
 
 router = APIRouter(prefix="/stimuli", tags=["stimuli"])
 
@@ -30,13 +30,13 @@ def build_stimulus_url(request: Request, image_path: PurePosixPath) -> str:
 @router.get("/{stimulus_path:path}")
 def get_stimulus(
     stimulus_path: str,
-    iat_service: Annotated[IatService, Depends(get_iat_service)],
+    catalog_service: Annotated[CatalogService, Depends(get_catalog_service)],
 ) -> FileResponse:
     """Serve one public PNG stimulus.
 
     Args:
         stimulus_path: Public path below the configured stimuli root.
-        iat_service: Shared backend IAT service.
+        catalog_service: Shared backend catalog service.
 
     Returns:
         The requested PNG file response.
@@ -44,7 +44,7 @@ def get_stimulus(
     Raises:
         HTTPException: The requested path is invalid or unavailable.
     """
-    resolved_path = iat_service.get_stimulus(PurePosixPath(stimulus_path))
+    resolved_path = catalog_service.get_stimulus(PurePosixPath(stimulus_path))
     if resolved_path is None:
         raise HTTPException(status_code=404, detail="Stimulus not found.")
 

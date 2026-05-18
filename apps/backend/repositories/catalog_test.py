@@ -1,4 +1,4 @@
-"""Tests for the backend filesystem-backed IAT repository."""
+"""Tests for the backend filesystem-backed catalog repositories."""
 
 from __future__ import annotations
 
@@ -8,9 +8,13 @@ from pathlib import Path, PurePosixPath
 
 import pytest
 
-from apps.backend.repositories.iat import IatRepository
+from apps.backend.repositories.catalog import CatalogRepository
 from apps.backend.settings import IatResourcesSettings
 from libs.testing.io import write_json, write_png, write_yaml
+
+
+def _build_catalog_repository(settings: IatResourcesSettings, tmp_path: Path) -> CatalogRepository:
+    return CatalogRepository(settings.resolve(tmp_path))
 
 
 def _published_image_path(iat_slug: str, category_slug: str, image_path: Path) -> PurePosixPath:
@@ -67,14 +71,13 @@ def test_get_iats_keeps_configured_order(tmp_path: Path) -> None:
             ],
         },
     )
-    repository = IatRepository(
-        IatResourcesSettings(iats=(Path("resources/iats/bravo.yaml"), Path("resources/iats/alpha.yaml"))).resolve(
-            tmp_path
-        )
+    catalog_repository = _build_catalog_repository(
+        IatResourcesSettings(iats=(Path("resources/iats/bravo.yaml"), Path("resources/iats/alpha.yaml"))),
+        tmp_path,
     )
 
     # When: the repository lists the published IATs.
-    published_iats = repository.get_iats()
+    published_iats = catalog_repository.get_iats()
 
     # Then: the published IAT order follows the configured settings order.
     assert [published_iat.slug for published_iat in published_iats] == ["bravo", "alpha"]
@@ -114,10 +117,13 @@ def test_get_iat_returns_published_stimuli(tmp_path: Path) -> None:
         },
     )
     write_png(image_path)
-    repository = IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
+    catalog_repository = _build_catalog_repository(
+        IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)),
+        tmp_path,
+    )
 
     # When: the repository returns the configured IAT by slug.
-    published_iat = repository.get_iat("sample-iat")
+    published_iat = catalog_repository.get_iat("sample-iat")
 
     # Then: the published IAT contains one routed image path and the remaining text stimuli.
     assert published_iat is not None
@@ -160,10 +166,13 @@ def test_get_iat_returns_none_for_unknown_slug(tmp_path: Path) -> None:
             ],
         },
     )
-    repository = IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
+    catalog_repository = _build_catalog_repository(
+        IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)),
+        tmp_path,
+    )
 
     # When: the repository looks up one unavailable slug.
-    published_iat = repository.get_iat("missing-iat")
+    published_iat = catalog_repository.get_iat("missing-iat")
 
     # Then: the unavailable slug returns no published IAT.
     assert published_iat is None
@@ -196,10 +205,15 @@ def test_get_stimulus_returns_published_source_path(tmp_path: Path) -> None:
         },
     )
     write_png(source_image_path)
-    repository = IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
+    catalog_repository = _build_catalog_repository(
+        IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)),
+        tmp_path,
+    )
 
     # When: the repository resolves the published image path.
-    resolved_source_path = repository.get_stimulus(_published_image_path("sample-iat", "left", source_image_path))
+    resolved_source_path = catalog_repository.get_stimulus(
+        _published_image_path("sample-iat", "left", source_image_path)
+    )
 
     # Then: the repository returns the original source image path.
     assert resolved_source_path == source_image_path
@@ -256,7 +270,7 @@ def test_rejects_duplicate_iat_slugs(tmp_path: Path) -> None:
     # When: the repository loads the configured IAT files.
     # Then: duplicate configured IAT slugs are rejected.
     with pytest.raises(ValueError, match="IAT slugs must be unique across the configured repository"):
-        IatRepository(
+        CatalogRepository(
             IatResourcesSettings(iats=(Path("resources/iats/alpha.yaml"), Path("resources/iats/bravo.yaml"))).resolve(
                 tmp_path
             )
@@ -279,7 +293,7 @@ def test_get_stimulus_returns_none_for_unpublished_images(
     resources_root = tmp_path / "resources"
     manifest_path = resources_root / "stimuli/face/example/manifest.yaml"
     write_yaml(manifest_path, {"slug": "example"})
-    repository = IatRepository(IatResourcesSettings(iats=()).resolve(tmp_path))
+    repository = _build_catalog_repository(IatResourcesSettings(iats=()), tmp_path)
 
     # When: the repository resolves one unpublished image path.
     resolved_source_path = repository.get_stimulus(published_image)
@@ -322,14 +336,17 @@ def test_reuses_published_path_for_same_image(tmp_path: Path) -> None:
         },
     )
     write_png(image_path)
-    repository = IatRepository(IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path))
+    catalog_repository = _build_catalog_repository(
+        IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)),
+        tmp_path,
+    )
 
     # When: the repository publishes the configured IAT.
-    published_iat = repository.get_iat("sample-iat")
+    published_iat = catalog_repository.get_iat("sample-iat")
 
     # Then: the repeated source image gets the same published image key both times.
     assert published_iat is not None
     expected_image = _published_image_path("sample-iat", "left", image_path)
     assert published_iat.categories[0][0].stimuli[0].image_path == expected_image
     assert published_iat.categories[0][0].stimuli[1].image_path == expected_image
-    assert repository.get_stimulus(expected_image) == image_path
+    assert catalog_repository.get_stimulus(expected_image) == image_path

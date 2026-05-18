@@ -3,15 +3,14 @@ load("//tools/python:defs.bzl", "py_library", "py_test")
 package(default_visibility = ["//:__subpackages__"])
 
 py_library(
-    name = "iats",
-    srcs = ["iats.py"],
+    name = "catalog",
+    srcs = ["catalog.py"],
     visibility = ["//:__subpackages__"],
     deps = [
         ":stimuli",
         "//apps/backend:dependencies",
-        "//apps/backend/domain/iat:models",
-        "//apps/backend/models:iat",
-        "//apps/backend/services:iat",
+        "//apps/backend/schemas:catalog",
+        "//apps/backend/services:catalog",
         "@pip//fastapi",
     ],
 )
@@ -22,7 +21,7 @@ py_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//apps/backend:dependencies",
-        "//apps/backend/services:iat",
+        "//apps/backend/services:catalog",
         "@pip//fastapi",
     ],
 )
@@ -35,16 +34,15 @@ py_library(
         ":stimuli",
         "//apps/backend:dependencies",
         "//apps/backend/domain/session:exceptions",
-        "//apps/backend/domain/session:models",
-        "//apps/backend/models:session",
+        "//apps/backend/schemas:session",
         "//apps/backend/services:session",
         "@pip//fastapi",
     ],
 )
 
 py_test(
-    name = "iats_test",
-    srcs = ["iats_test.py"],
+    name = "catalog_test",
+    srcs = ["catalog_test.py"],
     deps = [
         ":conftest",
         "//apps/backend:conftest",
@@ -70,13 +68,9 @@ py_test(
     deps = [
         ":conftest",
         "//apps/backend:conftest",
-        "//apps/backend/domain/session:models",
-        "//apps/backend/models:session",
-        "//apps/backend/repositories/session:schema",
+        "//apps/backend/schemas:session",
         "//third_party/python/fastapi:testclient",
-        "@pip//fastapi",
         "@pip//pytest",
-        "@pip//sqlalchemy",
     ],
 )
 
@@ -92,14 +86,14 @@ py_library(
     srcs = ["conftest.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":iats",
+        ":catalog",
         ":stimuli",
         "//apps/backend:app",
         "//apps/backend:database",
         "//apps/backend:dependencies",
         "//apps/backend:settings",
-        "//apps/backend/repositories:iat",
-        "//apps/backend/services:iat",
+        "//apps/backend/repositories:catalog",
+        "//apps/backend/services:catalog",
         "//libs/testing:io",
         "//third_party/python/fastapi:testclient",
         "@pip//fastapi",

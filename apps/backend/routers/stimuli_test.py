@@ -14,13 +14,14 @@ if TYPE_CHECKING:
 
 
 def test_get_stimulus_serves_png(
-    iat_router_client: TestClient,
-    published_image_url: PurePosixPath,
+    catalog_router_client: TestClient,
+    published_image_path: PurePosixPath,
 ) -> None:
     # Given: one backend app with one published PNG stimulus.
+    published_image_url = PurePosixPath(f"/api/stimuli/{published_image_path.as_posix()}")
 
     # When: the client requests the published PNG stimulus.
-    response = iat_router_client.get(published_image_url.as_posix())
+    response = catalog_router_client.get(published_image_url.as_posix())
 
     # Then: the route serves the PNG file.
     assert response.status_code == httpx.codes.OK
@@ -28,11 +29,11 @@ def test_get_stimulus_serves_png(
     assert response.headers["content-type"].startswith("image/png")
 
 
-def test_get_stimulus_returns_not_found_for_unknown_path(iat_router_client: TestClient) -> None:
+def test_get_stimulus_returns_not_found_for_unknown_path(catalog_router_client: TestClient) -> None:
     # Given: one backend app without the requested published stimulus path.
 
     # When: the client requests one unpublished stimulus path.
-    response = iat_router_client.get(f"/api/stimuli/{PurePosixPath('missing/image.png').as_posix()}")
+    response = catalog_router_client.get(f"/api/stimuli/{PurePosixPath('missing/image.png').as_posix()}")
 
     # Then: the route reports the stimulus as missing.
     assert response.status_code == 404

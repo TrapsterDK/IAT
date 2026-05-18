@@ -14,10 +14,10 @@ from sqlalchemy import create_engine
 from apps.backend.app import create_app
 from apps.backend.database import create_session_factory
 from apps.backend.dependencies import BackendRuntime
-from apps.backend.repositories.iat import IatRepository
-from apps.backend.routers.iats import router as iats_router
+from apps.backend.repositories.catalog import CatalogRepository
+from apps.backend.routers.catalog import router as catalog_router
 from apps.backend.routers.stimuli import router as stimuli_router
-from apps.backend.services.iat import IatService
+from apps.backend.services.catalog import CatalogService
 from apps.backend.settings import IatResourcesSettings, ResolvedIatResources
 from libs.testing.io import write_json, write_png
 
@@ -105,7 +105,7 @@ def _write_duplicate_label_iat_spec(spec_path: Path) -> None:
 
 
 @pytest.fixture
-def image_iat_settings(tmp_path: Path) -> ResolvedIatResources:
+def image_catalog_settings(tmp_path: Path) -> ResolvedIatResources:
     """Provide resolved resources for one image-backed sample IAT.
 
     Args:
@@ -125,17 +125,38 @@ def image_iat_settings(tmp_path: Path) -> ResolvedIatResources:
 
 
 @pytest.fixture
-def iat_router_client(image_iat_settings: ResolvedIatResources) -> Iterator[TestClient]:
-    """Provide one focused app that serves IAT and stimulus routes.
+def published_image_path(image_catalog_settings: ResolvedIatResources) -> PurePosixPath:
+    """Return one published image path from the sample image-backed IAT.
 
     Args:
-        image_iat_settings: Resolved resources for the sample image-backed IAT.
+        image_catalog_settings: Resolved resources for the sample image-backed IAT.
+
+    Returns:
+        One published image path from the sample IAT.
+    """
+    published_iat = CatalogRepository(image_catalog_settings).get_iat("sample-iat")
+    if published_iat is None:
+        raise RuntimeError("Expected the sample IAT to be published for router tests.")
+
+    image_path = published_iat.categories[0][0].stimuli[0].image_path
+    if image_path is None:
+        raise RuntimeError("Expected one published image stimulus for router tests.")
+
+    return image_path
+
+
+@pytest.fixture
+def catalog_router_client(image_catalog_settings: ResolvedIatResources) -> Iterator[TestClient]:
+    """Provide one focused app that serves catalog and stimulus routes.
+
+    Args:
+        image_catalog_settings: Resolved resources for the sample image-backed IAT.
 
     Yields:
-        One test client backed by focused IAT and stimulus routes.
+        One test client backed by focused catalog and stimulus routes.
     """
     engine = create_engine("sqlite+pysqlite:///:memory:", future=True)
-    iat_repository = IatRepository(image_iat_settings)
+    catalog_repository = CatalogRepository(image_catalog_settings)
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
@@ -146,12 +167,12 @@ def iat_router_client(image_iat_settings: ResolvedIatResources) -> Iterator[Test
 
     app = FastAPI(lifespan=lifespan)
     app.state.runtime = BackendRuntime(
-        iat_repository=iat_repository,
-        iat_service=IatService(iat_repository),
+        catalog_repository=catalog_repository,
+        catalog_service=CatalogService(catalog_repository),
         session_factory=create_session_factory(engine),
-        settings=image_iat_settings,
+        settings=image_catalog_settings,
     )
-    app.include_router(iats_router, prefix="/api")
+    app.include_router(catalog_router, prefix="/api")
     app.include_router(stimuli_router, prefix="/api")
 
     with TestClient(app) as client:
@@ -221,18 +242,3 @@ def duplicate_label_session_client(tmp_path: Path) -> Iterator[TestClient]:
 
     with TestClient(create_app(settings), raise_server_exceptions=False) as client:
         yield client
-
-
-@pytest.fixture
-def published_image_url(iat_router_client: TestClient) -> PurePosixPath:
-    """Return one published image URL exposed by the sample IAT route.
-
-    Args:
-        iat_router_client: Focused router test client serving published IATs.
-
-    Returns:
-        One published image URL from the sample IAT detail response.
-    """
-    detail_response = iat_router_client.get("/api/iats/sample-iat")
-    assert detail_response.status_code == 200
-    return PurePosixPath(detail_response.json()["categories"][0]["category"][0]["stimuli"][0]["image_url"])

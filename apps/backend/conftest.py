@@ -9,8 +9,8 @@ import pytest
 
 from apps.backend.database import create_database_schema, create_session_factory, create_sqlite_engine
 from apps.backend.dependencies import BackendRuntime
-from apps.backend.repositories.iat import IatRepository
-from apps.backend.services.iat import IatService
+from apps.backend.repositories.catalog import CatalogRepository
+from apps.backend.services.catalog import CatalogService
 from apps.backend.settings import IatResourcesSettings
 from libs.testing.io import write_json
 
@@ -55,12 +55,12 @@ def backend_runtime(tmp_path: Path) -> Iterator[BackendRuntime]:
     """
     settings = IatResourcesSettings(iats=()).resolve(tmp_path)
     engine = create_sqlite_engine(settings.database_path)
-    iat_repository = IatRepository(settings)
+    catalog_repository = CatalogRepository(settings)
 
     try:
         yield BackendRuntime(
-            iat_repository=iat_repository,
-            iat_service=IatService(iat_repository),
+            catalog_repository=catalog_repository,
+            catalog_service=CatalogService(catalog_repository),
             session_factory=create_session_factory(engine),
             settings=settings,
         )
@@ -82,18 +82,16 @@ def session_runtime(tmp_path: Path) -> Iterator[BackendRuntime]:
     _write_sample_text_iat_spec(spec_path)
     settings = IatResourcesSettings(
         database_path=Path("instance/backend.sqlite3"),
-        anticipation_threshold_ms=125,
-        response_timeout_ms=825,
         iats=(Path("resources/iats/sample-iat.yaml"),),
     ).resolve(tmp_path)
     engine = create_sqlite_engine(settings.database_path)
-    iat_repository = IatRepository(settings)
+    catalog_repository = CatalogRepository(settings)
     create_database_schema(engine)
 
     try:
         yield BackendRuntime(
-            iat_repository=iat_repository,
-            iat_service=IatService(iat_repository),
+            catalog_repository=catalog_repository,
+            catalog_service=CatalogService(catalog_repository),
             session_factory=create_session_factory(engine),
             settings=settings,
         )

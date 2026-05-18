@@ -6,34 +6,24 @@ from random import Random
 from typing import TYPE_CHECKING
 
 from apps.backend.domain.session.exceptions import SessionConfigurationError
-from apps.backend.domain.session.models import BlockPlan, PlannedStimulus, ResponseSide, RunPlan, TrialPlan
+from apps.backend.models.plan import BlockPlan, PlannedStimulus, ResponseSide, RunPlan, TrialPlan
 
 if TYPE_CHECKING:
-    from apps.backend.domain.iat.models import PublishedIat
+    from apps.backend.models.catalog import CatalogIat
 
 
-def build_run_plan(
-    published_iat: PublishedIat,
-    anticipation_threshold_ms: int,
-    response_timeout_ms: int,
-    seed: int,
-) -> RunPlan:
+def build_run_plan(catalog_iat: CatalogIat, seed: int) -> RunPlan:
     """Build one deterministic seven-block IAT run plan.
 
     Args:
-        published_iat: Published IAT definition used to build the runtime plan.
-        anticipation_threshold_ms: Configured anticipation threshold.
-        response_timeout_ms: Configured response timeout.
+        catalog_iat: Catalog IAT definition used to build the runtime plan.
         seed: Deterministic random seed for per-block ordering.
 
     Returns:
         The constructed deterministic run plan.
     """
-    if anticipation_threshold_ms < 0 or response_timeout_ms <= 0 or anticipation_threshold_ms >= response_timeout_ms:
-        raise SessionConfigurationError("Session anticipation thresholds must be lower than response timeouts.")
-
-    first_pair_left, first_pair_right = published_iat.categories[0]
-    second_pair_left, second_pair_right = published_iat.categories[1]
+    first_pair_left, first_pair_right = catalog_iat.categories[0]
+    second_pair_left, second_pair_right = catalog_iat.categories[1]
     block_layouts = (
         ((first_pair_left,), (first_pair_right,), True),
         ((second_pair_left,), (second_pair_right,), True),
@@ -84,8 +74,4 @@ def build_run_plan(
             )
         )
 
-    return RunPlan(
-        anticipation_threshold_ms=anticipation_threshold_ms,
-        response_timeout_ms=response_timeout_ms,
-        blocks=tuple(built_blocks),
-    )
+    return RunPlan(blocks=tuple(built_blocks))

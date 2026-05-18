@@ -11,12 +11,12 @@ from sqlalchemy.orm import Session
 
 from apps.backend.dependencies import (
     BackendRuntime,
+    get_catalog_service,
     get_db_session,
-    get_iat_service,
     get_runtime,
     get_session_service,
 )
-from apps.backend.domain.session.models import ClientContext
+from apps.backend.models.session import ClientContext, SessionCreateInput
 
 
 def _runtime_app(expected_runtime: BackendRuntime | None = None) -> FastAPI:
@@ -29,12 +29,12 @@ def _runtime_app(expected_runtime: BackendRuntime | None = None) -> FastAPI:
     return app
 
 
-def _iat_service_app(expected_iat_service: object | None = None) -> FastAPI:
+def _catalog_service_app(expected_catalog_service: object | None = None) -> FastAPI:
     app = FastAPI()
 
-    @app.get("/iat-service")
-    def read_iat_service(iat_service: Annotated[object, Depends(get_iat_service)]) -> dict[str, bool]:
-        return {"matches": iat_service is expected_iat_service}
+    @app.get("/catalog-service")
+    def read_catalog_service(catalog_service: Annotated[object, Depends(get_catalog_service)]) -> dict[str, bool]:
+        return {"matches": catalog_service is expected_catalog_service}
 
     return app
 
@@ -80,41 +80,41 @@ def test_get_runtime_raises_when_backend_runtime_has_unexpected_type() -> None:
     assert response.status_code == 500
 
 
-def test_get_iat_service_returns_service_from_backend_services(backend_runtime: BackendRuntime) -> None:
+def test_get_catalog_service_returns_service_from_backend_services(backend_runtime: BackendRuntime) -> None:
     # Given: one FastAPI app whose application state stores one typed backend runtime container.
-    expected_iat_service = backend_runtime.iat_service
-    app = _iat_service_app(expected_iat_service)
+    expected_catalog_service = backend_runtime.catalog_service
+    app = _catalog_service_app(expected_catalog_service)
     app.state.runtime = backend_runtime
 
     # When: one client resolves the shared IAT service dependency through one endpoint.
     with TestClient(app) as client:
-        response = client.get("/iat-service")
+        response = client.get("/catalog-service")
 
     # Then: the stored IAT service is returned.
     assert response.status_code == 200
     assert response.json() == {"matches": True}
 
 
-def test_get_iat_service_raises_when_backend_services_are_missing() -> None:
+def test_get_catalog_service_raises_when_backend_services_are_missing() -> None:
     # Given: one FastAPI app whose application state has no backend runtime container.
-    app = _iat_service_app()
+    app = _catalog_service_app()
 
     # When: one client resolves the shared IAT service dependency through one endpoint.
     with TestClient(app, raise_server_exceptions=False) as client:
-        response = client.get("/iat-service")
+        response = client.get("/catalog-service")
 
     # Then: the missing services container is rejected.
     assert response.status_code == 500
 
 
-def test_get_iat_service_raises_when_backend_services_have_unexpected_type() -> None:
+def test_get_catalog_service_raises_when_backend_services_have_unexpected_type() -> None:
     # Given: one FastAPI app whose application state stores one unexpected runtime object.
-    app = _iat_service_app()
+    app = _catalog_service_app()
     app.state.runtime = object()
 
     # When: one client resolves the shared IAT service dependency through one endpoint.
     with TestClient(app, raise_server_exceptions=False) as client:
-        response = client.get("/iat-service")
+        response = client.get("/catalog-service")
 
     # Then: the unexpected runtime object is rejected.
     assert response.status_code == 500
@@ -205,7 +205,7 @@ def test_get_db_session_rolls_back_request_failures(
 def test_get_session_service_uses_runtime_settings_for_created_sessions(
     session_runtime: BackendRuntime,
 ) -> None:
-    # Given: one runtime with one published IAT and non-default session thresholds.
+    # Given: one runtime with one published IAT.
     app = FastAPI()
     app.state.runtime = session_runtime
     request = Request({"type": "http", "app": app})
@@ -213,9 +213,10 @@ def test_get_session_service_uses_runtime_settings_for_created_sessions(
     # When: the request-scoped session service creates one participant session.
     with session_runtime.session_factory() as database_session:
         session_service = get_session_service(request, database_session)
-        state, run_plan = session_service.create_session("sample-iat", ClientContext())
+        state, run_plan = session_service.create_session(
+            SessionCreateInput(iat_slug="sample-iat", client_context=ClientContext())
+        )
 
-    # Then: the created session uses the runtime-configured thresholds and remains running.
-    assert run_plan.anticipation_threshold_ms == session_runtime.settings.anticipation_threshold_ms
-    assert run_plan.response_timeout_ms == session_runtime.settings.response_timeout_ms
+    # Then: the created session returns one run plan and remains running.
+    assert run_plan.blocks
     assert state.completed_at_utc is None
