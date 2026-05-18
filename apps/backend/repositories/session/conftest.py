@@ -30,7 +30,19 @@ def create_execution(
     run_plan: RunPlan,
     client_context: ClientContext,
 ) -> SessionState:
-    """Create one session and persist its immutable run plan."""
+    """Create one session and persist its immutable run plan.
+
+    Args:
+        database_session: Open SQLAlchemy session used for persistence.
+        session_key_factory: Factory that returns the next public session key.
+        iat_slug: Published IAT slug for the created session.
+        plan_seed: Seed used to create the session state.
+        run_plan: Immutable run plan saved for the new session.
+        client_context: Client metadata stored with the session.
+
+    Returns:
+        The newly created session state.
+    """
     session_repository = SessionRepository(database_session, session_key_factory=session_key_factory)
     plan_repository = SessionPlanRepository(database_session)
     created_state = session_repository.create_session(
@@ -46,12 +58,24 @@ def get_completed_session_snapshot(
     database_session: Session,
     session_key: str,
 ) -> CompletedSessionSnapshot | None:
-    """Load one completed-session snapshot by public session key."""
+    """Load one completed-session snapshot by public session key.
+
+    Args:
+        database_session: Open SQLAlchemy session used for the lookup.
+        session_key: Public session key for the completed session.
+
+    Returns:
+        The completed-session snapshot when one exists, otherwise ``None``.
+    """
     return SessionScoringRepository(database_session).get_completed_session_snapshot_by_key(session_key)
 
 
 def build_run_plan() -> RunPlan:
-    """Build one compact two-block run plan for repository tests."""
+    """Build one compact two-block run plan for repository tests.
+
+    Returns:
+        A deterministic run plan with one practice block and one scored block.
+    """
     return RunPlan(
         blocks=(
             BlockPlan(
@@ -85,7 +109,11 @@ def build_run_plan() -> RunPlan:
 
 
 def build_standard_score_run_plan() -> RunPlan:
-    """Build one seven-block run plan that exercises scoring behavior."""
+    """Build one seven-block run plan that exercises scoring behavior.
+
+    Returns:
+        A deterministic seven-block run plan that covers the scoring flow.
+    """
     return RunPlan(
         blocks=(
             BlockPlan(
@@ -160,7 +188,13 @@ def append_single_event_trials(
     session_id: int,
     block_trial_latencies: dict[int, tuple[int, ...]],
 ) -> None:
-    """Insert one event per trial for the provided block latencies."""
+    """Insert one event per trial for the provided block latencies.
+
+    Args:
+        database_session: Open SQLAlchemy session used for inserts.
+        session_id: Database identifier for the session receiving trial events.
+        block_trial_latencies: Mapping of block index to per-trial elapsed times.
+    """
     for block_index, trial_latencies in block_trial_latencies.items():
         for trial_index, elapsed_ms in enumerate(trial_latencies, start=1):
             database_session.add(
@@ -176,7 +210,14 @@ def append_single_event_trials(
 
 
 def build_repository_factory(tmp_path: Path) -> tuple[Engine, sessionmaker[Session]]:
-    """Create one temporary SQLite-backed session factory for tests."""
+    """Create one temporary SQLite-backed session factory for tests.
+
+    Args:
+        tmp_path: Temporary pytest directory used for the SQLite database file.
+
+    Returns:
+        The SQLite engine and a session factory bound to that engine.
+    """
     engine = create_sqlite_engine(tmp_path / "instance/session-repository.sqlite3")
     create_database_schema(engine)
     return engine, create_session_factory(engine)

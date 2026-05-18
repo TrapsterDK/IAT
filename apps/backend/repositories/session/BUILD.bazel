@@ -56,14 +56,14 @@ py_library(
     srcs = ["conftest.py"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":plan",
+        ":schema",
+        ":scoring",
+        ":session",
         "//apps/backend:database",
         "//apps/backend/models:plan",
         "//apps/backend/models:scoring",
         "//apps/backend/models:session",
-        "//apps/backend/repositories/session",
-        "//apps/backend/repositories/session:plan",
-        "//apps/backend/repositories/session:schema",
-        "//apps/backend/repositories/session:scoring",
         "@pip//sqlalchemy",
     ],
 )
