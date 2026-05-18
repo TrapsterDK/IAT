@@ -25,25 +25,6 @@ py_test(
     ],
 )
 
-py_test(
-    name = "session_test",
-    srcs = ["session_test.py"],
-    deps = [
-        "//apps/backend:conftest",
-        "//apps/backend:database",
-        "//apps/backend/domain/session:exceptions",
-        "//apps/backend/models:plan",
-        "//apps/backend/models:scoring",
-        "//apps/backend/models:session",
-        "//apps/backend/repositories/session",
-        "//apps/backend/repositories/session:plan",
-        "//apps/backend/repositories/session:schema",
-        "//apps/backend/repositories/session:scoring",
-        "@pip//pytest",
-        "@pip//sqlalchemy",
-    ],
-)
-
 filegroup(
     name = "build_bazel",
     srcs = ["BUILD.bazel"],

@@ -1,4 +1,4 @@
-load("//tools/python:defs.bzl", "py_library")
+load("//tools/python:defs.bzl", "py_library", "py_test")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -46,6 +46,79 @@ py_library(
         "//apps/backend/models:plan",
         "//apps/backend/models:scoring",
         "//apps/backend/models:session",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_library(
+    name = "conftest",
+    testonly = True,
+    srcs = ["conftest.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend:database",
+        "//apps/backend/models:plan",
+        "//apps/backend/models:scoring",
+        "//apps/backend/models:session",
+        "//apps/backend/repositories/session",
+        "//apps/backend/repositories/session:plan",
+        "//apps/backend/repositories/session:schema",
+        "//apps/backend/repositories/session:scoring",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_test(
+    name = "plan_test",
+    srcs = ["plan_test.py"],
+    deps = [
+        ":conftest",
+        ":schema",
+        "//apps/backend:conftest",
+        "//apps/backend/models:session",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_test(
+    name = "schema_test",
+    srcs = ["schema_test.py"],
+    deps = [
+        ":conftest",
+        ":schema",
+        "//apps/backend:conftest",
+        "//apps/backend/models:plan",
+        "//apps/backend/models:session",
+        "@pip//pytest",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_test(
+    name = "scoring_test",
+    srcs = ["scoring_test.py"],
+    deps = [
+        ":conftest",
+        ":schema",
+        "//apps/backend:conftest",
+        "//apps/backend/domain/session:exceptions",
+        "//apps/backend/models:plan",
+        "//apps/backend/models:session",
+        "@pip//pytest",
+    ],
+)
+
+py_test(
+    name = "session_test",
+    srcs = ["session_test.py"],
+    deps = [
+        ":conftest",
+        ":schema",
+        ":session",
+        "//apps/backend:conftest",
+        "//apps/backend/domain/session:exceptions",
+        "//apps/backend/models:session",
+        "@pip//pytest",
         "@pip//sqlalchemy",
     ],
 )
