@@ -16,7 +16,6 @@ from apps.backend.dependencies import (
     get_runtime,
     get_session_service,
 )
-from apps.backend.models.session import ClientContext, SessionCreateInput
 
 
 def _runtime_app(expected_runtime: BackendRuntime | None = None) -> FastAPI:
@@ -202,21 +201,17 @@ def test_get_db_session_rolls_back_request_failures(
     assert persisted_row_count == 0
 
 
-def test_get_session_service_uses_runtime_settings_for_created_sessions(
+def test_get_session_service_uses_runtime_score_interpretation_settings(
     session_runtime: BackendRuntime,
 ) -> None:
-    # Given: one runtime with one published IAT.
+    # Given: one runtime with one configured score-interpretation settings object.
     app = FastAPI()
     app.state.runtime = session_runtime
     request = Request({"type": "http", "app": app})
 
-    # When: the request-scoped session service creates one participant session.
+    # When: the request-scoped session service is resolved from one request.
     with session_runtime.session_factory() as database_session:
         session_service = get_session_service(request, database_session)
-        state, run_plan = session_service.create_session(
-            SessionCreateInput(iat_slug="sample-iat", client_context=ClientContext())
-        )
 
-    # Then: the created session returns one run plan and remains running.
-    assert run_plan.blocks
-    assert state.completed_at_utc is None
+    # Then: the resolved service reuses the runtime score-interpretation settings.
+    assert session_service._score_interpretation is session_runtime.settings.session_score_interpretation

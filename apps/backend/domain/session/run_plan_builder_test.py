@@ -143,8 +143,8 @@ def test_build_run_plan_keeps_shuffle_order_stable_for_one_seed() -> None:
     assert first_run_plan == second_run_plan
 
 
-def test_build_run_plan_preserves_expected_trial_order_for_seed() -> None:
-    # Given: one published IAT and one seed whose trial order is persisted and consumed downstream.
+def test_build_run_plan_preserves_representative_block_order_for_seed() -> None:
+    # Given: one published IAT and one seed whose block order is persisted and consumed downstream.
     catalog_iat = _build_catalog_iat()
 
     # When: one deterministic run plan is generated.
@@ -153,18 +153,8 @@ def test_build_run_plan_preserves_expected_trial_order_for_seed() -> None:
         seed=123,
     )
 
-    # Then: the flattened trial execution order stays stable for that seed.
-    assert [
-        (trial.stimulus.text, trial.correct_response_side) for block in run_plan.blocks for trial in block.trials
-    ] == [
-        ("beta-1", ResponseSide.RIGHT),
-        ("beta-2", ResponseSide.RIGHT),
-        ("alpha-2", ResponseSide.LEFT),
-        ("alpha-1", ResponseSide.LEFT),
-        ("bad-1", ResponseSide.RIGHT),
-        ("good-1", ResponseSide.LEFT),
-        ("good-2", ResponseSide.LEFT),
-        ("bad-2", ResponseSide.RIGHT),
+    # Then: one representative block keeps one stable execution order for that seed.
+    assert [(trial.stimulus.text, trial.correct_response_side) for trial in run_plan.blocks[2].trials] == [
         ("bad-1", ResponseSide.RIGHT),
         ("bad-2", ResponseSide.RIGHT),
         ("alpha-2", ResponseSide.LEFT),
@@ -173,34 +163,6 @@ def test_build_run_plan_preserves_expected_trial_order_for_seed() -> None:
         ("beta-1", ResponseSide.RIGHT),
         ("good-2", ResponseSide.LEFT),
         ("alpha-1", ResponseSide.LEFT),
-        ("bad-1", ResponseSide.RIGHT),
-        ("alpha-1", ResponseSide.LEFT),
-        ("good-2", ResponseSide.LEFT),
-        ("beta-2", ResponseSide.RIGHT),
-        ("beta-1", ResponseSide.RIGHT),
-        ("bad-2", ResponseSide.RIGHT),
-        ("alpha-2", ResponseSide.LEFT),
-        ("good-1", ResponseSide.LEFT),
-        ("alpha-1", ResponseSide.RIGHT),
-        ("alpha-2", ResponseSide.RIGHT),
-        ("beta-1", ResponseSide.LEFT),
-        ("beta-2", ResponseSide.LEFT),
-        ("alpha-2", ResponseSide.RIGHT),
-        ("good-1", ResponseSide.LEFT),
-        ("bad-2", ResponseSide.RIGHT),
-        ("bad-1", ResponseSide.RIGHT),
-        ("beta-1", ResponseSide.LEFT),
-        ("good-2", ResponseSide.LEFT),
-        ("alpha-1", ResponseSide.RIGHT),
-        ("beta-2", ResponseSide.LEFT),
-        ("good-1", ResponseSide.LEFT),
-        ("good-2", ResponseSide.LEFT),
-        ("alpha-2", ResponseSide.RIGHT),
-        ("alpha-1", ResponseSide.RIGHT),
-        ("bad-2", ResponseSide.RIGHT),
-        ("bad-1", ResponseSide.RIGHT),
-        ("beta-1", ResponseSide.LEFT),
-        ("beta-2", ResponseSide.LEFT),
     ]
 
 

@@ -113,11 +113,20 @@ def _build_d2_block_latencies(trials: tuple[SessionScoringTrial, ...]) -> list[f
         if not trial.events:
             raise SessionConflictError("Completed scored trials must contain at least one event.")
 
-        final_event = trial.events[-1]
-        if final_event.event_type.value != trial.correct_response_side.value:
+        correct_event_index = next(
+            (
+                event_index
+                for event_index, event in enumerate(trial.events)
+                if event.event_type.value == trial.correct_response_side.value
+            ),
+            None,
+        )
+        if correct_event_index is None:
             raise SessionConflictError("Completed session trials must end on the correct response side.")
+        if correct_event_index != len(trial.events) - 1:
+            raise SessionConflictError("Completed session trials must not contain events after the correct response.")
 
-        final_latency_ms = final_event.elapsed_ms
+        final_latency_ms = trial.events[correct_event_index].elapsed_ms
         if final_latency_ms > MAX_SCORABLE_LATENCY_MS:
             continue
 

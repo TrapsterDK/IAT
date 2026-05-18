@@ -27,17 +27,26 @@ def _build_trial(
     final_latency_ms: int,
     *,
     wrong_before_final: bool = False,
+    wrong_after_final: bool = False,
     wrong_final: bool = False,
 ) -> SessionScoringTrial:
     wrong_event_type = TrialEventType.RIGHT if correct_response_side is ResponseSide.LEFT else TrialEventType.LEFT
     final_event_type = wrong_event_type if wrong_final else TrialEventType(correct_response_side.value)
-    events = (
+    base_events = (
         (
             SessionScoringEvent(event_type=wrong_event_type, elapsed_ms=final_latency_ms - 100),
             SessionScoringEvent(event_type=final_event_type, elapsed_ms=final_latency_ms),
         )
         if wrong_before_final
         else (SessionScoringEvent(event_type=final_event_type, elapsed_ms=final_latency_ms),)
+    )
+    events = (
+        (
+            *base_events,
+            SessionScoringEvent(event_type=wrong_event_type, elapsed_ms=final_latency_ms + 100),
+        )
+        if wrong_after_final
+        else base_events
     )
     return SessionScoringTrial(
         correct_response_side=correct_response_side,
@@ -49,6 +58,7 @@ def _build_snapshot(
     *,
     block_latencies: dict[int, tuple[int, int]],
     error_block_index: int | None = None,
+    wrong_after_final_block_index: int | None = None,
     wrong_final_block_index: int | None = None,
 ) -> CompletedSessionSnapshot:
     return CompletedSessionSnapshot(
@@ -74,6 +84,7 @@ def _build_snapshot(
                         ResponseSide.LEFT,
                         block_latencies[3][0],
                         wrong_before_final=error_block_index == 3,
+                        wrong_after_final=wrong_after_final_block_index == 3,
                         wrong_final=wrong_final_block_index == 3,
                     ),
                     _build_trial(ResponseSide.RIGHT, block_latencies[3][1]),
@@ -88,6 +99,7 @@ def _build_snapshot(
                         ResponseSide.LEFT,
                         block_latencies[4][0],
                         wrong_before_final=error_block_index == 4,
+                        wrong_after_final=wrong_after_final_block_index == 4,
                         wrong_final=wrong_final_block_index == 4,
                     ),
                     _build_trial(ResponseSide.RIGHT, block_latencies[4][1]),
@@ -111,6 +123,7 @@ def _build_snapshot(
                         ResponseSide.LEFT,
                         block_latencies[6][0],
                         wrong_before_final=error_block_index == 6,
+                        wrong_after_final=wrong_after_final_block_index == 6,
                         wrong_final=wrong_final_block_index == 6,
                     ),
                     _build_trial(ResponseSide.RIGHT, block_latencies[6][1]),
@@ -125,6 +138,7 @@ def _build_snapshot(
                         ResponseSide.LEFT,
                         block_latencies[7][0],
                         wrong_before_final=error_block_index == 7,
+                        wrong_after_final=wrong_after_final_block_index == 7,
                         wrong_final=wrong_final_block_index == 7,
                     ),
                     _build_trial(ResponseSide.RIGHT, block_latencies[7][1]),
@@ -230,6 +244,29 @@ def test_calculate_session_score_rejects_trials_that_end_on_the_wrong_side() -> 
     # When: the improved D-score is computed.
     # Then: sessions that never end on the correct side are rejected as invalid.
     with pytest.raises(SessionConflictError, match="correct response side"):
+        calculate_session_score(
+            scoring_data,
+            LITTLE_TO_NO_ASSOCIATION_UPPER_BOUND,
+            SLIGHT_ASSOCIATION_UPPER_BOUND,
+            MODERATE_ASSOCIATION_UPPER_BOUND,
+        )
+
+
+def test_calculate_session_score_rejects_trials_with_events_after_correct_response() -> None:
+    # Given: one completed session whose corrected trial records one later stray response.
+    scoring_data = _build_snapshot(
+        block_latencies={
+            3: (500, 520),
+            4: (530, 550),
+            6: (560, 580),
+            7: (600, 620),
+        },
+        wrong_after_final_block_index=6,
+    )
+
+    # When: the improved D-score is computed.
+    # Then: trials with any events after the correct response are rejected as invalid.
+    with pytest.raises(SessionConflictError, match="events after the correct response"):
         calculate_session_score(
             scoring_data,
             LITTLE_TO_NO_ASSOCIATION_UPPER_BOUND,

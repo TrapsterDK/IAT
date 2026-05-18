@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from statistics import stdev
 from typing import TYPE_CHECKING
 
 import pytest
@@ -82,8 +83,10 @@ class _RecordingSessionPlanRepository(SessionPlanRepository):
 class _StubSessionScoringRepository(SessionScoringRepository):
     def __init__(self, scoring_data: CompletedSessionSnapshot | None = None) -> None:
         self._scoring_data = scoring_data
+        self.requested_session_key: str | None = None
 
     def get_completed_session_snapshot_by_key(self, session_key: str) -> CompletedSessionSnapshot | None:
+        self.requested_session_key = session_key
         return self._scoring_data
 
 
@@ -280,11 +283,12 @@ def test_get_score_raises_not_found_for_missing_session() -> None:
 
 def test_get_score_returns_computed_score_for_completed_session() -> None:
     # Given: one session service whose repository returns one completed scoring aggregate.
+    scoring_repository = _StubSessionScoringRepository(scoring_data=_build_completed_scoring_data())
     session_service = SessionService(
         catalog_repository=_StubCatalogRepository(None),
         session_repository=_RecordingSessionRepository(),
         plan_repository=_RecordingSessionPlanRepository(),
-        scoring_repository=_StubSessionScoringRepository(scoring_data=_build_completed_scoring_data()),
+        scoring_repository=scoring_repository,
         plan_seed_provider=lambda: 123,
         score_interpretation=_build_score_thresholds(),
     )
@@ -293,5 +297,6 @@ def test_get_score_returns_computed_score_for_completed_session() -> None:
     score_result = session_service.get_score("session-key")
 
     # Then: the service returns the computed D-score and public headline.
-    assert score_result.d_score > 0.65
+    assert scoring_repository.requested_session_key == "session-key"
+    assert score_result.d_score == pytest.approx(300.0 / stdev([400.0, 400.0, 700.0, 700.0]))
     assert score_result.headline == "Strong automatic association of Alpha with Gamma."

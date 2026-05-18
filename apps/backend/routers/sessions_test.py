@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from statistics import stdev
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -188,7 +189,7 @@ def test_get_score_returns_completed_session_score(session_client: TestClient) -
     # Then: the route returns the computed D-score and public headline.
     assert response.status_code == 200
     score_response = SessionScoreResponse.model_validate(response.json())
-    assert score_response.d_score > 0.65
+    assert score_response.d_score == pytest.approx(150.0 / stdev([500.0] * 4 + [650.0] * 4))
     assert score_response.headline == "Strong automatic association of Alpha with Gamma."
 
 
