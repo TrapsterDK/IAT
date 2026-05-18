@@ -1,13 +1,33 @@
 # Backend
 
-## Trust boundaries and naming
+`apps/backend` serves the published IAT catalog, public stimulus images, and the participant session API.
 
-Naming follows the trust boundary where values originate:
+## Usage
 
-- `schemas/`: API-edge request and response models used by routers.
-- `models/`: shared internal data models used across backend layers.
-- `domain/`: business rules, validation, planning, and scoring logic.
-- `*Request`: raw API-edge models.
-- `*Response`: validated API models.
-- `*Input`: typed internal payloads that still need domain checks.
-- bare names: internal validated models.
+Run the backend server:
+
+```bash
+bazel run //apps/backend:main
+```
+
+Run the backend server with an explicit config file:
+
+```bash
+IAT_RESOURCES_CONFIG_PATH=resources/backend.yaml \
+  bazel run //apps/backend:main
+```
+
+Useful routes:
+
+- `GET /api/iats`: list published IATs
+- `GET /api/iats/{slug}`: fetch one published IAT
+- `GET /api/stimuli/{path}`: serve one published PNG stimulus
+- `POST /api/sessions`: create one participant session and return its run plan
+- `PUT /api/sessions/{session_key}/blocks/{block_index}`: upload one completed block
+- `GET /api/sessions/{session_key}/score`: fetch the computed score for one completed session
+
+## Config
+
+By default the backend loads built-in resource paths from the workspace root when run through Bazel.
+
+Set `IAT_RESOURCES_CONFIG_PATH` to load a custom config file instead.

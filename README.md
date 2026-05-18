@@ -23,6 +23,10 @@ Use those commands from a reloaded `direnv` shell, through `bazel run //tools/cl
 
 This project uses synthetic image stimuli generated from YAML specs. The generation pipeline lives in [`apps/stimuli_generator`](apps/stimuli_generator/README.md), which provides the CLI for creating those assets.
 
+## Backend
+
+The participant-facing API lives in [`apps/backend`](apps/backend/README.md). It serves published IAT definitions, public stimulus images, session creation, block uploads, and score retrieval.
+
 ## Resources
 
 The `resources/` tree holds generation inputs, generated assets, and IAT definitions.
