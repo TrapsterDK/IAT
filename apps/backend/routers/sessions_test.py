@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from statistics import stdev
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -11,14 +11,15 @@ from apps.backend.schemas.session import SessionBootstrapResponse, SessionScoreR
 
 if TYPE_CHECKING:
     from fastapi.testclient import TestClient
+    from httpx import Response
 
 
-def _validation_error_details(response: Any) -> list[dict[str, object]]:
+def _validation_error_details(response: Response) -> list[dict[str, object]]:
     return response.json()["detail"]
 
 
 def _assert_has_validation_error(
-    response: Any,
+    response: Response,
     expected_loc: tuple[str | int, ...],
     expected_type: str,
 ) -> None:

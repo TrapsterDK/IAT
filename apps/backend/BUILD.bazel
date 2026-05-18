@@ -103,6 +103,7 @@ py_test(
     deps = [
         ":conftest",
         ":dependencies",
+        ":settings",
         "//apps/backend/models:session",
         "//third_party/python/fastapi:testclient",
         "@pip//fastapi",

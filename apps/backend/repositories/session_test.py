@@ -16,7 +16,6 @@ from apps.backend.domain.session.exceptions import (
     SessionInputError,
 )
 from apps.backend.models.plan import BlockPlan, PlannedStimulus, ResponseSide, RunPlan, TrialPlan
-from apps.backend.models.scoring import CompletedSessionSnapshot
 from apps.backend.models.session import (
     ClientContext,
     CompletedBlockInput,
@@ -42,6 +41,8 @@ if TYPE_CHECKING:
 
     from sqlalchemy import Engine
     from sqlalchemy.orm import Session, sessionmaker
+
+    from apps.backend.models.scoring import CompletedSessionSnapshot
 
 
 def _create_execution(
@@ -444,7 +445,7 @@ def test_get_completed_session_snapshot_by_key_returns_completed_session_snapsho
             completed_session_snapshot = _get_completed_session_snapshot(database_session, "session-key")
 
             # Then: the aggregate contains the persisted blocks, trials, and trial events.
-            assert isinstance(completed_session_snapshot, CompletedSessionSnapshot)
+            assert completed_session_snapshot is not None
             assert completed_session_snapshot.blocks[0].left_labels == ("Alpha",)
             assert completed_session_snapshot.blocks[0].right_labels == ("Beta",)
             assert completed_session_snapshot.blocks[1].left_labels == ("Gamma",)

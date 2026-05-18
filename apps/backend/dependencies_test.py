@@ -7,7 +7,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Request
 from fastapi.testclient import TestClient
 from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session  # noqa: TC002
 
 from apps.backend.dependencies import (
     BackendRuntime,
@@ -16,6 +16,15 @@ from apps.backend.dependencies import (
     get_runtime,
     get_session_service,
 )
+from apps.backend.models.session import (
+    ClientContext,
+    CompletedBlockInput,
+    CompletedTrialInput,
+    SessionCreateInput,
+    TrialEventInput,
+    TrialEventType,
+)
+from apps.backend.settings import SessionScoreInterpretationSettings
 
 
 def _runtime_app(expected_runtime: BackendRuntime | None = None) -> FastAPI:
@@ -126,8 +135,8 @@ def test_get_db_session_yields_one_request_scoped_database_session(
     app = FastAPI()
 
     @app.get("/db-session")
-    def read_db_session(database_session: Annotated[Session, Depends(get_db_session)]) -> dict[str, bool]:
-        return {"is_session": isinstance(database_session, Session)}
+    def read_db_session(database_session: Annotated[Session, Depends(get_db_session)]) -> dict[str, int]:
+        return {"query_result": database_session.scalar(text("SELECT 1"))}
 
     app.state.runtime = backend_runtime
 
@@ -137,7 +146,7 @@ def test_get_db_session_yields_one_request_scoped_database_session(
 
     # Then: the dependency yields one SQLAlchemy session object.
     assert response.status_code == 200
-    assert response.json() == {"is_session": True}
+    assert response.json() == {"query_result": 1}
 
 
 def test_get_db_session_commits_request_scoped_changes(
@@ -204,14 +213,55 @@ def test_get_db_session_rolls_back_request_failures(
 def test_get_session_service_uses_runtime_score_interpretation_settings(
     session_runtime: BackendRuntime,
 ) -> None:
-    # Given: one runtime with one configured score-interpretation settings object.
+    # Given: one runtime whose score-interpretation settings classify the sample score as neutral.
+    neutral_runtime = BackendRuntime(
+        catalog_repository=session_runtime.catalog_repository,
+        catalog_service=session_runtime.catalog_service,
+        session_factory=session_runtime.session_factory,
+        settings=session_runtime.settings.model_copy(
+            update={
+                "session_score_interpretation": SessionScoreInterpretationSettings(
+                    little_to_no_association_upper_bound=10.0,
+                    slight_association_upper_bound=11.0,
+                    moderate_association_upper_bound=12.0,
+                )
+            }
+        ),
+    )
     app = FastAPI()
-    app.state.runtime = session_runtime
+    app.state.runtime = neutral_runtime
     request = Request({"type": "http", "app": app})
 
-    # When: the request-scoped session service is resolved from one request.
+    # When: the request-scoped session service completes and scores one sample session.
     with session_runtime.session_factory() as database_session:
         session_service = get_session_service(request, database_session)
+        state, run_plan = session_service.create_session(
+            SessionCreateInput(iat_slug="sample-iat", client_context=ClientContext())
+        )
+        for block_index, block in enumerate(run_plan.blocks, start=1):
+            session_service.complete_block(
+                state.session_key,
+                block_index,
+                CompletedBlockInput(
+                    trials=tuple(
+                        CompletedTrialInput(
+                            events=(
+                                TrialEventInput(
+                                    event_type=(
+                                        TrialEventType.LEFT
+                                        if trial.correct_response_side.value == TrialEventType.LEFT.value
+                                        else TrialEventType.RIGHT
+                                    ),
+                                    elapsed_ms=350 + block_index * 50,
+                                ),
+                            )
+                        )
+                        for trial in block.trials
+                    )
+                ),
+            )
+        database_session.commit()
+        score_result = session_service.get_score(state.session_key)
 
-    # Then: the resolved service reuses the runtime score-interpretation settings.
-    assert session_service._score_interpretation is session_runtime.settings.session_score_interpretation
+    # Then: the resolved service uses the runtime score-interpretation settings for one public score result.
+    assert score_result.headline == "Little to no automatic association."

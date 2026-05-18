@@ -70,6 +70,7 @@ py_test(
         "//apps/backend:conftest",
         "//apps/backend/schemas:session",
         "//third_party/python/fastapi:testclient",
+        "@pip//httpx",
         "@pip//pytest",
     ],
 )
