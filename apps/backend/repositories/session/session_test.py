@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def test_save_completed_block_translates_stale_snapshot_write_conflict(tmp_path: Path) -> None:
+def test_save_completed_block_accepts_same_payload_replay_after_stale_write_race(tmp_path: Path) -> None:
     # Given: one persisted session and two repositories that loaded it before the first upload commit.
     engine, session_factory = build_repository_factory(tmp_path)
 
@@ -66,16 +66,12 @@ def test_save_completed_block_translates_stale_snapshot_write_conflict(tmp_path:
             )
             first_session.commit()
 
-            # Then: the stale second writer gets one session conflict instead of one raw integrity failure.
-            with pytest.raises(
-                SessionConflictError,
-                match="The block upload could not be committed because the session state is invalid",
-            ):
-                second_repository.save_completed_block(
-                    "session-key",
-                    1,
-                    completed_block_input,
-                )
+            # Then: the stale second writer treats the committed identical payload as one successful replay.
+            second_repository.save_completed_block(
+                "session-key",
+                1,
+                completed_block_input,
+            )
         finally:
             first_session.close()
             second_session.close()
@@ -89,9 +85,15 @@ def test_save_completed_block_rejects_completed_session(tmp_path: Path) -> None:
 
     try:
         run_plan = build_run_plan()
-        completed_block_input = CompletedBlockInput(
+        first_block_payload = CompletedBlockInput(
             trials=(
                 CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+            )
+        )
+        completed_block_input = CompletedBlockInput(
+            trials=(
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=351),)),
                 CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
             )
         )
@@ -104,6 +106,11 @@ def test_save_completed_block_rejects_completed_session(tmp_path: Path) -> None:
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+            )
+            SessionRepository(database_session, session_key_factory=lambda: "unused").save_completed_block(
+                "session-key",
+                1,
+                first_block_payload,
             )
             persisted_session = database_session.get(SessionRecord, created_state.session_id)
 
@@ -122,6 +129,55 @@ def test_save_completed_block_rejects_completed_session(tmp_path: Path) -> None:
                 match="The block upload could not be committed because the session state is invalid",
             ):
                 repository.save_completed_block("session-key", 1, completed_block_input)
+    finally:
+        engine.dispose()
+
+
+def test_save_completed_block_rejects_replay_with_different_payload(tmp_path: Path) -> None:
+    # Given: one running persisted session with one already committed first block upload.
+    engine, session_factory = build_repository_factory(tmp_path)
+
+    try:
+        run_plan = build_run_plan()
+        first_payload = CompletedBlockInput(
+            trials=(
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+            )
+        )
+        conflicting_replay_payload = CompletedBlockInput(
+            trials=(
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=351),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+            )
+        )
+
+        with session_factory() as database_session:
+            create_execution(
+                database_session,
+                session_key_factory=lambda: "session-key",
+                iat_slug="sample-iat",
+                plan_seed=123,
+                run_plan=run_plan,
+                client_context=ClientContext(),
+            )
+            database_session.commit()
+
+        with session_factory() as database_session:
+            repository = SessionRepository(database_session, session_key_factory=lambda: "unused")
+            repository.save_completed_block("session-key", 1, first_payload)
+            database_session.commit()
+
+        with session_factory() as database_session:
+            repository = SessionRepository(database_session, session_key_factory=lambda: "unused")
+
+            # When: the repository receives one replay for the same committed block with different trial events.
+            # Then: the conflicting replay is rejected as one invalid session-state transition.
+            with pytest.raises(
+                SessionConflictError,
+                match="The block upload could not be committed because the session state is invalid",
+            ):
+                repository.save_completed_block("session-key", 1, conflicting_replay_payload)
     finally:
         engine.dispose()
 
@@ -261,6 +317,54 @@ def test_save_completed_block_persists_trial_events(tmp_path: Path) -> None:
                 (1, 1, TrialEventType.LEFT),
                 (2, 1, TrialEventType.RIGHT),
             ]
+    finally:
+        engine.dispose()
+
+
+def test_save_completed_block_accepts_identical_final_block_replay_after_completion(tmp_path: Path) -> None:
+    # Given: one persisted two-block session whose final block has already been committed.
+    engine, session_factory = build_repository_factory(tmp_path)
+
+    try:
+        run_plan = build_run_plan()
+        first_block_payload = CompletedBlockInput(
+            trials=(
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+            )
+        )
+        final_block_payload = CompletedBlockInput(
+            trials=(CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=450),)),)
+        )
+
+        with session_factory() as database_session:
+            created_state = create_execution(
+                database_session,
+                session_key_factory=lambda: "session-key",
+                iat_slug="sample-iat",
+                plan_seed=123,
+                run_plan=run_plan,
+                client_context=ClientContext(),
+            )
+            database_session.commit()
+
+        with session_factory() as database_session:
+            repository = SessionRepository(database_session, session_key_factory=lambda: "unused")
+            repository.save_completed_block("session-key", 1, first_block_payload)
+            repository.save_completed_block("session-key", 2, final_block_payload)
+            database_session.commit()
+
+        with session_factory() as database_session:
+            repository = SessionRepository(database_session, session_key_factory=lambda: "unused")
+
+            # When: the repository receives one identical retry for the already committed final block.
+            repository.save_completed_block("session-key", 2, final_block_payload)
+            database_session.commit()
+
+            # Then: the replay succeeds without disturbing the completed session state.
+            persisted_session = database_session.get(SessionRecord, created_state.session_id)
+            assert persisted_session is not None
+            assert persisted_session.completed_at_utc is not None
     finally:
         engine.dispose()
 

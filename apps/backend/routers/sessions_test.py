@@ -343,16 +343,14 @@ def test_upload_block_completes_session_after_final_block(session_client: TestCl
         json={"trials": final_block_trial_payloads},
     )
 
-    # Then: the final upload succeeds and the session rejects any later uploads as completed.
+    # Then: the final upload succeeds and an identical retry is accepted as one idempotent replay.
     assert final_upload_response.status_code == 204
     assert final_upload_response.content == b""
-    assert follow_up_response.status_code == 409
-    assert follow_up_response.json() == {
-        "detail": "The block upload could not be committed because the session state is invalid."
-    }
+    assert follow_up_response.status_code == 204
+    assert follow_up_response.content == b""
 
 
-def test_upload_block_rejects_reupload_of_committed_block(session_client: TestClient) -> None:
+def test_upload_block_accepts_identical_reupload_of_committed_block(session_client: TestClient) -> None:
     # Given: one running session with one already committed first block.
     created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
     assert created_response.status_code == 201
@@ -375,7 +373,40 @@ def test_upload_block_rejects_reupload_of_committed_block(session_client: TestCl
         json={"trials": first_block_trial_payloads},
     )
 
-    # Then: committed blocks cannot be uploaded again.
+    # Then: the identical replay succeeds as one idempotent retry.
+    assert first_upload_response.status_code == 204
+    assert response.status_code == 204
+    assert response.content == b""
+
+
+def test_upload_block_rejects_reupload_of_committed_block_with_different_payload(session_client: TestClient) -> None:
+    # Given: one running session with one already committed first block.
+    created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
+    assert created_response.status_code == 201
+    created_session = SessionBootstrapResponse.model_validate(created_response.json())
+    first_block = created_session.blocks[0]
+    first_block_trial_payloads = [
+        {
+            "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": 350}],
+        }
+        for trial in first_block.trials
+    ]
+    first_upload_response = session_client.put(
+        f"/api/sessions/{created_session.session_key}/blocks/1",
+        json={"trials": first_block_trial_payloads},
+    )
+    conflicting_payloads = [
+        *first_block_trial_payloads[:-1],
+        {"events": [{"event_type": first_block.trials[-1].correct_response_side.value, "elapsed_ms": 351}]},
+    ]
+
+    # When: the client reuploads one committed block with different trial event data.
+    response = session_client.put(
+        f"/api/sessions/{created_session.session_key}/blocks/1",
+        json={"trials": conflicting_payloads},
+    )
+
+    # Then: the backend rejects the conflicting replay.
     assert first_upload_response.status_code == 204
     assert response.status_code == 409
     assert response.json() == {

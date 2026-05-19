@@ -108,6 +108,19 @@ _MARK_SESSION_COMPLETED = text(
     """
 ).bindparams(bindparam("completed_at_utc", type_=UtcDateTime()))
 
+_SELECT_BLOCK_TRIAL_EVENTS = text(
+    """
+    SELECT
+        trial_index,
+        event_index,
+        elapsed_ms,
+        event_type
+    FROM iat_session_trial_events
+    WHERE session_id = :session_id AND block_index = :block_index
+    ORDER BY trial_index, event_index
+    """
+)
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -205,8 +218,6 @@ class SessionRepository:
             raise SessionNotFoundError(f"IAT session not found: {session_key}")
 
         session_id = session_row["id"]
-        if session_row["completed_at_utc"] is not None:
-            raise SessionConflictError(INVALID_SESSION_STATE_MESSAGE)
 
         block_upload_facts = (
             self._database_session.execute(
@@ -220,7 +231,7 @@ class SessionRepository:
         if expected_trial_count < 1:
             raise SessionInputError("Block indexes must reference one configured run-plan block.")
 
-        if block_index != block_upload_facts["uploaded_block_count"] + 1:
+        if session_row["completed_at_utc"] is None and block_index > block_upload_facts["uploaded_block_count"] + 1:
             raise SessionConflictError(INVALID_SESSION_STATE_MESSAGE)
 
         if len(completed_block_input.trials) != expected_trial_count:
@@ -251,6 +262,7 @@ class SessionRepository:
                 )
 
         completes_session = not block_upload_facts["has_later_blocks"]
+        savepoint = self._database_session.begin_nested()
 
         try:
             self._database_session.execute(
@@ -265,5 +277,30 @@ class SessionRepository:
                         "completed_at_utc": datetime.now(tz=UTC),
                     },
                 )
+            savepoint.commit()
         except IntegrityError as exc:
+            savepoint.rollback()
+            persisted_trial_event_rows = tuple(
+                (
+                    persisted_event_row["trial_index"],
+                    persisted_event_row["event_index"],
+                    persisted_event_row["elapsed_ms"],
+                    persisted_event_row["event_type"],
+                )
+                for persisted_event_row in self._database_session.execute(
+                    _SELECT_BLOCK_TRIAL_EVENTS,
+                    {"session_id": session_id, "block_index": block_index},
+                ).mappings()
+            )
+            if persisted_trial_event_rows == tuple(
+                (
+                    trial_event_row["trial_index"],
+                    trial_event_row["event_index"],
+                    trial_event_row["elapsed_ms"],
+                    trial_event_row["event_type"],
+                )
+                for trial_event_row in trial_event_rows
+            ):
+                return
+
             raise SessionConflictError(INVALID_SESSION_STATE_MESSAGE) from exc
