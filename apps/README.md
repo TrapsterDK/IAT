@@ -1,9 +1,10 @@
 # Apps
 
-The `apps/` tree holds app code for this repository.
+Application code for this repository.
 
 ## Directories
 
+- [`api`](api): Generated TypeScript types for backend OpenAPI schemas
 - [`backend`](backend): FastAPI backend for the published IAT catalog, stimuli, and participant session flow
 - [`stimuli_generator`](stimuli_generator): CLI and pipeline code for generating synthetic image stimuli from YAML specs under `resources/stimuli_generation/`
 
