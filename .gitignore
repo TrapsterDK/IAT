@@ -132,3 +132,4 @@ bazel-bin
 bazel-out
 bazel-testlogs
 bazel-*
+node_modules

@@ -41,6 +41,14 @@ js_test(
     tags = ["manual"],
 )
 
+js_binary(
+    name = "node_modules",
+    data = ["node_modules.mjs"],
+    entry_point = "node_modules.mjs",
+    tags = ["manual"],
+    visibility = ["//:__subpackages__"],
+)
+
 filegroup(
     name = "build_bazel",
     srcs = ["BUILD.bazel"],

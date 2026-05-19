@@ -13,8 +13,17 @@
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@apps/*": ["./apps/*", "./bazel-bin/apps/*.d.ts"],
-      "@libs/*": ["./libs/*", "./bazel-bin/libs/*.d.ts"]
+      "@iat/*": [
+        "./*.mts",
+        "./*.cts",
+        "./*.ts",
+        "./*.mjs",
+        "./*.cjs",
+        "./*.js",
+        "./bazel-bin/*.d.mts",
+        "./bazel-bin/*.d.cts",
+        "./bazel-bin/*.d.ts"
+      ]
     }
   },
   "exclude": ["bazel-*", "bazel-bin", "bazel-out", "bazel-testlogs", "node_modules"]

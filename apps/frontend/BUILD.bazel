@@ -10,7 +10,7 @@ filegroup(
 
 ts_project(
     name = "frontend",
-    srcs = ["main.ts"],
+    srcs = ["main.mts"],
     tsconfig = "//:tsconfig",
     deps = ["//apps/api:backend"],
 )

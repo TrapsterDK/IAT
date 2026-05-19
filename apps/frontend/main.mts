@@ -1,4 +1,4 @@
-import type { CreateSessionRequest, SessionBootstrapResponse } from "@apps/api/backend";
+import type { CreateSessionRequest, SessionBootstrapResponse } from "@iat/apps/api/backend";
 
 type ExamplePayload = CreateSessionRequest & {
   readonly iat_slug: string;

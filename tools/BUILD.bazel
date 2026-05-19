@@ -49,9 +49,11 @@ multirun(
     commands = [
         "//tools/python:venv",
         ":bazel_env",
+        "//tools/javascript:node_modules",
     ],
     data = [
         ":bazel_env",
+        "//tools/javascript:node_modules",
         "//tools/python:venv",
     ],
     print_command = False,
