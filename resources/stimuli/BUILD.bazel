@@ -5,3 +5,9 @@ filegroup(
     srcs = ["BUILD.bazel"],
     tags = ["starlark"],
 )
+
+filegroup(
+    name = "readme",
+    srcs = ["README.md"],
+    tags = ["markdown"],
+)

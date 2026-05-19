@@ -1,5 +1,5 @@
 # Testing
 
-Test-only helpers for writing JSON, YAML, and PNG fixtures in repository tests.
+Helpers for writing JSON, YAML, and PNG fixtures in repository tests.
 
-It is intended only for test code and should not be used by production application paths.
+Use this library in tests, not in production app code.

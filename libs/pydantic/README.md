@@ -1,5 +1,5 @@
 # Pydantic
 
-Shared Pydantic type aliases and validators for non-blank strings, absolute paths, and unique collections.
+Shared Pydantic types for non-blank strings, absolute paths, and unique collections.
 
-It centralizes common validation rules so schemas can share the same constraints and path handling.
+Schemas use it to share common validation rules, constraints, and path handling.

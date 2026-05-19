@@ -1,5 +1,5 @@
 # Bazel
 
-Shared helpers for Bazel workspace discovery, subprocess execution, target resolution, built artifacts, and Build Event Protocol parsing.
+Shared helpers for Bazel workspace discovery, process execution, target resolution, build artifacts, and Build Event Protocol parsing.
 
-It supports the repository tooling layer with reusable logic for interacting with Bazel consistently.
+This library supports the repository tooling layer with consistent Bazel interactions.

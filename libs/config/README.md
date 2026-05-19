@@ -1,5 +1,5 @@
-# Config
+# Configuration
 
-Typed config models and file helpers for YAML, JSON, and TOML, including recursive config inheritance through an `extends` key.
+Typed configuration models and file helpers for YAML, JSON, and TOML, including recursive inheritance through an `extends` key.
 
-It is used where repository code needs validated configuration files with stable serialization and optional inheritance.
+Repository code uses it for validated configuration files with stable serialization and optional inheritance.

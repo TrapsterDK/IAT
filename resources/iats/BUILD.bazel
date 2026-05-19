@@ -47,3 +47,9 @@ filegroup(
     srcs = ["young-old-pleasant-unpleasant.yaml"],
     tags = ["yaml"],
 )
+
+filegroup(
+    name = "readme",
+    srcs = ["README.md"],
+    tags = ["markdown"],
+)

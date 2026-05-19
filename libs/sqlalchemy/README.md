@@ -1,5 +1,5 @@
-# SQLAlchemy
+# Database types
 
-Shared SQLAlchemy column types for repository models.
+Shared database column types for repository models.
 
-It exists to keep model-level database typing behavior consistent across the repository.
+Repository models use these types to keep database typing behavior consistent.
