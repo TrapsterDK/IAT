@@ -9,6 +9,7 @@ bazel_dep(name = "rules_uv", version = "0.89.2")
 bazel_dep(name = "rules_python_gazelle_plugin", version = "1.9.0")
 bazel_dep(name = "rules_nodejs", version = "6.7.4")
 bazel_dep(name = "aspect_rules_js", version = "3.1.1")
+bazel_dep(name = "aspect_rules_swc", version = "2.7.2")
 bazel_dep(name = "aspect_rules_ts", version = "3.8.9")
 bazel_dep(name = "aspect_rules_lint", version = "2.5.2")
 bazel_dep(name = "aspect_gazelle_prebuilt", version = "0.0.8")
@@ -76,6 +77,15 @@ use_repo(npm, "npm")
 rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
 rules_ts_ext.deps()
 use_repo(rules_ts_ext, "npm_typescript")
+
+swc = use_extension("@aspect_rules_swc//swc:extensions.bzl", "swc")
+swc.toolchain(
+    name = "swc",
+    swc_version = "v1.7.40",
+)
+use_repo(swc, "swc_toolchains")
+
+register_toolchains("@swc_toolchains//:all")
 
 lint_tools = use_extension("@aspect_rules_lint//lint:extensions.bzl", "tools")
 lint_tools.vale()

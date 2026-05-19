@@ -13,6 +13,7 @@ exports_files(
         ".gitattributes",
         ".nvmrc",
         ".npmrc",
+        ".swcrc",
         ".pydoclint.toml",
         ".ruff.toml",
         ".ty.toml",
@@ -41,6 +42,9 @@ exports_files(
 # gazelle:map_kind py_binary py_binary //tools/python:defs.bzl
 # gazelle:map_kind py_library py_library //tools/python:defs.bzl
 # gazelle:map_kind py_test py_test //tools/python:defs.bzl
+# gazelle:map_kind ts_project ts_project //tools/javascript:defs.bzl
+# gazelle:resolve_regexp js ^@apps/(.+)/([^/]+)$ //apps/$1:$2
+# gazelle:resolve_regexp js ^@libs/(.+)/([^/]+)$ //libs/$1:$2
 # gazelle:resolve py fastapi.testclient //third_party/python/fastapi:testclient
 
 npm_link_all_packages(name = "node_modules")
@@ -115,5 +119,4 @@ ts_config(
     src = "tsconfig.json",
     tags = ["no-lint"],
     visibility = [":__subpackages__"],
-    deps = [":node_modules/@types/node"],
 )

@@ -72,6 +72,20 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "openapi",
+    srcs = ["openapi.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [":app"],
+)
+
+genrule(
+    name = "openapi_json",
+    outs = ["openapi.json"],
+    cmd = "$(location :openapi) > $@",
+    tools = [":openapi"],
+)
+
 py_library(
     name = "settings",
     srcs = ["settings.py"],

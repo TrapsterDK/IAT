@@ -11,7 +11,10 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "paths": {
+      "@apps/*": ["./apps/*"],
+      "@libs/*": ["./libs/*"]
+    }
   },
   "exclude": ["bazel-*", "bazel-bin", "bazel-out", "bazel-testlogs", "node_modules"]
 }

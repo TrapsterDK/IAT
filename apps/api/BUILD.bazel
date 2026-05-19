@@ -1,0 +1,26 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library", "js_run_binary")
+
+package(default_visibility = ["//:__subpackages__"])
+
+js_run_binary(
+    name = "backend_types",
+    srcs = ["//apps/backend:openapi_json"],
+    args = [
+        "$(rootpath //apps/backend:openapi_json)",
+    ],
+    stdout = "backend.d.ts",
+    tool = "//tools/javascript/openapi:openapi_main",
+    visibility = ["//visibility:public"],
+)
+
+js_library(
+    name = "backend",
+    srcs = [":backend_types"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

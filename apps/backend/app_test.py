@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from apps.backend.app import create_app
+from apps.backend.app import create_app, create_openapi_app
 from apps.backend.schemas.catalog import StimulusResponse
 from apps.backend.settings import IAT_RESOURCES_CONFIG_PATH_ENV_VAR, IatResourcesSettings, load_settings
 from libs.testing.io import TEST_PNG_SIGNATURE, write_json, write_png
@@ -178,6 +178,24 @@ def test_create_app_uses_debug_setting(tmp_path: Path) -> None:
 
     # Then: the FastAPI debug mode follows the provided settings.
     assert app.debug is False
+
+
+def test_create_openapi_app_exposes_public_contract_routes() -> None:
+    # Given: one backend app created only for OpenAPI schema export.
+    app = create_openapi_app()
+
+    # When: the public OpenAPI document is generated.
+    openapi_document = app.openapi()
+
+    # Then: the document exposes the catalog and session schemas the frontend will consume.
+    assert "/api/iats" in openapi_document["paths"]
+    assert "/api/sessions" in openapi_document["paths"]
+    assert openapi_document["paths"]["/api/sessions"]["post"]["requestBody"]["content"]["application/json"][
+        "schema"
+    ] == {"$ref": "#/components/schemas/CreateSessionRequest"}
+    assert openapi_document["paths"]["/api/sessions"]["post"]["responses"]["201"]["content"]["application/json"][
+        "schema"
+    ] == {"$ref": "#/components/schemas/SessionBootstrapResponse"}
 
 
 def test_create_app_wires_session_creation_route(tmp_path: Path) -> None:

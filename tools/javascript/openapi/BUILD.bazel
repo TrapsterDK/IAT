@@ -1,0 +1,30 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+load("//tools/javascript:defs.bzl", "ts_project")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ts_project(
+    name = "openapi",
+    srcs = ["main.mts"],
+    tsconfig = "//:tsconfig",
+    deps = [
+        "//:node_modules/@types/node",
+        "//:node_modules/openapi-typescript",
+    ],
+)
+
+js_binary(
+    name = "openapi_main",
+    data = [
+        "main.mjs",
+        ":openapi",
+    ],
+    entry_point = "main.mjs",
+    visibility = ["//:__subpackages__"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

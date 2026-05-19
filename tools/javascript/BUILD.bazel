@@ -1,4 +1,5 @@
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -44,4 +45,14 @@ filegroup(
     name = "build_bazel",
     srcs = ["BUILD.bazel"],
     tags = ["starlark"],
+)
+
+bzl_library(
+    name = "defs",
+    srcs = ["defs.bzl"],
+    deps = [
+        "@aspect_rules_swc//swc:defs",
+        "@aspect_rules_ts//ts:defs",
+        "@bazel_skylib//lib:partial",
+    ],
 )

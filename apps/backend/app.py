@@ -20,6 +20,25 @@ if TYPE_CHECKING:
 
     from apps.backend.settings import ResolvedIatResources
 
+_APP_TITLE = "IAT Backend"
+
+
+def _include_api_routers(app: FastAPI) -> None:
+    app.include_router(catalog_router, prefix="/api")
+    app.include_router(sessions_router, prefix="/api")
+    app.include_router(stimuli_router, prefix="/api")
+
+
+def create_openapi_app() -> FastAPI:
+    """Create one backend app instance for OpenAPI schema export only.
+
+    Returns:
+        The backend FastAPI application with the public routes registered.
+    """
+    app = FastAPI(title=_APP_TITLE, debug=False)
+    _include_api_routers(app)
+    return app
+
 
 def create_app(settings: ResolvedIatResources) -> FastAPI:
     """Create the backend FastAPI application.
@@ -47,9 +66,7 @@ def create_app(settings: ResolvedIatResources) -> FastAPI:
         finally:
             engine.dispose()
 
-    app = FastAPI(title="IAT Backend", debug=settings.debug, lifespan=lifespan)
-    app.include_router(catalog_router, prefix="/api")
-    app.include_router(sessions_router, prefix="/api")
-    app.include_router(stimuli_router, prefix="/api")
+    app = FastAPI(title=_APP_TITLE, debug=settings.debug, lifespan=lifespan)
+    _include_api_routers(app)
 
     return app
