@@ -1,6 +1,6 @@
 # Backend
 
-`apps/backend` serves the published IAT catalog, public stimulus images, and the participant session API.
+Serves the published IAT catalog, public stimulus images, and the participant session API.
 
 ## Usage
 

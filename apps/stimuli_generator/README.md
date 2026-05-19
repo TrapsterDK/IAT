@@ -1,6 +1,6 @@
 # Stimuli generator
 
-`apps/stimuli_generator` generates synthetic image stimuli from YAML specs.
+Generates synthetic image stimuli from YAML specs.
 
 ## Usage
 
