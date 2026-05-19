@@ -4,6 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
+    "types": ["node"],
     "strict": true,
     "noEmitOnError": true,
     "skipLibCheck": true,
@@ -12,8 +13,8 @@
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@apps/*": ["./apps/*"],
-      "@libs/*": ["./libs/*"]
+      "@apps/*": ["./apps/*", "./bazel-bin/apps/*.d.ts"],
+      "@libs/*": ["./libs/*", "./bazel-bin/libs/*.d.ts"]
     }
   },
   "exclude": ["bazel-*", "bazel-bin", "bazel-out", "bazel-testlogs", "node_modules"]

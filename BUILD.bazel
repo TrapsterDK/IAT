@@ -119,4 +119,5 @@ ts_config(
     src = "tsconfig.json",
     tags = ["no-lint"],
     visibility = [":__subpackages__"],
+    deps = [":node_modules/@types/node"],
 )
