@@ -19,9 +19,11 @@ IAT_RESOURCES_CONFIG_PATH=resources/backend.yaml \
 
 Useful routes:
 
-- `GET /api/iats`: list published IATs
-- `GET /api/iats/{slug}`: fetch one published IAT
-- `GET /api/stimuli/{path}`: serve one published PNG stimulus
+- `GET /`: serve the participant-facing single-page frontend shell
+- `GET /assets/{path}`: serve built frontend assets such as JavaScript and CSS
+- `GET /iats`: list published IATs
+- `GET /iats/{slug}`: fetch one published IAT
+- `GET /stimuli/{path}`: serve one published PNG stimulus
 - `POST /api/sessions`: create one participant session and return its run plan
 - `PUT /api/sessions/{session_key}/blocks/{block_index}`: upload one completed block
 - `GET /api/sessions/{session_key}/score`: fetch the computed score for one completed session

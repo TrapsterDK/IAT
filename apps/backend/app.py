@@ -1,4 +1,4 @@
-"""FastAPI application composition for the backend catalog and session API."""
+"""FastAPI application composition for the backend catalog, frontend, and session API."""
 
 from __future__ import annotations
 
@@ -9,8 +9,10 @@ from fastapi import FastAPI
 
 from apps.backend.database import create_database_schema, create_session_factory, create_sqlite_engine
 from apps.backend.dependencies import BackendRuntime
+from apps.backend.frontend import resolve_frontend_dist_directory
 from apps.backend.repositories.catalog import CatalogRepository
 from apps.backend.routers.catalog import router as catalog_router
+from apps.backend.routers.frontend import router as frontend_router
 from apps.backend.routers.sessions import router as sessions_router
 from apps.backend.routers.stimuli import router as stimuli_router
 from apps.backend.services.catalog import CatalogService
@@ -23,20 +25,21 @@ if TYPE_CHECKING:
 _APP_TITLE = "IAT Backend"
 
 
-def _include_api_routers(app: FastAPI) -> None:
-    app.include_router(catalog_router, prefix="/api")
+def _include_public_routers(app: FastAPI) -> None:
     app.include_router(sessions_router, prefix="/api")
-    app.include_router(stimuli_router, prefix="/api")
+    app.include_router(catalog_router)
+    app.include_router(stimuli_router)
+    app.include_router(frontend_router)
 
 
 def create_openapi_app() -> FastAPI:
-    """Create one backend app instance for OpenAPI schema export only.
+    """Create one backend app instance for OpenAPI schema export.
 
     Returns:
-        The backend FastAPI application with the public routes registered.
+        The backend FastAPI application with the shared routers registered.
     """
     app = FastAPI(title=_APP_TITLE, debug=False)
-    _include_api_routers(app)
+    _include_public_routers(app)
     return app
 
 
@@ -59,6 +62,7 @@ def create_app(settings: ResolvedIatResources) -> FastAPI:
             app.state.runtime = BackendRuntime(
                 catalog_repository=catalog_repository,
                 catalog_service=CatalogService(catalog_repository),
+                frontend_dist_directory=resolve_frontend_dist_directory(),
                 session_factory=create_session_factory(engine),
                 settings=settings,
             )
@@ -67,6 +71,6 @@ def create_app(settings: ResolvedIatResources) -> FastAPI:
             engine.dispose()
 
     app = FastAPI(title=_APP_TITLE, debug=settings.debug, lifespan=lifespan)
-    _include_api_routers(app)
+    _include_public_routers(app)
 
     return app

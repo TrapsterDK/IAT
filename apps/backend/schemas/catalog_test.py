@@ -12,7 +12,7 @@ from apps.backend.schemas.catalog import StimulusResponse
     "payload",
     [
         pytest.param({"text": "alpha", "image_url": None}, id="text_only"),
-        pytest.param({"text": None, "image_url": "/api/stimuli/example.png"}, id="image_only"),
+        pytest.param({"text": None, "image_url": "/stimuli/example.png"}, id="image_only"),
     ],
 )
 def test_stimulus_response_accepts_exactly_one_public_representation(payload: dict[str, str | None]) -> None:
@@ -30,7 +30,7 @@ def test_stimulus_response_accepts_exactly_one_public_representation(payload: di
     "payload",
     [
         pytest.param({"text": None, "image_url": None}, id="missing_both"),
-        pytest.param({"text": "alpha", "image_url": "/api/stimuli/example.png"}, id="present_both"),
+        pytest.param({"text": "alpha", "image_url": "/stimuli/example.png"}, id="present_both"),
     ],
 )
 def test_stimulus_response_rejects_invalid_representation_count(payload: dict[str, str | None]) -> None:

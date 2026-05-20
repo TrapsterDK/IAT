@@ -9,6 +9,7 @@ import pytest
 
 from apps.backend.database import create_database_schema, create_session_factory, create_sqlite_engine
 from apps.backend.dependencies import BackendRuntime
+from apps.backend.frontend import resolve_frontend_dist_directory
 from apps.backend.repositories.catalog import CatalogRepository
 from apps.backend.services.catalog import CatalogService
 from apps.backend.settings import IatResourcesSettings
@@ -61,6 +62,7 @@ def backend_runtime(tmp_path: Path) -> Iterator[BackendRuntime]:
         yield BackendRuntime(
             catalog_repository=catalog_repository,
             catalog_service=CatalogService(catalog_repository),
+            frontend_dist_directory=resolve_frontend_dist_directory(),
             session_factory=create_session_factory(engine),
             settings=settings,
         )
@@ -92,6 +94,7 @@ def session_runtime(tmp_path: Path) -> Iterator[BackendRuntime]:
         yield BackendRuntime(
             catalog_repository=catalog_repository,
             catalog_service=CatalogService(catalog_repository),
+            frontend_dist_directory=resolve_frontend_dist_directory(),
             session_factory=create_session_factory(engine),
             settings=settings,
         )

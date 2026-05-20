@@ -77,6 +77,7 @@ manifest:
     requests: requests
     rich: rich
     ruff: ruff
+    runfiles: bazel_runfiles
     safetensors: safetensors
     sentencepiece: sentencepiece
     setuptools: setuptools
@@ -109,4 +110,4 @@ manifest:
     zipp: zipp
   pip_repository:
     name: pip
-integrity: 311b3d7cd001ce1ee87fe8a18e6b8f2494ad1ab3cc964e458930bce59c1edd98
+integrity: 9f5a7b71862960af85ccddf7e605006c7d6d4c9102863a8f4561ec779ffd66a8

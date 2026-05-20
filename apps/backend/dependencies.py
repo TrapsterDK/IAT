@@ -16,6 +16,7 @@ from apps.backend.services.session import SessionService
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
 
     from sqlalchemy.orm import sessionmaker
 
@@ -30,6 +31,7 @@ class BackendRuntime:
 
     catalog_repository: CatalogRepository
     catalog_service: CatalogService
+    frontend_dist_directory: Path
     session_factory: sessionmaker[Session]
     settings: ResolvedIatResources
 
@@ -71,6 +73,22 @@ def get_catalog_service(request: Request) -> CatalogService:
         TypeError: The configured backend runtime dependencies have one unexpected type.
     """
     return get_runtime(request).catalog_service
+
+
+def get_frontend_dist_directory(request: Request) -> Path:
+    """Return the configured frontend asset directory from application state.
+
+    Args:
+        request: Current request used to access application state.
+
+    Returns:
+        The configured built frontend `dist/` directory.
+
+    Raises:
+        RuntimeError: Backend application runtime dependencies have not been configured.
+        TypeError: The configured backend runtime dependencies have one unexpected type.
+    """
+    return get_runtime(request).frontend_dist_directory
 
 
 def get_db_session(request: Request) -> Iterator[Session]:

@@ -217,6 +217,7 @@ def test_get_session_service_uses_runtime_score_interpretation_settings(
     neutral_runtime = BackendRuntime(
         catalog_repository=session_runtime.catalog_repository,
         catalog_service=session_runtime.catalog_service,
+        frontend_dist_directory=session_runtime.frontend_dist_directory,
         session_factory=session_runtime.session_factory,
         settings=session_runtime.settings.model_copy(
             update={

@@ -23,7 +23,7 @@ This project uses synthetic image stimuli generated from YAML specs. The generat
 
 ## Backend
 
-The participant-facing API lives in [`apps/backend`](apps/backend/README.md). It serves published IAT definitions, public stimulus images, session creation, block uploads, and score retrieval.
+The participant-facing backend lives in [`apps/backend`](apps/backend/README.md). It serves the frontend shell and built frontend assets, published IAT definitions, public stimulus images, session creation, block uploads, and score retrieval.
 
 ## Resources
 

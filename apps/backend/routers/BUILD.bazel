@@ -40,6 +40,16 @@ py_library(
     ],
 )
 
+py_library(
+    name = "frontend",
+    srcs = ["frontend.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend:dependencies",
+        "@pip//fastapi",
+    ],
+)
+
 py_test(
     name = "catalog_test",
     srcs = ["catalog_test.py"],
@@ -92,6 +102,7 @@ py_library(
         "//apps/backend:app",
         "//apps/backend:database",
         "//apps/backend:dependencies",
+        "//apps/backend:frontend",
         "//apps/backend:settings",
         "//apps/backend/repositories:catalog",
         "//apps/backend/services:catalog",

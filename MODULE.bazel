@@ -9,6 +9,7 @@ bazel_dep(name = "rules_uv", version = "0.89.2")
 bazel_dep(name = "rules_python_gazelle_plugin", version = "1.9.0")
 bazel_dep(name = "rules_nodejs", version = "6.7.4")
 bazel_dep(name = "aspect_rules_js", version = "3.1.1")
+bazel_dep(name = "aspect_rules_esbuild", version = "0.26.0")
 bazel_dep(name = "aspect_rules_swc", version = "2.7.2")
 bazel_dep(name = "aspect_rules_ts", version = "3.8.9")
 bazel_dep(name = "aspect_rules_lint", version = "2.5.2")
@@ -73,6 +74,15 @@ npm.npm_translate_lock(
     pnpm_lock = "//:pnpm-lock.yaml",
 )
 use_repo(npm, "npm")
+
+esbuild = use_extension("@aspect_rules_esbuild//esbuild:extensions.bzl", "esbuild")
+esbuild.toolchain(
+    name = "esbuild",
+    esbuild_version = "0.25.11",
+)
+use_repo(esbuild, "esbuild_toolchains")
+
+register_toolchains("@esbuild_toolchains//:all")
 
 rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
 rules_ts_ext.deps()

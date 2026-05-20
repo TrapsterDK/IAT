@@ -14,6 +14,7 @@ from sqlalchemy import create_engine
 from apps.backend.app import create_app
 from apps.backend.database import create_session_factory
 from apps.backend.dependencies import BackendRuntime
+from apps.backend.frontend import resolve_frontend_dist_directory
 from apps.backend.repositories.catalog import CatalogRepository
 from apps.backend.routers.catalog import router as catalog_router
 from apps.backend.routers.stimuli import router as stimuli_router
@@ -169,11 +170,12 @@ def catalog_router_client(image_catalog_settings: ResolvedIatResources) -> Itera
     app.state.runtime = BackendRuntime(
         catalog_repository=catalog_repository,
         catalog_service=CatalogService(catalog_repository),
+        frontend_dist_directory=resolve_frontend_dist_directory(),
         session_factory=create_session_factory(engine),
         settings=image_catalog_settings,
     )
-    app.include_router(catalog_router, prefix="/api")
-    app.include_router(stimuli_router, prefix="/api")
+    app.include_router(catalog_router)
+    app.include_router(stimuli_router)
 
     with TestClient(app) as client:
         yield client

@@ -18,7 +18,7 @@ def test_get_stimulus_serves_png(
     published_image_path: PurePosixPath,
 ) -> None:
     # Given: one backend app with one published PNG stimulus.
-    published_image_url = PurePosixPath(f"/api/stimuli/{published_image_path.as_posix()}")
+    published_image_url = PurePosixPath(f"/stimuli/{published_image_path.as_posix()}")
 
     # When: the client requests the published PNG stimulus.
     response = catalog_router_client.get(published_image_url.as_posix())
@@ -33,7 +33,7 @@ def test_get_stimulus_returns_not_found_for_unknown_path(catalog_router_client: 
     # Given: one backend app without the requested published stimulus path.
 
     # When: the client requests one unpublished stimulus path.
-    response = catalog_router_client.get(f"/api/stimuli/{PurePosixPath('missing/image.png').as_posix()}")
+    response = catalog_router_client.get(f"/stimuli/{PurePosixPath('missing/image.png').as_posix()}")
 
     # Then: the route reports the stimulus as missing.
     assert response.status_code == 404

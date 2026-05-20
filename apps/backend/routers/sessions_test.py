@@ -86,7 +86,7 @@ def test_create_session_returns_public_stimulus_urls_for_image_trials(image_sess
     assert image_trials
     first_image_url = image_trials[0].stimulus.image_url
     assert first_image_url is not None
-    assert first_image_url.startswith("/api/stimuli/sample-iat/alpha/")
+    assert first_image_url.startswith("/stimuli/sample-iat/alpha/")
 
 
 def test_create_session_returns_not_found_for_unknown_iat_slug(session_client: TestClient) -> None:

@@ -3,6 +3,7 @@ name = "iat"
 version = "0"
 dependencies = [
     "accelerate>=1.1.0",
+    "bazel-runfiles>=2.0.1",
     "diffusers>=0.38.0",
     "fastapi>=0.115.12",
     "gdown>=5.2.0",

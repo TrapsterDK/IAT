@@ -45,15 +45,25 @@ py_library(
 )
 
 py_library(
+    name = "frontend",
+    srcs = ["frontend.py"],
+    data = ["//apps/frontend:dist"],
+    visibility = ["//:__subpackages__"],
+    deps = ["@pip//bazel_runfiles"],
+)
+
+py_library(
     name = "app",
     srcs = ["app.py"],
     visibility = ["//visibility:public"],
     deps = [
         ":database",
         ":dependencies",
+        ":frontend",
         ":settings",
         "//apps/backend/repositories:catalog",
         "//apps/backend/routers:catalog",
+        "//apps/backend/routers:frontend",
         "//apps/backend/routers:sessions",
         "//apps/backend/routers:stimuli",
         "//apps/backend/services:catalog",
@@ -170,6 +180,7 @@ py_library(
     deps = [
         ":database",
         ":dependencies",
+        ":frontend",
         ":settings",
         "//apps/backend/repositories:catalog",
         "//apps/backend/services:catalog",

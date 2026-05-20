@@ -12,7 +12,7 @@ def test_list_iats_returns_summaries(catalog_router_client: TestClient) -> None:
     # Given: one backend app with one configured IAT.
 
     # When: the client requests the IAT list.
-    response = catalog_router_client.get("/api/iats")
+    response = catalog_router_client.get("/iats")
 
     # Then: the route returns one IAT summary.
     assert response.status_code == 200
@@ -29,12 +29,12 @@ def test_get_iat_returns_detail_with_public_image_url(catalog_router_client: Tes
     # Given: one backend app with one configured image-backed IAT.
 
     # When: the client requests the IAT detail.
-    response = catalog_router_client.get("/api/iats/sample-iat")
+    response = catalog_router_client.get("/iats/sample-iat")
 
     # Then: the route returns one routed image URL.
     assert response.status_code == 200
     assert response.json()["categories"][0]["category"][0]["stimuli"][0]["image_url"].startswith(
-        "/api/stimuli/sample-iat/alpha/"
+        "/stimuli/sample-iat/alpha/"
     )
 
 
@@ -42,7 +42,7 @@ def test_get_iat_returns_not_found_for_unknown_slug(catalog_router_client: TestC
     # Given: one backend app with no matching IAT slug.
 
     # When: the client requests one unavailable IAT.
-    response = catalog_router_client.get("/api/iats/missing-iat")
+    response = catalog_router_client.get("/iats/missing-iat")
 
     # Then: the route reports the IAT as missing.
     assert response.status_code == 404
