@@ -53,19 +53,30 @@ py_library(
 )
 
 py_library(
+    name = "application",
+    srcs = ["application.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/backend/routers:catalog",
+        "//apps/backend/routers:frontend",
+        "//apps/backend/routers:sessions",
+        "//apps/backend/routers:stimuli",
+        "@pip//fastapi",
+        "@pip//starlette",
+    ],
+)
+
+py_library(
     name = "app",
     srcs = ["app.py"],
     visibility = ["//visibility:public"],
     deps = [
+        ":application",
         ":database",
         ":dependencies",
         ":frontend",
         ":settings",
         "//apps/backend/repositories:catalog",
-        "//apps/backend/routers:catalog",
-        "//apps/backend/routers:frontend",
-        "//apps/backend/routers:sessions",
-        "//apps/backend/routers:stimuli",
         "//apps/backend/services:catalog",
         "@pip//fastapi",
     ],
@@ -86,7 +97,7 @@ py_binary(
     name = "openapi",
     srcs = ["openapi.py"],
     visibility = ["//:__subpackages__"],
-    deps = [":app"],
+    deps = [":application"],
 )
 
 genrule(
@@ -147,6 +158,45 @@ py_test(
         "//third_party/python/fastapi:testclient",
         "@pip//pydantic",
         "@pip//pytest",
+    ],
+)
+
+py_test(
+    name = "application_test",
+    srcs = ["application_test.py"],
+    deps = [
+        ":application",
+        ":conftest",
+        "//third_party/python/fastapi:testclient",
+        "@pip//fastapi",
+    ],
+)
+
+py_test(
+    name = "frontend_test",
+    srcs = ["frontend_test.py"],
+    deps = [
+        ":conftest",
+        ":frontend",
+    ],
+)
+
+py_test(
+    name = "main_test",
+    srcs = ["main_test.py"],
+    deps = [
+        ":conftest",
+        ":main",
+        "//libs/testing:io",
+    ],
+)
+
+py_test(
+    name = "openapi_test",
+    srcs = ["openapi_test.py"],
+    deps = [
+        ":conftest",
+        ":openapi",
     ],
 )
 

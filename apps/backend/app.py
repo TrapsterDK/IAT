@@ -5,42 +5,19 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
-from fastapi import FastAPI
-
+from apps.backend.application import create_base_app
 from apps.backend.database import create_database_schema, create_session_factory, create_sqlite_engine
 from apps.backend.dependencies import BackendRuntime
 from apps.backend.frontend import resolve_frontend_dist_directory
 from apps.backend.repositories.catalog import CatalogRepository
-from apps.backend.routers.catalog import router as catalog_router
-from apps.backend.routers.frontend import router as frontend_router
-from apps.backend.routers.sessions import router as sessions_router
-from apps.backend.routers.stimuli import router as stimuli_router
 from apps.backend.services.catalog import CatalogService
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from fastapi import FastAPI
+
     from apps.backend.settings import ResolvedIatResources
-
-_APP_TITLE = "IAT Backend"
-
-
-def _include_public_routers(app: FastAPI) -> None:
-    app.include_router(sessions_router, prefix="/api")
-    app.include_router(catalog_router)
-    app.include_router(stimuli_router)
-    app.include_router(frontend_router)
-
-
-def create_openapi_app() -> FastAPI:
-    """Create one backend app instance for OpenAPI schema export.
-
-    Returns:
-        The backend FastAPI application with the shared routers registered.
-    """
-    app = FastAPI(title=_APP_TITLE, debug=False)
-    _include_public_routers(app)
-    return app
 
 
 def create_app(settings: ResolvedIatResources) -> FastAPI:
@@ -70,7 +47,4 @@ def create_app(settings: ResolvedIatResources) -> FastAPI:
         finally:
             engine.dispose()
 
-    app = FastAPI(title=_APP_TITLE, debug=settings.debug, lifespan=lifespan)
-    _include_public_routers(app)
-
-    return app
+    return create_base_app(debug=settings.debug, lifespan=lifespan)

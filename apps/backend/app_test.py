@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from apps.backend.app import create_app, create_openapi_app
+from apps.backend.app import create_app
 from apps.backend.schemas.catalog import StimulusResponse
 from apps.backend.settings import IAT_RESOURCES_CONFIG_PATH_ENV_VAR, IatResourcesSettings, load_settings
 from libs.testing.io import TEST_PNG_SIGNATURE, write_json, write_png
@@ -180,24 +180,6 @@ def test_create_app_uses_debug_setting(tmp_path: Path) -> None:
     assert app.debug is False
 
 
-def test_create_openapi_app_exposes_public_contract_routes() -> None:
-    # Given: one backend app created only for OpenAPI schema export.
-    app = create_openapi_app()
-
-    # When: the public OpenAPI document is generated.
-    openapi_document = app.openapi()
-
-    # Then: the document exposes the catalog and session schemas the frontend will consume.
-    assert "/iats" in openapi_document["paths"]
-    assert "/api/sessions" in openapi_document["paths"]
-    assert openapi_document["paths"]["/api/sessions"]["post"]["requestBody"]["content"]["application/json"][
-        "schema"
-    ] == {"$ref": "#/components/schemas/CreateSessionRequest"}
-    assert openapi_document["paths"]["/api/sessions"]["post"]["responses"]["201"]["content"]["application/json"][
-        "schema"
-    ] == {"$ref": "#/components/schemas/SessionBootstrapResponse"}
-
-
 def test_create_app_wires_session_creation_route(tmp_path: Path) -> None:
     # Given: one configured backend app with one published text-only IAT.
     spec_path = tmp_path / "resources/iats/sample-iat.yaml"
@@ -264,6 +246,7 @@ def test_create_app_serves_frontend_shell_assets(tmp_path: Path) -> None:
     # When: the client requests the participant-facing frontend shell and assets.
     with TestClient(create_app(settings)) as client:
         index_response = client.get("/")
+        normalize_response = client.get("/assets/normalize.css")
         css_response = client.get("/assets/app.css")
         script_response = client.get("/assets/main.js")
 
@@ -271,12 +254,16 @@ def test_create_app_serves_frontend_shell_assets(tmp_path: Path) -> None:
     assert index_response.status_code == 200
     assert index_response.headers["content-type"].startswith("text/html")
     assert '<div id="app"></div>' in index_response.text
+    assert 'href="/assets/normalize.css"' in index_response.text
     assert 'href="/assets/app.css"' in index_response.text
     assert 'src="/assets/main.js"' in index_response.text
 
+    assert normalize_response.status_code == 200
+    assert normalize_response.headers["content-type"].startswith("text/css")
+    assert "normalize.css v8.0.1" in normalize_response.text
+
     assert css_response.status_code == 200
     assert css_response.headers["content-type"].startswith("text/css")
-    assert "normalize.css v8.0.1" in css_response.text
     assert ".response-button" in css_response.text
 
     assert script_response.status_code == 200
