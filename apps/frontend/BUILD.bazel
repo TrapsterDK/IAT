@@ -1,3 +1,6 @@
+load("@aspect_rules_esbuild//esbuild:defs.bzl", "esbuild")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config")
+load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("//tools/javascript:defs.bzl", "ts_project")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -11,6 +14,47 @@ filegroup(
 ts_project(
     name = "frontend",
     srcs = ["main.mts"],
-    tsconfig = "//:tsconfig",
-    deps = ["//apps/api:backend"],
+    extends = "//:tsconfig",
+    tsconfig = ":tsconfig",
+    deps = [
+        "//apps/frontend/core",
+        "//apps/frontend/session",
+        "//apps/frontend/ui",
+    ],
+)
+
+esbuild(
+    name = "bundle",
+    srcs = ["main.mts"],
+    entry_point = "main.mts",
+    format = "esm",
+    output = "main.js",
+    platform = "browser",
+    target = ["es2022"],
+    tsconfig = ":tsconfig",
+    deps = [":frontend"],
+)
+
+copy_to_directory(
+    name = "dist",
+    srcs = [
+        "app.css",
+        "index.html",
+        ":bundle",
+        "//:node_modules/normalize.css",
+    ],
+    out = "dist",
+    replace_prefixes = {
+        "app.css": "assets/app.css",
+        "main.js": "assets/main.js",
+        "node_modules/normalize.css": "assets/normalize.css",
+    },
+    root_paths = ["."],
+)
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    visibility = [":__subpackages__"],
+    deps = ["//:tsconfig"],
 )

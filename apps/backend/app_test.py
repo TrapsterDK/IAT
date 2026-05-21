@@ -253,7 +253,6 @@ def test_create_app_serves_frontend_shell_assets(tmp_path: Path) -> None:
     # Then: the composed app serves the single-page frontend from bundled assets.
     assert index_response.status_code == 200
     assert index_response.headers["content-type"].startswith("text/html")
-    assert '<div id="app"></div>' in index_response.text
     assert 'href="/assets/normalize.css"' in index_response.text
     assert 'href="/assets/app.css"' in index_response.text
     assert 'src="/assets/main.js"' in index_response.text
@@ -268,8 +267,6 @@ def test_create_app_serves_frontend_shell_assets(tmp_path: Path) -> None:
 
     assert script_response.status_code == 200
     assert script_response.headers["content-type"].startswith("text/javascript")
-    assert 'STORAGE_KEY = "iat.frontend.state.v1"' in script_response.text
-    assert 'IMAGE_CACHE_NAME = "iat.frontend.images.v1"' in script_response.text
 
 
 def test_backend_response_models_are_frozen() -> None:

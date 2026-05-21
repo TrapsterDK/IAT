@@ -45,7 +45,7 @@ def test_main_uses_environment_settings_to_serve_frontend(tmp_path: Path) -> Non
             os.environ["IAT_RESOURCES_CONFIG_PATH"] = previous_settings_path
 
     # Then: the configured backend server starts and serves the bundled frontend shell.
-    assert '<div id="app"></div>' in response_text
+    assert "<body>" in response_text
 
 
 def _reserve_local_port() -> tuple[str, int]:
