@@ -20,7 +20,7 @@ def test_openapi_main_writes_public_contract_json() -> None:
     # Then: one deterministic public OpenAPI document is written to stdout.
     openapi_document = json.loads(output.getvalue())
     assert output.getvalue().endswith("\n")
-    assert "/iats" in openapi_document["paths"]
+    assert "/api/iats" in openapi_document["paths"]
     assert "/api/sessions" in openapi_document["paths"]
     assert openapi_document["paths"]["/api/sessions"]["post"]["requestBody"]["content"]["application/json"][
         "schema"

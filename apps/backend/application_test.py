@@ -26,8 +26,8 @@ def test_create_base_app_registers_shared_public_routes() -> None:
     # Then: the shared application includes the public API routes and frontend shell routes.
     assert "/" in registered_paths
     assert "/assets/{asset_path:path}" in registered_paths
-    assert "/iats" in registered_paths
-    assert "/iats/{slug}" in registered_paths
+    assert "/api/iats" in registered_paths
+    assert "/api/iats/{slug}" in registered_paths
     assert "/api/sessions" in registered_paths
     assert "/api/sessions/{session_key}/blocks/{block_index}" in registered_paths
     assert "/api/sessions/{session_key}/score" in registered_paths

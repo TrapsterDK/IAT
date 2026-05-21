@@ -27,7 +27,7 @@ def create_base_app(*, debug: bool, lifespan: Lifespan[FastAPI] | None = None) -
     """
     app = FastAPI(title="IAT Backend", debug=debug, lifespan=lifespan)
     app.include_router(sessions_router, prefix="/api")
-    app.include_router(catalog_router)
+    app.include_router(catalog_router, prefix="/api")
     app.include_router(stimuli_router)
     app.include_router(frontend_router)
     return app

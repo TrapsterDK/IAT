@@ -10,6 +10,10 @@ Run the backend server:
 bazel run //apps/backend:main
 ```
 
+When changing frontend files while developing, rerun the same command so Bazel
+rebuilds the bundled frontend assets and restarts the backend with the updated
+runfiles.
+
 Run the backend server with an explicit configuration file:
 
 ```bash
@@ -21,8 +25,8 @@ Useful routes:
 
 - `GET /`: serve the participant-facing single-page frontend shell
 - `GET /assets/{path}`: serve built frontend assets such as JavaScript and CSS
-- `GET /iats`: list published IATs
-- `GET /iats/{slug}`: fetch one published IAT
+- `GET /api/iats`: list published IATs
+- `GET /api/iats/{slug}`: fetch one published IAT
 - `GET /stimuli/{path}`: serve one published PNG stimulus
 - `POST /api/sessions`: create one participant session and return its run plan
 - `PUT /api/sessions/{session_key}/blocks/{block_index}`: upload one completed block

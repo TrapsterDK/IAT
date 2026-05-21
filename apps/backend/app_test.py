@@ -61,7 +61,7 @@ def test_create_app_wires_iat_detail_and_stimulus_routes(tmp_path: Path) -> None
 
     # When: the client requests the IAT detail and then follows the returned stimulus URL.
     with TestClient(create_app(settings)) as client:
-        detail_response = client.get("/iats/sample-iat")
+        detail_response = client.get("/api/iats/sample-iat")
         stimulus_path = detail_response.json()["categories"][0]["category"][0]["stimuli"][0]["image_url"]
         stimulus_response = client.get(stimulus_path)
 
@@ -143,7 +143,7 @@ def test_create_app_rejects_non_configured_iats(tmp_path: Path) -> None:
 
     # When: the client requests one non-configured IAT.
     with TestClient(create_app(settings)) as client:
-        response = client.get("/iats/hidden-iat")
+        response = client.get("/api/iats/hidden-iat")
 
     # Then: the app reports the IAT as unavailable.
     assert response.status_code == 404
@@ -162,7 +162,7 @@ def test_create_app_uses_explicit_settings_without_main_owned_loading(tmp_path: 
     # When: the app is created directly and settings are loaded separately.
     resolved_settings = load_settings({IAT_RESOURCES_CONFIG_PATH_ENV_VAR: str(settings_path)})
     with TestClient(create_app(resolved_settings)) as client:
-        response = client.get("/iats")
+        response = client.get("/api/iats")
 
     # Then: the app is constructed successfully from the caller-supplied settings.
     assert response.status_code == 200
@@ -243,30 +243,53 @@ def test_create_app_serves_frontend_shell_assets(tmp_path: Path) -> None:
     )
     settings = IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path)
 
-    # When: the client requests the participant-facing frontend shell and assets.
+    # When: the client requests the participant-facing frontend shell.
     with TestClient(create_app(settings)) as client:
         index_response = client.get("/")
-        normalize_response = client.get("/assets/normalize.css")
-        css_response = client.get("/assets/app.css")
-        script_response = client.get("/assets/main.js")
 
-    # Then: the composed app serves the single-page frontend from bundled assets.
+    # Then: the composed app serves the single-page frontend HTML shell.
     assert index_response.status_code == 200
     assert index_response.headers["content-type"].startswith("text/html")
-    assert 'href="/assets/normalize.css"' in index_response.text
-    assert 'href="/assets/app.css"' in index_response.text
-    assert 'src="/assets/main.js"' in index_response.text
+    assert "etag" not in index_response.headers
+    assert "last-modified" not in index_response.headers
 
-    assert normalize_response.status_code == 200
-    assert normalize_response.headers["content-type"].startswith("text/css")
-    assert "normalize.css v8.0.1" in normalize_response.text
 
-    assert css_response.status_code == 200
-    assert css_response.headers["content-type"].startswith("text/css")
-    assert ".response-button" in css_response.text
+def test_create_app_serves_frontend_assets_without_implicit_file_cache_headers(tmp_path: Path) -> None:
+    # Given: one configured backend app with one published text-only IAT.
+    spec_path = tmp_path / "resources/iats/sample-iat.yaml"
+    write_json(
+        spec_path,
+        {
+            "slug": "sample-iat",
+            "title": "Sample IAT",
+            "description": "Measures one sample association.",
+            "categories": [
+                {
+                    "category": [
+                        {"slug": "alpha", "label": "Alpha", "stimuli": [{"text": "alpha"}]},
+                        {"slug": "beta", "label": "Beta", "stimuli": [{"text": "beta"}]},
+                    ]
+                },
+                {
+                    "category": [
+                        {"slug": "gamma", "label": "Gamma", "stimuli": [{"text": "gamma"}]},
+                        {"slug": "delta", "label": "Delta", "stimuli": [{"text": "delta"}]},
+                    ]
+                },
+            ],
+        },
+    )
+    settings = IatResourcesSettings(iats=(Path("resources/iats/sample-iat.yaml"),)).resolve(tmp_path)
 
-    assert script_response.status_code == 200
-    assert script_response.headers["content-type"].startswith("text/javascript")
+    # When: the client requests one built frontend asset.
+    with TestClient(create_app(settings)) as client:
+        asset_response = client.get("/assets/main.js")
+
+    # Then: the asset is served without implicit file-validation headers.
+    assert asset_response.status_code == 200
+    assert asset_response.headers["content-type"].startswith("text/javascript")
+    assert "etag" not in asset_response.headers
+    assert "last-modified" not in asset_response.headers
 
 
 def test_backend_response_models_are_frozen() -> None:
