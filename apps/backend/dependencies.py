@@ -113,13 +113,13 @@ def get_db_session(request: Request) -> Iterator[Session]:
 
 def get_session_service(
     request: Request,
-    database_session: Annotated[Session, Depends(get_db_session)],
+    database_session: Annotated[Session, Depends(get_db_session, scope="function")],
 ) -> SessionService:
     """Return one request-scoped participant session service.
 
     Args:
         request: Current request used to access application state.
-        database_session: Request-scoped SQLAlchemy session.
+        database_session: Function-scoped SQLAlchemy session committed before the response is sent.
 
     Returns:
         The configured request-scoped session service.

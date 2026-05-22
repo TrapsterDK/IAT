@@ -51,6 +51,28 @@ def _upload_completed_sample_session(session_client: TestClient) -> SessionBoots
     return created_session
 
 
+def _upload_unscoreable_sample_session(session_client: TestClient) -> SessionBootstrapResponse:
+    created_response = session_client.post("/api/sessions", json={"iat_slug": "sample-iat"})
+    assert created_response.status_code == 201
+    created_session = SessionBootstrapResponse.model_validate(created_response.json())
+
+    for block_index, block in enumerate(created_session.blocks, start=1):
+        elapsed_ms = 250 if block_index in {3, 4, 6, 7} else 350
+        block_trial_payloads = [
+            {
+                "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": elapsed_ms}],
+            }
+            for trial in block.trials
+        ]
+        upload_response = session_client.put(
+            f"/api/sessions/{created_session.session_key}/blocks/{block_index}",
+            json={"trials": block_trial_payloads},
+        )
+        assert upload_response.status_code == 204
+
+    return created_session
+
+
 def test_create_session_returns_minimal_bootstrap(session_client: TestClient) -> None:
     # Given: one backend app with one published text-only IAT and one empty session store.
 
@@ -192,6 +214,18 @@ def test_get_score_returns_completed_session_score(session_client: TestClient) -
     score_response = SessionScoreResponse.model_validate(response.json())
     assert score_response.d_score == pytest.approx(150.0 / stdev([500.0] * 4 + [650.0] * 4))
     assert score_response.headline == "Strong automatic association of Alpha with Gamma."
+
+
+def test_get_score_returns_unprocessable_for_unscoreable_completed_session(session_client: TestClient) -> None:
+    # Given: one completed participant session whose combined-task trials are too fast to score.
+    created_session = _upload_unscoreable_sample_session(session_client)
+
+    # When: the client requests the completed-session score.
+    response = session_client.get(f"/api/sessions/{created_session.session_key}/score")
+
+    # Then: the route reports the permanent scoring failure instead of one retryable conflict.
+    assert response.status_code == 422
+    assert response.json() == {"detail": "Completed sessions with too many sub-300 ms trials cannot be scored with D2."}
 
 
 @pytest.mark.parametrize(

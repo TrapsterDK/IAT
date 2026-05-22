@@ -6,7 +6,7 @@ from statistics import mean, stdev
 
 import pytest
 
-from apps.backend.domain.session.exceptions import SessionConflictError
+from apps.backend.domain.session.exceptions import SessionUnscoreableError
 from apps.backend.domain.session.scoring import calculate_session_score
 from apps.backend.models.plan import ResponseSide
 from apps.backend.models.scoring import (
@@ -243,7 +243,7 @@ def test_calculate_session_score_rejects_trials_that_end_on_the_wrong_side() -> 
 
     # When: the improved D-score is computed.
     # Then: sessions that never end on the correct side are rejected as invalid.
-    with pytest.raises(SessionConflictError, match="correct response side"):
+    with pytest.raises(SessionUnscoreableError, match="correct response side"):
         calculate_session_score(
             scoring_data,
             LITTLE_TO_NO_ASSOCIATION_UPPER_BOUND,
@@ -266,7 +266,7 @@ def test_calculate_session_score_rejects_trials_with_events_after_correct_respon
 
     # When: the improved D-score is computed.
     # Then: trials with any events after the correct response are rejected as invalid.
-    with pytest.raises(SessionConflictError, match="events after the correct response"):
+    with pytest.raises(SessionUnscoreableError, match="events after the correct response"):
         calculate_session_score(
             scoring_data,
             LITTLE_TO_NO_ASSOCIATION_UPPER_BOUND,
@@ -288,7 +288,7 @@ def test_calculate_session_score_rejects_sessions_with_too_many_sub_300_ms_trial
 
     # When: the Greenwald et al. (2003) D2 score is computed.
     # Then: sessions with more than 10% sub-300 ms trials are rejected.
-    with pytest.raises(SessionConflictError, match="sub-300 ms"):
+    with pytest.raises(SessionUnscoreableError, match="sub-300 ms"):
         calculate_session_score(
             scoring_data,
             LITTLE_TO_NO_ASSOCIATION_UPPER_BOUND,

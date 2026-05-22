@@ -13,6 +13,7 @@ from apps.backend.domain.session.exceptions import (
     SessionConflictError,
     SessionInputError,
     SessionNotFoundError,
+    SessionUnscoreableError,
 )
 from apps.backend.routers.stimuli import build_stimulus_url
 from apps.backend.schemas.session import (
@@ -117,6 +118,8 @@ def get_score(
         session_score = session_service.get_score(session_key)
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Session not found.") from exc
+    except SessionUnscoreableError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except SessionConflictError as exc:
         raise HTTPException(status_code=409, detail="The session score is unavailable.") from exc
 

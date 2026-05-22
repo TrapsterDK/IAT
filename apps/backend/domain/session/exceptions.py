@@ -21,6 +21,10 @@ class SessionConflictError(SessionError):
     """Raised when one session read or write conflicts with stored state."""
 
 
+class SessionUnscoreableError(SessionError):
+    """Raised when one completed session cannot produce one valid score."""
+
+
 class SessionInputError(SessionError):
     """Raised when one session request payload violates runtime rules."""
 

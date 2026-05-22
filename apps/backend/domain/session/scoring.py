@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from statistics import mean, stdev
 
-from apps.backend.domain.session.exceptions import SessionConflictError
+from apps.backend.domain.session.exceptions import SessionUnscoreableError
 from apps.backend.models.scoring import (
     CompletedSessionSnapshot,
     SessionScoreResult,
@@ -56,10 +56,10 @@ def calculate_session_score(
         The computed session score result.
 
     Raises:
-        SessionConflictError: The completed session cannot be scored.
+        SessionUnscoreableError: The completed session cannot be scored.
     """
     if len(completed_session_snapshot.blocks) < REQUIRED_BLOCK_COUNT:
-        raise SessionConflictError("Completed sessions must include all scoring blocks.")
+        raise SessionUnscoreableError("Completed sessions must include all scoring blocks.")
 
     practice_pair_first_block_latencies = _build_d2_block_latencies(
         completed_session_snapshot.blocks[PRACTICE_PAIR_FIRST_BLOCK_POSITION].trials
@@ -106,12 +106,12 @@ def calculate_session_score(
 
 def _build_d2_block_latencies(trials: tuple[SessionScoringTrial, ...]) -> list[float]:
     if not trials:
-        raise SessionConflictError("Scored blocks must contain at least one completed trial.")
+        raise SessionUnscoreableError("Scored blocks must contain at least one completed trial.")
 
     block_latencies: list[float] = []
     for trial in trials:
         if not trial.events:
-            raise SessionConflictError("Completed scored trials must contain at least one event.")
+            raise SessionUnscoreableError("Completed scored trials must contain at least one event.")
 
         correct_event_index = next(
             (
@@ -122,9 +122,11 @@ def _build_d2_block_latencies(trials: tuple[SessionScoringTrial, ...]) -> list[f
             None,
         )
         if correct_event_index is None:
-            raise SessionConflictError("Completed session trials must end on the correct response side.")
+            raise SessionUnscoreableError("Completed session trials must end on the correct response side.")
         if correct_event_index != len(trial.events) - 1:
-            raise SessionConflictError("Completed session trials must not contain events after the correct response.")
+            raise SessionUnscoreableError(
+                "Completed session trials must not contain events after the correct response."
+            )
 
         final_latency_ms = trial.events[correct_event_index].elapsed_ms
         if final_latency_ms > MAX_SCORABLE_LATENCY_MS:
@@ -133,7 +135,7 @@ def _build_d2_block_latencies(trials: tuple[SessionScoringTrial, ...]) -> list[f
         block_latencies.append(float(final_latency_ms))
 
     if not block_latencies:
-        raise SessionConflictError("Each scored block must contain at least one scorable trial.")
+        raise SessionUnscoreableError("Each scored block must contain at least one scorable trial.")
 
     return block_latencies
 
@@ -141,11 +143,11 @@ def _build_d2_block_latencies(trials: tuple[SessionScoringTrial, ...]) -> list[f
 def _validate_d2_fast_trial_rate(combined_block_latencies: list[list[float]]) -> None:
     remaining_latencies = [latency_ms for block_latencies in combined_block_latencies for latency_ms in block_latencies]
     if not remaining_latencies:
-        raise SessionConflictError("Completed sessions must contain scorable combined-task trials.")
+        raise SessionUnscoreableError("Completed sessions must contain scorable combined-task trials.")
 
     fast_trial_count = sum(latency_ms < FAST_TRIAL_EXCLUSION_THRESHOLD_MS for latency_ms in remaining_latencies)
     if fast_trial_count / len(remaining_latencies) > MAX_FAST_TRIAL_PROPORTION:
-        raise SessionConflictError("Completed sessions with too many sub-300 ms trials cannot be scored with D2.")
+        raise SessionUnscoreableError("Completed sessions with too many sub-300 ms trials cannot be scored with D2.")
 
 
 def _build_d_score_component(
@@ -160,14 +162,14 @@ def _build_d_score_component(
     ]
     paired_latencies = [*trimmed_first_block_latencies, *trimmed_second_block_latencies]
     if len(paired_latencies) < MIN_POOLED_TRIAL_COUNT:
-        raise SessionConflictError("Each D-score block pair must contain at least two scored trials.")
+        raise SessionUnscoreableError("Each D-score block pair must contain at least two scored trials.")
 
     inclusive_sd = stdev(paired_latencies)
     if inclusive_sd == 0:
-        raise SessionConflictError("The session score is undefined for zero-variance block pairs.")
+        raise SessionUnscoreableError("The session score is undefined for zero-variance block pairs.")
 
     if not trimmed_first_block_latencies or not trimmed_second_block_latencies:
-        raise SessionConflictError("Each D-score block must retain at least one trial after D2 trimming.")
+        raise SessionUnscoreableError("Each D-score block must retain at least one trial after D2 trimming.")
 
     return (mean(trimmed_second_block_latencies) - mean(trimmed_first_block_latencies)) / inclusive_sd
 
@@ -186,7 +188,7 @@ def _build_headline(
         or len(second_label_block.left_labels) != 1
         or len(second_label_block.right_labels) != 1
     ):
-        raise SessionConflictError("Scoring blocks must each contain exactly one left and one right label.")
+        raise SessionUnscoreableError("Scoring blocks must each contain exactly one left and one right label.")
 
     absolute_d_score = abs(d_score)
     if absolute_d_score <= little_to_no_association_upper_bound:

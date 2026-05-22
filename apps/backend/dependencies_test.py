@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.orm import Session  # noqa: TC002
@@ -25,6 +25,9 @@ from apps.backend.models.session import (
     TrialEventType,
 )
 from apps.backend.settings import SessionScoreInterpretationSettings
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
 
 def _runtime_app(expected_runtime: BackendRuntime | None = None) -> FastAPI:
@@ -180,6 +183,52 @@ def test_get_db_session_commits_request_scoped_changes(
     assert persisted_row_count == 1
 
 
+def test_get_db_session_function_scope_commits_before_response_is_returned(
+    backend_runtime: BackendRuntime,
+) -> None:
+    # Given: one endpoint uses the database-session dependency with function scope.
+    app = FastAPI()
+    observed_persisted_row_counts: list[int] = []
+
+    @app.middleware("http")
+    async def capture_persisted_row_count(
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        response = await call_next(request)
+
+        with backend_runtime.session_factory() as verify_session:
+            observed_persisted_row_counts.append(
+                int(verify_session.scalar(text("SELECT COUNT(*) FROM request_events")))
+            )
+
+        return response
+
+    @app.post("/db-session")
+    def write_with_function_scoped_session(
+        database_session: Annotated[Session, Depends(get_db_session, scope="function")],
+    ) -> dict[str, int]:
+        database_session.execute(text("INSERT INTO request_events (value) VALUES (1)"))
+        visible_row_count = database_session.scalar(text("SELECT COUNT(*) FROM request_events"))
+        return {"request_visible": int(visible_row_count)}
+
+    app.state.runtime = backend_runtime
+
+    with backend_runtime.session_factory() as setup_session:
+        setup_session.execute(text("DROP TABLE IF EXISTS request_events"))
+        setup_session.execute(text("CREATE TABLE request_events (value INTEGER NOT NULL)"))
+        setup_session.commit()
+
+    # When: one client completes one successful request through the function-scoped dependency.
+    with TestClient(app) as client:
+        response = client.post("/db-session")
+
+    # Then: middleware after the route handler observes the committed write before the response is returned.
+    assert response.status_code == 200
+    assert response.json() == {"request_visible": 1}
+    assert observed_persisted_row_counts == [1]
+
+
 def test_get_db_session_rolls_back_request_failures(
     backend_runtime: BackendRuntime,
 ) -> None:
@@ -233,7 +282,7 @@ def test_get_session_service_uses_runtime_score_interpretation_settings(
     app.state.runtime = neutral_runtime
     request = Request({"type": "http", "app": app})
 
-    # When: the request-scoped session service completes and scores one sample session.
+    # When: the function-scoped session service completes and scores one sample session.
     with session_runtime.session_factory() as database_session:
         session_service = get_session_service(request, database_session)
         state, run_plan = session_service.create_session(
