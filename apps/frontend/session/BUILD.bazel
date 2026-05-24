@@ -1,0 +1,24 @@
+load("//tools/javascript:defs.bzl", "ts_project")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ts_project(
+    name = "session",
+    srcs = [
+        "flow.mts",
+        "image_cache.mts",
+    ],
+    tsconfig = "//apps/frontend:tsconfig",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/frontend/core",
+        "//apps/frontend/state",
+        "//apps/frontend/state/states",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

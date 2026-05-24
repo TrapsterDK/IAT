@@ -3,7 +3,7 @@ import { FETCH_TIMEOUT_MS } from "./core/config.mjs";
 import { bindAppController } from "./controller.mjs";
 import { createBrowserSessionFlowEnvironment, createSessionFlow } from "./session/flow.mjs";
 import { createRuntimeState } from "./state/runtime.mjs";
-import { render } from "./ui/render.mjs";
+import { render } from "./render.mjs";
 
 const appRoot = document.querySelector<HTMLElement>("#app");
 

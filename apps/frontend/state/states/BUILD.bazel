@@ -1,0 +1,44 @@
+load("//tools/javascript:defs.bzl", "ts_project")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ts_project(
+    name = "states",
+    srcs = [
+        "block_intro.mts",
+        "preloading.mts",
+        "result.mts",
+        "review.mts",
+        "starting_block.mts",
+        "trial.mts",
+    ],
+    tsconfig = "//apps/frontend:tsconfig",
+    visibility = ["//:__subpackages__"],
+    deps = ["//apps/frontend/state"],
+)
+
+ts_project(
+    name = "states_tests",
+    testonly = True,
+    srcs = [
+        "block_intro_test.mts",
+        "preloading_test.mts",
+        "result_test.mts",
+        "review_test.mts",
+        "starting_block_test.mts",
+        "trial_test.mts",
+    ],
+    tsconfig = "//apps/frontend:tsconfig",
+    deps = [
+        ":states",
+        "//:node_modules/@types/node",
+        "//apps/frontend/state",
+        "//apps/frontend/testing",
+    ],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

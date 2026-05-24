@@ -1,0 +1,20 @@
+load("//tools/javascript:defs.bzl", "ts_project")
+
+package(default_visibility = ["//:__subpackages__"])
+
+ts_project(
+    name = "ui",
+    srcs = [
+        "dom.mts",
+        "parts.mts",
+    ],
+    tsconfig = "//apps/frontend:tsconfig",
+    visibility = ["//:__subpackages__"],
+    deps = ["//apps/frontend/state"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

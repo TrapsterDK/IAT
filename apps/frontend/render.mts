@@ -1,14 +1,14 @@
-import { currentBlock, currentTrial } from "../state/selectors.mjs";
-import { SessionStateKind, type RuntimeState } from "../state/types.mjs";
-import { createElement } from "./dom.mjs";
-import { buildErrorBanner } from "./parts.mjs";
-import { buildBlockIntroPage } from "./pages/block_intro.mjs";
-import { buildCatalogPage } from "./pages/catalog.mjs";
-import { buildFinalizingPage } from "./pages/finalizing.mjs";
-import { buildPreloadingPage } from "./pages/preloading.mjs";
-import { buildResultPage } from "./pages/result.mjs";
-import { buildReviewPage } from "./pages/review.mjs";
-import { buildTrialPage } from "./pages/trial.mjs";
+import { currentBlock, currentTrial } from "./state/selectors.mjs";
+import { SessionStateKind, type RuntimeState } from "./state/types.mjs";
+import { createElement } from "./ui/dom.mjs";
+import { buildErrorBanner } from "./ui/parts.mjs";
+import { buildBlockIntroPage } from "./ui/pages/block_intro.mjs";
+import { buildCatalogPage } from "./ui/pages/catalog.mjs";
+import { buildFinalizingPage } from "./ui/pages/finalizing.mjs";
+import { buildPreloadingPage } from "./ui/pages/preloading.mjs";
+import { buildResultPage } from "./ui/pages/result.mjs";
+import { buildReviewPage } from "./ui/pages/review.mjs";
+import { buildTrialPage } from "./ui/pages/trial.mjs";
 
 export function render(appRoot: HTMLElement, runtime: RuntimeState) {
   const document = appRoot.ownerDocument;
