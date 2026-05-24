@@ -5,34 +5,32 @@ load("//tools/javascript:defs.bzl", "ts_project")
 
 package(default_visibility = ["//:__subpackages__"])
 
+# gazelle:generation_mode update_only
+# gazelle:js_files **/*.{ts,tsx,mts,cts}
+# gazelle:js_test_files __frontend_no_test_files__.mts
+
 filegroup(
     name = "build_bazel",
     srcs = ["BUILD.bazel"],
     tags = ["starlark"],
 )
 
-ts_project(
-    name = "frontend",
-    srcs = ["main.mts"],
-    extends = "//:tsconfig",
-    tsconfig = ":tsconfig",
-    deps = [
-        "//apps/frontend/core",
-        "//apps/frontend/session",
-        "//apps/frontend/ui",
-    ],
-)
-
 esbuild(
     name = "bundle",
-    srcs = ["main.mts"],
+    srcs = [
+        "controller.mts",
+        "main.mts",
+        ":frontend",
+    ],
     entry_point = "main.mts",
     format = "esm",
     output = "main.js",
     platform = "browser",
     target = ["es2022"],
     tsconfig = ":tsconfig",
-    deps = [":frontend"],
+    deps = [
+        ":frontend",
+    ],
 )
 
 copy_to_directory(
@@ -47,14 +45,72 @@ copy_to_directory(
     replace_prefixes = {
         "app.css": "assets/app.css",
         "main.js": "assets/main.js",
-        "node_modules/normalize.css": "assets/normalize.css",
+        "normalize.css": "assets/normalize.css",
     },
-    root_paths = ["."],
 )
 
 ts_config(
     name = "tsconfig",
     src = "tsconfig.json",
     visibility = [":__subpackages__"],
-    deps = ["//:tsconfig"],
+    deps = [
+        "//:node_modules/@types/node",
+        "//:tsconfig",
+    ],
+)
+
+ts_project(
+    name = "frontend",
+    srcs = [
+        "controller.mts",
+        "core/api.mts",
+        "core/api_adapter.mts",
+        "core/api_adapter_test.mts",
+        "core/api_test.mts",
+        "core/config.mts",
+        "core/errors.mts",
+        "core/http.mts",
+        "core/http_test.mts",
+        "core/testing/test_http.mts",
+        "core/utils.mts",
+        "main.mts",
+        "session/flow.mts",
+        "session/image_cache.mts",
+        "state/block_uploads.mts",
+        "state/block_uploads_test.mts",
+        "state/runtime.mts",
+        "state/runtime_test.mts",
+        "state/selectors.mts",
+        "state/selectors_test.mts",
+        "state/states/block_intro.mts",
+        "state/states/block_intro_test.mts",
+        "state/states/preloading.mts",
+        "state/states/preloading_test.mts",
+        "state/states/result.mts",
+        "state/states/result_test.mts",
+        "state/states/review.mts",
+        "state/states/review_test.mts",
+        "state/states/starting_block.mts",
+        "state/states/starting_block_test.mts",
+        "state/states/trial.mts",
+        "state/states/trial_test.mts",
+        "state/types.mts",
+        "testing/fixtures.mts",
+        "ui/dom.mts",
+        "ui/pages/block_intro.mts",
+        "ui/pages/catalog.mts",
+        "ui/pages/finalizing.mts",
+        "ui/pages/preloading.mts",
+        "ui/pages/result.mts",
+        "ui/pages/review.mts",
+        "ui/pages/trial.mts",
+        "ui/parts.mts",
+        "ui/render.mts",
+    ],
+    tsconfig = ":tsconfig",
+    deps = [
+        "//:node_modules/@types/node",
+        "//:node_modules/openapi-fetch",
+        "//apps/api:backend",
+    ],
 )

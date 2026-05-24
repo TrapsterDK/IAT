@@ -1,0 +1,9 @@
+export const PRELOAD_CONCURRENCY = 6;
+export const IMAGE_MAX_ATTEMPTS = 3;
+export const IMAGE_RETRY_DELAY_MS = 750;
+export const FETCH_IMAGE_TIMEOUT_MS = 10_000;
+export const PRELOAD_HEARTBEAT_INTERVAL_MS = 1_000;
+export const PRELOAD_STALLED_AFTER_MS = 8_000;
+export const FETCH_TIMEOUT_MS = 20_000;
+export const START_BLOCK_DELAY_MS = 1_000;
+export const TRIAL_ADVANCE_DELAY_MS = 120;

@@ -12,7 +12,17 @@ export function createApiClient(writeTimeoutMs: number, baseUrl = "") {
 
   return {
     listIats() {
-      return client.GET("/iats");
+      return client.GET("/api/iats");
+    },
+
+    getIat(slug: string) {
+      return client.GET("/api/iats/{slug}", {
+        params: {
+          path: {
+            slug,
+          },
+        },
+      });
     },
 
     createSession(request: CreateSessionRequest) {
@@ -43,9 +53,4 @@ export function createApiClient(writeTimeoutMs: number, baseUrl = "") {
   };
 }
 
-type ApiClient = ReturnType<typeof createApiClient>;
-
-export type ListIatsResult = Awaited<ReturnType<ApiClient["listIats"]>>;
-export type CreateSessionResult = Awaited<ReturnType<ApiClient["createSession"]>>;
-export type GetScoreResult = Awaited<ReturnType<ApiClient["getScore"]>>;
-export type CompleteBlockResult = Awaited<ReturnType<ApiClient["completeBlock"]>>;
+export type ApiClient = ReturnType<typeof createApiClient>;

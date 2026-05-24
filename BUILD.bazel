@@ -43,6 +43,8 @@ exports_files(
 # gazelle:map_kind py_library py_library //tools/python:defs.bzl
 # gazelle:map_kind py_test py_test //tools/python:defs.bzl
 # gazelle:map_kind ts_project ts_project //tools/javascript:defs.bzl
+# gazelle:js_test_files **/*_test.{ts,tsx,mts,cts}
+# gazelle:js_test_files **/*testing/*.{ts,tsx,mts,cts}
 # gazelle:resolve_regexp js ^@iat/(.+)/([^/]+)$ //$1:$2
 # gazelle:resolve py fastapi.testclient //third_party/python/fastapi:testclient
 

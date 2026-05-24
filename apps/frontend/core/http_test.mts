@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import type { TestContext } from "node:test";
 import { test } from "node:test";
-
 import { fetchResponseWithTimeout } from "./http.mjs";
 import { listen } from "./testing/test_http.mjs";
 
 test("fetchResponseWithTimeout returns the response before the timeout", async (testContext: TestContext) => {
   // Given: a server that responds immediately and a request with a generous timeout
-  const server = await listen((_request, response) => {
+  const server = await listen((_request: IncomingMessage, response: ServerResponse<IncomingMessage>) => {
     response.writeHead(200, { "content-type": "text/plain" });
     response.end("ok");
   });
@@ -26,7 +26,7 @@ test("fetchResponseWithTimeout returns the response before the timeout", async (
 
 test("fetchResponseWithTimeout rejects when the timeout elapses first", async (testContext: TestContext) => {
   // Given: a server that responds too slowly for the configured timeout
-  const server = await listen((_request, response) => {
+  const server = await listen((_request: IncomingMessage, response: ServerResponse<IncomingMessage>) => {
     globalThis.setTimeout(() => {
       response.writeHead(200, { "content-type": "text/plain" });
       response.end("slow");
@@ -41,7 +41,4 @@ test("fetchResponseWithTimeout rejects when the timeout elapses first", async (t
   await assert.rejects(fetchResponseWithTimeout(request, 10), {
     message: "The request timed out.",
   });
-
-  // Then: the timeout error is surfaced
-  assert.ok(true);
 });
