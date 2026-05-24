@@ -21,9 +21,13 @@ That command creates wrapper tools under `bazel-out/bazel_env-opt/bin/tools/baze
 
 This project uses synthetic image stimuli generated from YAML specs. The generation pipeline lives in [`apps/stimuli_generator`](apps/stimuli_generator/README.md), which provides the CLI for creating those assets.
 
+## Frontend
+
+The participant-facing frontend lives in [`apps/frontend`](apps/frontend/README.md). The backend serves its built shell and bundled assets.
+
 ## Backend
 
-The participant-facing backend lives in [`apps/backend`](apps/backend/README.md). It serves the frontend shell and built frontend assets, published IAT definitions, public stimulus images, session creation, block uploads, and score retrieval.
+The participant-facing backend lives in [`apps/backend`](apps/backend/README.md). It serves the built frontend, published IAT definitions, public stimulus images, session creation, block uploads, and score retrieval.
 
 ## Resources
 

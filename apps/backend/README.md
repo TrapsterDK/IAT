@@ -1,6 +1,6 @@
 # Backend
 
-Serves the published IAT catalog, public stimulus images, and the participant session API.
+Serves the built participant-facing frontend, published IAT catalog, public stimulus images, and the participant session API.
 
 ## Usage
 

@@ -53,6 +53,12 @@ copy_to_directory(
     },
 )
 
+filegroup(
+    name = "readme",
+    srcs = ["README.md"],
+    tags = ["markdown"],
+)
+
 ts_project(
     name = "frontend",
     srcs = [
