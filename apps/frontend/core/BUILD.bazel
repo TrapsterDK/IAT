@@ -12,6 +12,7 @@ ts_project(
         "http.mts",
         "utils.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     visibility = ["//:__subpackages__"],
     deps = [
@@ -29,6 +30,7 @@ ts_project(
         "api_test.mts",
         "http_test.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     deps = [
         ":core",

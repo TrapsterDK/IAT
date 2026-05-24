@@ -8,6 +8,7 @@ package(
 ts_project(
     name = "testing",
     srcs = ["test_http.mts"],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     visibility = ["//:__subpackages__"],
     deps = ["//:node_modules/@types/node"],

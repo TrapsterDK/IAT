@@ -60,6 +60,7 @@ ts_project(
         "main.mts",
         "render.mts",
     ],
+    declaration = True,
     tsconfig = ":tsconfig",
     visibility = ["//:__subpackages__"],
     deps = [

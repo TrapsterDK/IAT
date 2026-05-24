@@ -8,6 +8,7 @@ package(
 ts_project(
     name = "testing",
     srcs = ["fixtures.mts"],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     visibility = ["//:__subpackages__"],
 )

@@ -13,6 +13,7 @@ ts_project(
         "review.mts",
         "trial.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     visibility = ["//:__subpackages__"],
     deps = [

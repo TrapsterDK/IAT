@@ -10,6 +10,7 @@ ts_project(
         "selectors.mts",
         "types.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     visibility = ["//:__subpackages__"],
 )
@@ -22,6 +23,7 @@ ts_project(
         "runtime_test.mts",
         "selectors_test.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     deps = [
         ":state",

@@ -12,6 +12,7 @@ ts_project(
         "starting_block.mts",
         "trial.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     visibility = ["//:__subpackages__"],
     deps = ["//apps/frontend/state"],
@@ -28,6 +29,7 @@ ts_project(
         "starting_block_test.mts",
         "trial_test.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     deps = [
         ":states",

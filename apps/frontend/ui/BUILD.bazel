@@ -8,6 +8,7 @@ ts_project(
         "dom.mts",
         "parts.mts",
     ],
+    declaration = True,
     tsconfig = "//apps/frontend:tsconfig",
     visibility = ["//:__subpackages__"],
     deps = ["//apps/frontend/state"],
