@@ -174,7 +174,7 @@ def catalog_router_client(image_catalog_settings: ResolvedIatResources) -> Itera
         session_factory=create_session_factory(engine),
         settings=image_catalog_settings,
     )
-    app.include_router(catalog_router)
+    app.include_router(catalog_router, prefix="/api")
     app.include_router(stimuli_router)
 
     with TestClient(app) as client:
