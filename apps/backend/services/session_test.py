@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from statistics import stdev
 from typing import TYPE_CHECKING
 
@@ -21,6 +22,7 @@ from apps.backend.models.session import (
     CompletedBlockInput,
     CompletedTrialInput,
     SessionCreateInput,
+    SessionMode,
     SessionState,
     TrialEventInput,
     TrialEventType,
@@ -52,6 +54,7 @@ class _RecordingSessionRepository(SessionRepository):
     ) -> None:
         self._missing_session_key = missing_session_key
         self._created_state = created_state
+        self.created_session_call: tuple[str, int, ClientContext, SessionMode] | None = None
         self.saved_completed_block_call: tuple[str, int, CompletedBlockInput] | None = None
 
     def create_session(
@@ -59,8 +62,10 @@ class _RecordingSessionRepository(SessionRepository):
         iat_slug: str,
         plan_seed: int,
         client_context: ClientContext,
+        session_mode: SessionMode,
     ) -> SessionState:
         assert self._created_state is not None
+        self.created_session_call = (iat_slug, plan_seed, client_context, session_mode)
         return self._created_state
 
     def save_completed_block(
@@ -215,7 +220,93 @@ def test_create_session_raises_not_found_for_missing_iat() -> None:
     # When: one client starts one session for one missing IAT.
     # Then: the service reports the missing IAT before attempting to build or persist a run plan.
     with pytest.raises(IatNotFoundError, match="IAT not found: missing-iat"):
-        session_service.create_session(SessionCreateInput(iat_slug="missing-iat", client_context=ClientContext()))
+        session_service.create_session(
+            SessionCreateInput(
+                iat_slug="missing-iat",
+                client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
+                plan_seed=None,
+            )
+        )
+
+
+def test_create_session_uses_explicit_plan_seed_when_provided() -> None:
+    # Given: one session service with one explicit persisted session state and one fixed run-plan seed override.
+    session_state = SessionState(
+        session_id=1,
+        session_key="session-key",
+        created_at_utc=datetime.now(tz=UTC),
+        session_mode=SessionMode.EVALUATION,
+        completed_at_utc=None,
+    )
+    session_repository = _RecordingSessionRepository(created_state=session_state)
+    plan_repository = _RecordingSessionPlanRepository()
+    session_service = SessionService(
+        catalog_repository=_StubCatalogRepository(_build_catalog_iat()),
+        session_repository=session_repository,
+        plan_repository=plan_repository,
+        scoring_repository=_StubSessionScoringRepository(),
+        plan_seed_provider=lambda: 999,
+        score_interpretation=_build_score_thresholds(),
+    )
+
+    # When: one client starts one session with one explicit seed.
+    returned_state, returned_plan = session_service.create_session(
+        SessionCreateInput(
+            iat_slug="sample-iat",
+            client_context=ClientContext(),
+            session_mode=SessionMode.EVALUATION,
+            plan_seed=321,
+        )
+    )
+
+    # Then: the service persists and builds the session using the explicit seed instead of the provider.
+    assert returned_state is session_state
+    assert session_repository.created_session_call == (
+        "sample-iat",
+        321,
+        ClientContext(),
+        SessionMode.EVALUATION,
+    )
+    assert plan_repository.persisted_plan == (1, returned_plan)
+
+
+def test_create_session_defaults_to_participant_mode_and_generated_seed() -> None:
+    # Given: one session service with one explicit persisted participant session state and one generated plan seed.
+    session_state = SessionState(
+        session_id=1,
+        session_key="session-key",
+        created_at_utc=datetime.now(tz=UTC),
+        session_mode=SessionMode.PARTICIPANT,
+        completed_at_utc=None,
+    )
+    session_repository = _RecordingSessionRepository(created_state=session_state)
+    session_service = SessionService(
+        catalog_repository=_StubCatalogRepository(_build_catalog_iat()),
+        session_repository=session_repository,
+        plan_repository=_RecordingSessionPlanRepository(),
+        scoring_repository=_StubSessionScoringRepository(),
+        plan_seed_provider=lambda: 999,
+        score_interpretation=_build_score_thresholds(),
+    )
+
+    # When: one client starts one ordinary participant session.
+    session_service.create_session(
+        SessionCreateInput(
+            iat_slug="sample-iat",
+            client_context=ClientContext(),
+            session_mode=SessionMode.PARTICIPANT,
+            plan_seed=None,
+        )
+    )
+
+    # Then: the generated seed is used and the persisted session is marked as one participant session.
+    assert session_repository.created_session_call == (
+        "sample-iat",
+        999,
+        ClientContext(),
+        SessionMode.PARTICIPANT,
+    )
 
 
 def test_complete_block_raises_not_found_for_missing_session() -> None:

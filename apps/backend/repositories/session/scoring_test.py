@@ -9,7 +9,7 @@ import pytest
 
 from apps.backend.domain.session.exceptions import SessionConflictError
 from apps.backend.models.plan import ResponseSide
-from apps.backend.models.session import ClientContext, TrialEventType
+from apps.backend.models.session import ClientContext, SessionMode, TrialEventType
 from apps.backend.repositories.session.conftest import (
     append_single_event_trials,
     build_repository_factory,
@@ -38,6 +38,7 @@ def test_get_completed_session_snapshot_by_key_returns_completed_session_snapsho
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             persisted_session = database_session.get(SessionRecord, created_state.session_id)
 
@@ -93,6 +94,7 @@ def test_get_completed_session_snapshot_by_key_rejects_running_session(tmp_path:
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 

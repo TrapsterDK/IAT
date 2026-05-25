@@ -17,6 +17,13 @@ class TrialEventType(StrEnum):
     RIGHT = "right"
 
 
+class SessionMode(StrEnum):
+    """Publicly visible session mode used to distinguish participant and evaluation runs."""
+
+    PARTICIPANT = "participant"
+    EVALUATION = "evaluation"
+
+
 @dataclass(frozen=True, slots=True)
 class ClientContext:
     """Non-identifying client metadata stored for later analysis."""
@@ -34,6 +41,8 @@ class SessionCreateInput:
 
     iat_slug: str
     client_context: ClientContext
+    session_mode: SessionMode
+    plan_seed: int | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,7 +52,8 @@ class SessionState:
     session_id: int
     session_key: str
     created_at_utc: datetime
-    completed_at_utc: datetime | None = None
+    session_mode: SessionMode
+    completed_at_utc: datetime | None
 
 
 @dataclass(frozen=True, slots=True)

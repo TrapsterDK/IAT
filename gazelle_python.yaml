@@ -14,6 +14,8 @@ manifest:
     annotated_types: annotated_types
     anyio: anyio
     asttokens: asttokens
+    attr: attrs
+    attrs: attrs
     bs4: beautifulsoup4
     certifi: certifi
     charset_normalizer: charset_normalizer
@@ -56,6 +58,7 @@ manifest:
     nvidia.cu13.lib.libnvperf_host: nvidia_cuda_cupti
     nvidia.cu13.lib.libnvperf_target: nvidia_cuda_cupti
     nvidia.cu13.lib.libpcsamplingutil: nvidia_cuda_cupti
+    outcome: outcome
     packaging: packaging
     parso: parso
     pathspec: pathspec
@@ -79,11 +82,14 @@ manifest:
     ruff: ruff
     runfiles: bazel_runfiles
     safetensors: safetensors
+    selenium: selenium
     sentencepiece: sentencepiece
     setuptools: setuptools
     shellingham: shellingham
+    sniffio: sniffio
     socks: PySocks
     sockshandler: PySocks
+    sortedcontainers: sortedcontainers
     soupsieve: soupsieve
     sqlalchemy: sqlalchemy
     stack_data: stack_data
@@ -97,6 +103,8 @@ manifest:
     tqdm: tqdm
     traitlets: traitlets
     transformers: transformers
+    trio: trio
+    trio_websocket: trio_websocket
     triton: triton
     ty: ty
     typer: typer
@@ -105,9 +113,11 @@ manifest:
     urllib3: urllib3
     uvicorn: uvicorn
     wcwidth: wcwidth
+    websocket: websocket_client
+    wsproto: wsproto
     yaml: pyyaml
     yamllint: yamllint
     zipp: zipp
   pip_repository:
     name: pip
-integrity: 9f5a7b71862960af85ccddf7e605006c7d6d4c9102863a8f4561ec779ffd66a8
+integrity: db48df9baa1ecdca922b89555a9c82737173db585e54822351896920ff5bb3c1

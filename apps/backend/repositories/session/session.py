@@ -18,6 +18,7 @@ from apps.backend.domain.session.exceptions import (
 from apps.backend.models.session import (
     ClientContext,
     CompletedBlockInput,
+    SessionMode,
     SessionState,
 )
 from libs.sqlalchemy.types import UtcDateTime
@@ -29,6 +30,7 @@ _INSERT_SESSION = text(
     INSERT INTO iat_sessions (
         session_key,
         iat_slug,
+        session_mode,
         plan_seed,
         created_at_utc,
         user_agent,
@@ -39,6 +41,7 @@ _INSERT_SESSION = text(
     ) VALUES (
         :session_key,
         :iat_slug,
+        :session_mode,
         :plan_seed,
         :created_at_utc,
         :user_agent,
@@ -145,6 +148,7 @@ class SessionRepository:
         iat_slug: str,
         plan_seed: int,
         client_context: ClientContext,
+        session_mode: SessionMode,
     ) -> SessionState:
         """Persist one new running session root row.
 
@@ -152,6 +156,7 @@ class SessionRepository:
             iat_slug: Published IAT slug associated with the session.
             plan_seed: Random seed used to generate the run plan.
             client_context: Client metadata captured at session creation.
+            session_mode: Publicly visible mode used to distinguish participant and evaluation sessions.
 
         Returns:
             The newly persisted session state.
@@ -166,6 +171,7 @@ class SessionRepository:
                     {
                         "session_key": session_key,
                         "iat_slug": iat_slug,
+                        "session_mode": session_mode.value,
                         "plan_seed": plan_seed,
                         "created_at_utc": created_at_utc,
                         "user_agent": client_context.user_agent,
@@ -190,6 +196,7 @@ class SessionRepository:
             session_id=session_id,
             session_key=session_key,
             created_at_utc=created_at_utc,
+            session_mode=session_mode,
             completed_at_utc=None,
         )
 

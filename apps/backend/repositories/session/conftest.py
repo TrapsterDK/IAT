@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from apps.backend.database import create_database_schema, create_session_factory, create_sqlite_engine
 from apps.backend.models.plan import BlockPlan, PlannedStimulus, ResponseSide, RunPlan, TrialPlan
-from apps.backend.models.session import ClientContext, SessionState, TrialEventType
+from apps.backend.models.session import ClientContext, SessionMode, SessionState, TrialEventType
 from apps.backend.repositories.session.plan import SessionPlanRepository
 from apps.backend.repositories.session.schema import SessionTrialEventRecord
 from apps.backend.repositories.session.scoring import SessionScoringRepository
@@ -29,6 +29,7 @@ def create_execution(
     plan_seed: int,
     run_plan: RunPlan,
     client_context: ClientContext,
+    session_mode: SessionMode,
 ) -> SessionState:
     """Create one session and persist its immutable run plan.
 
@@ -39,6 +40,7 @@ def create_execution(
         plan_seed: Seed used to create the session state.
         run_plan: Immutable run plan saved for the new session.
         client_context: Client metadata stored with the session.
+        session_mode: Publicly visible mode stored for the created session.
 
     Returns:
         The newly created session state.
@@ -49,6 +51,7 @@ def create_execution(
         iat_slug,
         plan_seed,
         client_context,
+        session_mode,
     )
     plan_repository.save_plan(created_state.session_id, run_plan)
     return created_state

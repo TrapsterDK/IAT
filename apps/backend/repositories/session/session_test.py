@@ -17,6 +17,7 @@ from apps.backend.models.session import (
     ClientContext,
     CompletedBlockInput,
     CompletedTrialInput,
+    SessionMode,
     TrialEventInput,
     TrialEventType,
 )
@@ -49,6 +50,7 @@ def test_save_completed_block_accepts_same_payload_replay_after_stale_write_race
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             setup_session.commit()
 
@@ -106,6 +108,7 @@ def test_save_completed_block_rejects_completed_session(tmp_path: Path) -> None:
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             SessionRepository(database_session, session_key_factory=lambda: "unused").save_completed_block(
                 "session-key",
@@ -160,6 +163,7 @@ def test_save_completed_block_rejects_replay_with_different_payload(tmp_path: Pa
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 
@@ -197,6 +201,7 @@ def test_create_execution_retries_session_key_collisions(tmp_path: Path) -> None
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 
@@ -211,6 +216,7 @@ def test_create_execution_retries_session_key_collisions(tmp_path: Path) -> None
                 plan_seed=456,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 
@@ -219,6 +225,36 @@ def test_create_execution_retries_session_key_collisions(tmp_path: Path) -> None
             persisted_session = database_session.get(SessionRecord, created_state.session_id)
             assert persisted_session is not None
             assert persisted_session.session_key == "retry-key"
+    finally:
+        engine.dispose()
+
+
+def test_create_execution_persists_evaluation_session_mode(tmp_path: Path) -> None:
+    # Given: one repository-backed database and one compact run plan.
+    engine, session_factory = build_repository_factory(tmp_path)
+
+    try:
+        run_plan = build_run_plan()
+
+        with session_factory() as database_session:
+            created_state = create_execution(
+                database_session,
+                session_key_factory=lambda: "session-key",
+                iat_slug="sample-iat",
+                plan_seed=123,
+                run_plan=run_plan,
+                client_context=ClientContext(),
+                session_mode=SessionMode.EVALUATION,
+            )
+            database_session.commit()
+
+            # When: the persisted session row is loaded back from the database.
+            persisted_session = database_session.get(SessionRecord, created_state.session_id)
+
+            # Then: the explicit evaluation session mode is stored and returned.
+            assert persisted_session is not None
+            assert persisted_session.session_mode is SessionMode.EVALUATION
+            assert created_state.session_mode is SessionMode.EVALUATION
     finally:
         engine.dispose()
 
@@ -238,6 +274,7 @@ def test_create_execution_raises_session_creation_error_after_repeated_key_colli
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 
@@ -257,6 +294,7 @@ def test_create_execution_raises_session_creation_error_after_repeated_key_colli
                 plan_seed=456,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
     finally:
         engine.dispose()
@@ -277,6 +315,7 @@ def test_save_completed_block_persists_trial_events(tmp_path: Path) -> None:
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 
@@ -345,6 +384,7 @@ def test_save_completed_block_accepts_identical_final_block_replay_after_complet
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 
@@ -384,6 +424,7 @@ def test_save_completed_block_rejects_out_of_range_block_index(tmp_path: Path) -
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 
@@ -423,6 +464,7 @@ def test_save_completed_block_rejects_uploaded_trial_without_events(tmp_path: Pa
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 

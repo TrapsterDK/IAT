@@ -21,6 +21,7 @@ from apps.backend.models.session import (
     CompletedBlockInput,
     CompletedTrialInput,
     SessionCreateInput,
+    SessionMode,
     TrialEventInput,
     TrialEventType,
 )
@@ -286,7 +287,12 @@ def test_get_session_service_uses_runtime_score_interpretation_settings(
     with session_runtime.session_factory() as database_session:
         session_service = get_session_service(request, database_session)
         state, run_plan = session_service.create_session(
-            SessionCreateInput(iat_slug="sample-iat", client_context=ClientContext())
+            SessionCreateInput(
+                iat_slug="sample-iat",
+                client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
+                plan_seed=None,
+            )
         )
         for block_index, block in enumerate(run_plan.blocks, start=1):
             session_service.complete_block(

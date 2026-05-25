@@ -111,6 +111,30 @@ def test_create_session_returns_public_stimulus_urls_for_image_trials(image_sess
     assert first_image_url.startswith("/stimuli/sample-iat/alpha/")
 
 
+def test_create_session_returns_the_same_run_plan_for_one_explicit_seed(session_client: TestClient) -> None:
+    # Given: one deterministic session-creation payload with one explicit plan seed.
+    payload = {
+        "iat_slug": "sample-iat",
+        "session_mode": "evaluation",
+        "plan_seed": 123,
+    }
+
+    # When: two participants start sessions with the same explicit seed.
+    first_response = session_client.post("/api/sessions", json=payload)
+    second_response = session_client.post("/api/sessions", json=payload)
+
+    # Then: the returned block plans match exactly, even though the public session keys differ.
+    assert first_response.status_code == 201
+    assert second_response.status_code == 201
+    first_session = SessionBootstrapResponse.model_validate(first_response.json())
+    second_session = SessionBootstrapResponse.model_validate(second_response.json())
+
+    assert first_session.session_key != second_session.session_key
+    assert first_session.model_copy(update={"session_key": "fixed"}) == second_session.model_copy(
+        update={"session_key": "fixed"}
+    )
+
+
 def test_create_session_returns_not_found_for_unknown_iat_slug(session_client: TestClient) -> None:
     # Given: one session-creation payload that references one unavailable IAT slug.
 
@@ -161,6 +185,37 @@ def test_create_session_rejects_invalid_payloads(
     # Then: request validation rejects the payload.
     assert response.status_code == 422
     _assert_has_validation_error(response, expected_loc, expected_type)
+
+
+def test_create_session_accepts_missing_plan_seed_for_evaluation_mode(session_client: TestClient) -> None:
+    # Given: one evaluation session payload without one explicit deterministic plan seed.
+
+    # When: the client creates one session.
+    response = session_client.post(
+        "/api/sessions",
+        json={"iat_slug": "sample-iat", "session_mode": "evaluation"},
+    )
+
+    # Then: the backend accepts the evaluation session and falls back to one generated seed.
+    assert response.status_code == 201
+
+
+def test_create_session_rejects_plan_seed_for_participant_mode(session_client: TestClient) -> None:
+    # Given: one participant session payload that incorrectly includes one explicit plan seed.
+
+    # When: the client creates one session.
+    response = session_client.post(
+        "/api/sessions",
+        json={"iat_slug": "sample-iat", "session_mode": "participant", "plan_seed": 123},
+    )
+
+    # Then: request validation rejects the unsupported participant-only plan seed.
+    assert response.status_code == 422
+    assert any(
+        validation_error["type"] == "value_error"
+        and validation_error["msg"] == "Value error, Participant sessions must not define one 'plan_seed'."
+        for validation_error in _validation_error_details(response)
+    )
 
 
 def test_upload_block_returns_not_found_for_unknown_session_key(session_client: TestClient) -> None:

@@ -8,7 +8,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from apps.backend.models.plan import ResponseSide
-from apps.backend.models.session import ClientContext
+from apps.backend.models.session import ClientContext, SessionMode
 from apps.backend.repositories.session.conftest import build_repository_factory, build_run_plan, create_execution
 from apps.backend.repositories.session.schema import SessionBlockPlanRecord, SessionRecord, SessionTrialPlanRecord
 
@@ -31,6 +31,7 @@ def test_trial_plan_rejects_duplicate_trial_index_in_same_block(tmp_path: Path) 
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.flush()
 
@@ -79,6 +80,7 @@ def test_trial_plan_rejects_non_contiguous_block_indexes(tmp_path: Path) -> None
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             persisted_session = database_session.get(SessionRecord, created_state.session_id)
 

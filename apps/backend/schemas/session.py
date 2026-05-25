@@ -14,6 +14,7 @@ from apps.backend.models.session import (
     CompletedBlockInput,
     CompletedTrialInput,
     SessionCreateInput,
+    SessionMode,
     SessionState,
     TrialEventInput,
     TrialEventType,
@@ -61,6 +62,20 @@ class CreateSessionRequest(BaseModel):
 
     iat_slug: NonBlankString255
     client_context: ClientContextRequest | None = None
+    session_mode: SessionMode = SessionMode.PARTICIPANT
+    plan_seed: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_mode_specific_fields(self) -> Self:
+        """Reject fields that are reserved for evaluation sessions.
+
+        Returns:
+            The validated create-session request.
+        """
+        if self.session_mode is SessionMode.PARTICIPANT and self.plan_seed is not None:
+            raise ValueError("Participant sessions must not define one 'plan_seed'.")
+
+        return self
 
     def to_business(self) -> SessionCreateInput:
         """Build one internal session-creation payload from the validated request.
@@ -71,6 +86,8 @@ class CreateSessionRequest(BaseModel):
         return SessionCreateInput(
             iat_slug=self.iat_slug,
             client_context=ClientContext() if self.client_context is None else self.client_context.to_business(),
+            session_mode=self.session_mode,
+            plan_seed=self.plan_seed,
         )
 
 

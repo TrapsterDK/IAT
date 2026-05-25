@@ -21,11 +21,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from apps.backend.database_base import Base
 from apps.backend.models.plan import ResponseSide
-from apps.backend.models.session import TrialEventType
+from apps.backend.models.session import SessionMode, TrialEventType
 from libs.sqlalchemy.types import UtcDateTime
 
 TRIAL_EVENT_TYPE_ENUM = Enum(TrialEventType, values_callable=lambda enum_type: [member.value for member in enum_type])
 RESPONSE_SIDE_ENUM = Enum(ResponseSide, values_callable=lambda enum_type: [member.value for member in enum_type])
+SESSION_MODE_ENUM = Enum(SessionMode, values_callable=lambda enum_type: [member.value for member in enum_type])
 
 
 class SessionRecord(Base):
@@ -59,6 +60,7 @@ class SessionRecord(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     session_key: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     iat_slug: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    session_mode: Mapped[SessionMode] = mapped_column(SESSION_MODE_ENUM, nullable=False)
     plan_seed: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at_utc: Mapped[datetime] = mapped_column(UtcDateTime(), nullable=False)
     user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)

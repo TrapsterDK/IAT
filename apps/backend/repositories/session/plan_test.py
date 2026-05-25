@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 
-from apps.backend.models.session import ClientContext
+from apps.backend.models.session import ClientContext, SessionMode
 from apps.backend.repositories.session.conftest import build_repository_factory, build_run_plan, create_execution
 from apps.backend.repositories.session.schema import (
     SessionBlockLabelRecord,
@@ -35,6 +35,7 @@ def test_create_execution_persists_full_run_plan_graph(tmp_path: Path) -> None:
                 plan_seed=123,
                 run_plan=run_plan,
                 client_context=ClientContext(),
+                session_mode=SessionMode.PARTICIPANT,
             )
             database_session.commit()
 

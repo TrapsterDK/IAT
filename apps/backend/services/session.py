@@ -69,7 +69,10 @@ class SessionService:
         if catalog_iat is None:
             raise IatNotFoundError(f"IAT not found: {session_create_input.iat_slug}")
 
-        plan_seed = self._plan_seed_provider()
+        plan_seed = session_create_input.plan_seed
+        if plan_seed is None:
+            plan_seed = self._plan_seed_provider()
+
         run_plan = build_run_plan(
             catalog_iat,
             seed=plan_seed,
@@ -78,6 +81,7 @@ class SessionService:
             catalog_iat.slug,
             plan_seed,
             session_create_input.client_context,
+            session_create_input.session_mode,
         )
         self._plan_repository.save_plan(state.session_id, run_plan)
         return state, run_plan
