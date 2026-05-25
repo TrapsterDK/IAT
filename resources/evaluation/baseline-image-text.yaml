@@ -1,6 +1,6 @@
 extends: ./base.yaml
 slug: baseline-image-text
 description: Baseline benchmark for one image/text IAT under default worker conditions.
-benchmark_request:
-  benchmark: baseline
+benchmark:
+  kind: baseline
   iat_slug: white-black-pleasant-unpleasant

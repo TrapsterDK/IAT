@@ -1,6 +1,6 @@
 extends: ./base.yaml
 slug: cpu-throttling-heavy
 description: CPU-throttling benchmark with a heavier 4x slowdown rate.
-benchmark_request:
-  benchmark: cpu_throttling
+benchmark:
+  kind: cpu_throttling
   cpu_throttling_rate: 4.0

@@ -1,4 +1,4 @@
-benchmark_request:
+benchmark:
   click_delay_pattern_ms:
     - 300
     - 400
