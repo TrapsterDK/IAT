@@ -1,4 +1,5 @@
 import {
+  type BlockIntroSessionState,
   SessionStateKind,
   type FinalizingSessionState,
   type QueuedBlockUpload,
@@ -9,8 +10,9 @@ import {
 
 export function hasBlockUploads(
   session: SessionState,
-): session is StartingBlockSessionState | TrialSessionState | FinalizingSessionState {
+): session is BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState {
   switch (session.state) {
+    case SessionStateKind.BlockIntro:
     case SessionStateKind.StartingBlock:
     case SessionStateKind.Trial:
     case SessionStateKind.Finalizing:
@@ -22,19 +24,19 @@ export function hasBlockUploads(
 }
 
 export function nextPendingBlockUpload(
-  session: StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
+  session: BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
 ): QueuedBlockUpload | null {
   return session.blockUploads.queuedBlockUploads.find((queuedUpload) => !queuedUpload.uploaded) ?? null;
 }
 
 export function hasPendingBlockUploads(
-  session: StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
+  session: BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
 ): boolean {
   return nextPendingBlockUpload(session) !== null;
 }
 
 export function setBlockUploadsActive(
-  session: StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
+  session: BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
   uploading: boolean,
 ) {
   session.blockUploads.uploading = uploading;
