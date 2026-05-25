@@ -11,6 +11,7 @@ import {
   type CompletedTrial,
   ResponseSide,
   SessionStateKind,
+  type SessionMode,
   type RuntimeState,
   TrialAdvanceKind,
   TrialResponseKind,
@@ -72,6 +73,8 @@ export function createSessionFlow(
   render: () => void,
   api: FrontendApiClient,
   environment: ReturnType<typeof createBrowserSessionFlowEnvironment>,
+  sessionMode: SessionMode | null = null,
+  planSeed: number | null = null,
 ) {
   let blockUploadPromise: Promise<void> | null = null;
   let preloadPromise: Promise<void> | null = null;
@@ -130,7 +133,7 @@ export function createSessionFlow(
         return;
       }
 
-      const createSessionResult = await api.createSession({ clientContext, iatSlug });
+      const createSessionResult = await api.createSession({ clientContext, iatSlug, planSeed, sessionMode });
       if (createSessionResult.data === undefined) {
         runtime.ui.screenError = await apiErrorMessage(createSessionResult, "Unable to start the session.");
         return;

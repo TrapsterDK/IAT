@@ -24,6 +24,7 @@ ts_config(
 esbuild(
     name = "bundle",
     srcs = [
+        "bootstrap.mts",
         "controller.mts",
         "main.mts",
         ":frontend",
@@ -62,6 +63,7 @@ filegroup(
 ts_project(
     name = "frontend",
     srcs = [
+        "bootstrap.mts",
         "controller.mts",
         "main.mts",
         "render.mts",

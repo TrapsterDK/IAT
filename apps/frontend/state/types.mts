@@ -62,6 +62,8 @@ export interface ClientContext {
   viewportWidthPx: number | null;
 }
 
+export type SessionMode = "evaluation" | "participant";
+
 export interface SessionBootstrapTrial {
   correct_response_side: ResponseSide;
   stimulus: IatStimulus;

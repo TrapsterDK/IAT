@@ -39,13 +39,13 @@ function buildPage(document: Document, runtime: RuntimeState) {
 
   switch (session.state) {
     case SessionStateKind.Results:
-      return buildResultPage(document, session);
+      return buildResultPage(document, runtime, session);
 
     case SessionStateKind.Review:
-      return buildReviewPage(document, session);
+      return buildReviewPage(document, runtime, session);
 
     case SessionStateKind.Preloading:
-      return buildPreloadingPage(document, session);
+      return buildPreloadingPage(document, runtime, session);
 
     case SessionStateKind.BlockIntro:
     case SessionStateKind.StartingBlock: {
@@ -68,7 +68,7 @@ function buildPage(document: Document, runtime: RuntimeState) {
     }
 
     case SessionStateKind.Finalizing:
-      return buildFinalizingPage(document, session);
+      return buildFinalizingPage(document, runtime, session);
   }
 }
 

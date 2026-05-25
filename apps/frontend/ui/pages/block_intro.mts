@@ -5,7 +5,13 @@ import {
   type SessionBlock,
   type StartingBlockSessionState,
 } from "../../state/types.mjs";
-import { buildSessionPage, buildStageFrame, buildStimulusSurface, buildStimulusSurfaceOverlay } from "../parts.mjs";
+import {
+  applyAutomationMetadata,
+  buildSessionPage,
+  buildStageFrame,
+  buildStimulusSurface,
+  buildStimulusSurfaceOverlay,
+} from "../parts.mjs";
 
 export function buildBlockIntroPage(
   document: Document,
@@ -38,20 +44,27 @@ export function buildBlockIntroPage(
           buildStimulusSurfaceOverlay(document, title, detail),
         );
 
-  return buildSessionPage(
-    document,
-    session.iatDetail.title,
-    buildStageFrame(
+  return applyAutomationMetadata(
+    buildSessionPage(
       document,
-      block,
-      "feedback feedback-hint",
-      runtime.device.prefersTouchInput,
-      stageStatus,
-      surface,
-      "Red X is wrong response.",
-      "X",
-      "is wrong response",
+      session.iatDetail.title,
+      buildStageFrame(
+        document,
+        block,
+        "feedback feedback-hint",
+        runtime.device.prefersTouchInput,
+        stageStatus,
+        surface,
+        "Red X is wrong response.",
+        "X",
+        "is wrong response",
+      ),
     ),
+    runtime.device.prefersTouchInput ? "touch" : "keyboard",
+    "block_intro",
+    session.bootstrap.session_key,
+    session.iatDetail.slug,
+    session.currentBlockIndex,
   );
 }
 

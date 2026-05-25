@@ -4,10 +4,15 @@ import type {
   CreateSessionRequest,
 } from "@iat/apps/api/backend";
 
+import type {
+  ClientContext,
+  CompletedBlockPayload,
+  IatDetail,
+  SessionBootstrap,
+  SessionMode,
+} from "../state/types.mjs";
 import { ResponseSide } from "../state/types.mjs";
 import { createApiClient, type ApiClient } from "./api.mjs";
-
-import type { ClientContext, CompletedBlockPayload, IatDetail, SessionBootstrap } from "../state/types.mjs";
 
 type FrontendApiResult<T> =
   | {
@@ -24,6 +29,8 @@ type FrontendApiResult<T> =
 export interface CreateSessionInput {
   clientContext: ClientContext;
   iatSlug: string;
+  planSeed: number | null;
+  sessionMode: SessionMode | null;
 }
 
 export function createFrontendApiClient(timeoutMs: number, baseUrl = ""): FrontendApiClient {
@@ -99,7 +106,7 @@ function mapSessionBootstrap(
 }
 
 function mapCreateSessionRequest(request: CreateSessionInput): CreateSessionRequest {
-  const { clientContext } = request;
+  const { clientContext, planSeed, sessionMode } = request;
   const mappedClientContext: NonNullable<CreateSessionRequest["client_context"]> = {};
 
   if (clientContext.devicePixelRatio !== null) {
@@ -122,10 +129,20 @@ function mapCreateSessionRequest(request: CreateSessionInput): CreateSessionRequ
     mappedClientContext.viewport_width_px = clientContext.viewportWidthPx;
   }
 
-  return {
+  const createSessionRequest: CreateSessionRequest = {
     client_context: mappedClientContext,
     iat_slug: request.iatSlug,
   };
+
+  if (sessionMode !== null) {
+    createSessionRequest.session_mode = sessionMode;
+  }
+
+  if (planSeed !== null) {
+    createSessionRequest.plan_seed = planSeed;
+  }
+
+  return createSessionRequest;
 }
 
 function mapCompletedBlockRequest(request: CompletedBlockPayload): CompletedBlockRequest {

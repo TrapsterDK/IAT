@@ -10,8 +10,7 @@ type ResponseLabels = {
 
 export function buildPageHeader(document: Document, title: string, actions?: HTMLElement) {
   const header = createElement(document, "header", "page-header");
-  const heading = createElement(document, "h1", "page-title", title);
-  header.append(heading);
+  header.append(createElement(document, "h1", "page-title", title));
 
   if (actions !== undefined) {
     header.append(actions);
@@ -74,6 +73,24 @@ export function buildSessionPage(document: Document, title: string, content: HTM
 
   page.append(buildPageHeader(document, title, toolbar), content);
   return page;
+}
+
+export function applyAutomationMetadata(
+  element: HTMLElement,
+  inputMode: "keyboard" | "touch",
+  sessionState: "block_intro" | "catalog" | "finalizing" | "preloading" | "results" | "review" | "trial",
+  sessionKey?: string,
+  iatSlug?: string,
+  blockIndex?: number,
+  trialIndex?: number,
+) {
+  element.dataset.inputMode = inputMode;
+  element.dataset.sessionState = sessionState;
+  setOptionalAutomationDatasetValue(element, "sessionKey", sessionKey);
+  setOptionalAutomationDatasetValue(element, "iatSlug", iatSlug);
+  setOptionalAutomationDatasetValue(element, "blockIndex", integerToStringOrUndefined(blockIndex));
+  setOptionalAutomationDatasetValue(element, "trialIndex", integerToStringOrUndefined(trialIndex));
+  return element;
 }
 
 export function buildStimulusSurface(
@@ -192,4 +209,17 @@ function buildLabelCard(
 
 function createSpan(document: Document, className: string, textContent: string) {
   return createElement(document, "span", className, textContent);
+}
+
+function integerToStringOrUndefined(value: number | undefined) {
+  return value === undefined ? undefined : `${value}`;
+}
+
+function setOptionalAutomationDatasetValue(element: HTMLElement, key: keyof DOMStringMap, value: string | undefined) {
+  if (value === undefined) {
+    delete element.dataset[key];
+    return;
+  }
+
+  element.dataset[key] = value;
 }

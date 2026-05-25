@@ -1,9 +1,9 @@
 import { PRELOAD_STALLED_AFTER_MS } from "../../core/config.mjs";
 import { formatDuration } from "../../core/utils.mjs";
-import type { PreloadingSessionState } from "../../state/types.mjs";
-import { buildProgressBar, buildSessionPage, createActionButton } from "../parts.mjs";
+import type { PreloadingSessionState, RuntimeState } from "../../state/types.mjs";
+import { applyAutomationMetadata, buildProgressBar, buildSessionPage, createActionButton } from "../parts.mjs";
 
-export function buildPreloadingPage(document: Document, session: PreloadingSessionState) {
+export function buildPreloadingPage(document: Document, runtime: RuntimeState, session: PreloadingSessionState) {
   const section = document.createElement("section");
   section.className = "stack";
   const totalCount = session.preload.total;
@@ -52,5 +52,11 @@ export function buildPreloadingPage(document: Document, session: PreloadingSessi
     section.append(toolbar);
   }
 
-  return buildSessionPage(document, session.iatDetail.title, section);
+  return applyAutomationMetadata(
+    buildSessionPage(document, session.iatDetail.title, section),
+    runtime.device.prefersTouchInput ? "touch" : "keyboard",
+    "preloading",
+    session.bootstrap.session_key,
+    session.iatDetail.slug,
+  );
 }

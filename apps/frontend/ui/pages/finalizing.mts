@@ -1,7 +1,7 @@
-import type { FinalizingSessionState } from "../../state/types.mjs";
-import { buildMessage, createActionButton } from "../parts.mjs";
+import type { FinalizingSessionState, RuntimeState } from "../../state/types.mjs";
+import { applyAutomationMetadata, buildMessage, createActionButton } from "../parts.mjs";
 
-export function buildFinalizingPage(document: Document, session: FinalizingSessionState) {
+export function buildFinalizingPage(document: Document, runtime: RuntimeState, session: FinalizingSessionState) {
   const page = document.createElement("section");
   page.className = "page page-centered";
 
@@ -48,5 +48,11 @@ export function buildFinalizingPage(document: Document, session: FinalizingSessi
   }
 
   page.append(section);
-  return page;
+  return applyAutomationMetadata(
+    page,
+    runtime.device.prefersTouchInput ? "touch" : "keyboard",
+    "finalizing",
+    session.bootstrap.session_key,
+    session.iatDetail.slug,
+  );
 }

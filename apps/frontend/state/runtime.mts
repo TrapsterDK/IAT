@@ -1,4 +1,6 @@
-export function createRuntimeState() {
+import type { RuntimeState } from "./types.mjs";
+
+export function createRuntimeState(): RuntimeState {
   return {
     assets: {
       imageObjectUrls: new Map<string, string>(),
