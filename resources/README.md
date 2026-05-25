@@ -9,4 +9,4 @@ Generation inputs, generated assets, IAT definitions, and evaluation benchmark s
 - [`iats`](iats): Published IAT definitions that assemble categories and stimuli
 - [`evaluation`](evaluation): Benchmark specifications for Selenium Grid evaluation runs
 
-Together these directories define what to generate, store the generated outputs, describe the tests presented by the backend, and define the benchmark inputs used to evaluate the runtime.
+Together these directories define what to generate, store the generated outputs, describe the tests presented by the backend, and define the benchmark inputs used in runtime benchmarks.
