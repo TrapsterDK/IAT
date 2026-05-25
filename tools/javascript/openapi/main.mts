@@ -12,6 +12,7 @@ async function run(schemaPathArg: string | undefined): Promise<void> {
   const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
   const ast = await openapiTS(schema, {
     alphabetize: true,
+    defaultNonNullable: false,
     rootTypes: true,
     rootTypesNoSchemaPrefix: true,
     silent: true,
