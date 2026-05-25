@@ -1,0 +1,6 @@
+extends: ./base.yaml
+slug: baseline-image-image
+description: Baseline benchmark for one image/image IAT under default worker conditions.
+benchmark_request:
+  benchmark: baseline
+  iat_slug: young-old-female-male

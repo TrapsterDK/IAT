@@ -1,0 +1,10 @@
+jobs:
+  - spec: ./baseline-text-text.yaml
+  - spec: ./baseline-image-text.yaml
+  - spec: ./baseline-image-image.yaml
+  - spec: ./cpu-throttling-light.yaml
+  - spec: ./cpu-throttling-moderate.yaml
+  - spec: ./cpu-throttling-heavy.yaml
+  - spec: ./network-degradation-wifi-constrained.yaml
+  - spec: ./network-degradation-fast-3g.yaml
+  - spec: ./network-degradation-slow-3g.yaml

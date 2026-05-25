@@ -1,0 +1,73 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "all",
+    srcs = ["all.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "base",
+    srcs = ["base.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)
+
+filegroup(
+    name = "baseline-image-image",
+    srcs = ["baseline-image-image.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "baseline-image-text",
+    srcs = ["baseline-image-text.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "baseline-text-text",
+    srcs = ["baseline-text-text.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "cpu-throttling-heavy",
+    srcs = ["cpu-throttling-heavy.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "cpu-throttling-moderate",
+    srcs = ["cpu-throttling-moderate.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "network-degradation-fast-3g",
+    srcs = ["network-degradation-fast-3g.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "network-degradation-slow-3g",
+    srcs = ["network-degradation-slow-3g.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "cpu-throttling-light",
+    srcs = ["cpu-throttling-light.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "network-degradation-wifi-constrained",
+    srcs = ["network-degradation-wifi-constrained.yaml"],
+    tags = ["yaml"],
+)

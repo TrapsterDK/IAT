@@ -1,0 +1,8 @@
+benchmark_request:
+  click_delay_pattern_ms:
+    - 300
+    - 400
+    - 500
+  iat_slug: female-male-science-liberal-arts
+  plan_seed: 123
+  run_count: 10

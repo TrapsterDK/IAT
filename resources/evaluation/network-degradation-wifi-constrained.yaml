@@ -1,0 +1,10 @@
+extends: ./base.yaml
+slug: network-degradation-wifi-constrained
+description: Network-degradation benchmark using a constrained Wi-Fi profile.
+benchmark_request:
+  benchmark: network_degradation
+  network_emulation:
+    download_throughput_kbps: 5000
+    label: wifi-constrained
+    latency_ms: 40
+    upload_throughput_kbps: 3000
