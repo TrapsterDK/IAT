@@ -5,6 +5,7 @@ Checked-in benchmark specifications and batch inputs for Selenium Grid evaluatio
 ## Files
 
 - `base.yaml`: shared defaults for benchmark specs in this directory
+- `*/base.yaml`: optional nested defaults for one subgroup of specs that inherit settings from a closer base file
 - `*.yaml`: runnable benchmark specs
 - `all.yaml`: batch file that runs the checked-in benchmark set
 

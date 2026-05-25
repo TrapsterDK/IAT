@@ -1,5 +1,9 @@
 # IATs
 
-Published IAT definitions.
+Published IAT definitions consumed by the backend and frontend.
 
-This directory contains the YAML definitions for the available tests, including their categories, instructions, and references to stimulus assets.
+## Files
+
+- `*.yaml`: one published IAT definition per file
+
+Each definition describes one test, including its categories, instructions, block structure, and references to stimulus assets under [`resources/stimuli/`](../stimuli/README.md).
