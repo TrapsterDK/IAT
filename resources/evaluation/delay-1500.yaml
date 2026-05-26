@@ -1,0 +1,5 @@
+extends: ./baseline-text-text.yaml
+slug: delay-1500
+description: Baseline benchmark for one text/text IAT with a fixed 1500 ms click delay.
+benchmark:
+  click_delay_ms: 1500

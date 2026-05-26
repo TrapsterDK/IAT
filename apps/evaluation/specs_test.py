@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 def test_benchmark_settings_accept_one_minimal_baseline_definition() -> None:
     # Given: one baseline benchmark settings block with one IAT slug, one run count, and one plan seed.
     benchmark_settings = BenchmarkSettings(
-        click_delay_pattern_ms=(300, 400, 500),
+        click_delay_ms=700,
         iat_slug="sample-iat",
         plan_seed=123,
         run_count=5,
@@ -31,14 +31,14 @@ def test_benchmark_settings_accept_one_minimal_baseline_definition() -> None:
 
     # When: the settings are inspected after validation.
     # Then: the core benchmark inputs are preserved.
-    assert benchmark_settings.click_delay_pattern_ms == (300, 400, 500)
+    assert benchmark_settings.click_delay_ms == 700
     assert benchmark_settings.cpu_emulation is None
     assert benchmark_settings.iat_slug == "sample-iat"
     assert benchmark_settings.network_emulation is None
     assert benchmark_settings.run_count == 5
     assert benchmark_settings.plan_seed == 123
     assert benchmark_settings.model_dump(mode="json") == {
-        "click_delay_pattern_ms": [300, 400, 500],
+        "click_delay_ms": 700,
         "cpu_emulation": None,
         "iat_slug": "sample-iat",
         "network_emulation": None,
@@ -50,7 +50,7 @@ def test_benchmark_settings_accept_one_minimal_baseline_definition() -> None:
 def test_benchmark_settings_accept_one_cpu_throttling_definition() -> None:
     # Given: one CPU-throttling settings block with one explicit throttling rate.
     benchmark_settings = BenchmarkSettings(
-        click_delay_pattern_ms=(300, 400, 500),
+        click_delay_ms=700,
         cpu_emulation=CpuEmulationSettings(rate=2.0),
         iat_slug="sample-iat",
         plan_seed=123,
@@ -67,7 +67,7 @@ def test_benchmark_settings_accept_one_cpu_throttling_definition() -> None:
 def test_benchmark_settings_accept_one_network_degradation_definition() -> None:
     # Given: one network-degradation settings block with one explicit network-emulation profile.
     benchmark_settings = BenchmarkSettings(
-        click_delay_pattern_ms=(300, 400, 500),
+        click_delay_ms=700,
         iat_slug="sample-iat",
         network_emulation=NetworkEmulationSettings(
             download_throughput_kbps=1600,
@@ -91,7 +91,7 @@ def test_benchmark_settings_accept_one_network_degradation_definition() -> None:
 def test_benchmark_settings_accept_combined_cpu_and_network_definition() -> None:
     # Given: one benchmark settings block with both CPU throttling and network emulation.
     benchmark_settings = BenchmarkSettings(
-        click_delay_pattern_ms=(300, 400, 500),
+        click_delay_ms=700,
         cpu_emulation=CpuEmulationSettings(rate=2.0),
         iat_slug="sample-iat",
         network_emulation=NetworkEmulationSettings(
@@ -117,15 +117,15 @@ def test_benchmark_settings_reject_zero_run_count() -> None:
     # Then: validation rejects the non-positive run count.
     with pytest.raises(ValidationError, match="greater than or equal to 1"):
         BenchmarkSettings(
-            click_delay_pattern_ms=(300,),
+            click_delay_ms=300,
             iat_slug="sample-iat",
             plan_seed=123,
             run_count=0,
         )
 
 
-def test_benchmark_spec_requires_one_click_delay_pattern(tmp_path: Path) -> None:
-    # Given: one benchmark spec file with one empty click-delay pattern.
+def test_benchmark_spec_requires_one_click_delay_value(tmp_path: Path) -> None:
+    # Given: one benchmark spec file with one invalid negative click delay.
     spec_path = tmp_path / "benchmark.yaml"
     write_yaml(
         spec_path,
@@ -133,7 +133,7 @@ def test_benchmark_spec_requires_one_click_delay_pattern(tmp_path: Path) -> None
             "slug": "baseline-text-text",
             "description": "Baseline benchmark.",
             "benchmark": {
-                "click_delay_pattern_ms": [],
+                "click_delay_ms": -1,
                 "iat_slug": "sample-iat",
                 "plan_seed": 123,
                 "run_count": 5,
@@ -142,8 +142,8 @@ def test_benchmark_spec_requires_one_click_delay_pattern(tmp_path: Path) -> None
     )
 
     # When: the benchmark spec is validated.
-    # Then: validation rejects the empty click-delay pattern.
-    with pytest.raises(ValidationError, match="at least 1 item"):
+    # Then: validation rejects the negative click delay.
+    with pytest.raises(ValidationError, match="greater than or equal to 0"):
         BenchmarkSpec.from_file(spec_path)
 
 
@@ -155,7 +155,7 @@ def test_benchmark_spec_merges_extended_yaml_files(tmp_path: Path) -> None:
         base_path,
         {
             "benchmark": {
-                "click_delay_pattern_ms": [300, 400, 500],
+                "click_delay_ms": 700,
                 "iat_slug": "base-iat",
                 "plan_seed": 123,
                 "run_count": 7,
@@ -180,7 +180,7 @@ def test_benchmark_spec_merges_extended_yaml_files(tmp_path: Path) -> None:
 
     # Then: inheritance merges the benchmark settings into one runnable spec.
     assert benchmark_spec.slug == "baseline-text-text"
-    assert benchmark_spec.benchmark.click_delay_pattern_ms == (300, 400, 500)
+    assert benchmark_spec.benchmark.click_delay_ms == 700
     assert benchmark_spec.benchmark.iat_slug == "sample-iat"
     assert benchmark_spec.benchmark.run_count == 7
     assert benchmark_spec.benchmark.plan_seed == 123
@@ -222,7 +222,7 @@ def test_benchmark_batch_spec_resolves_paths_relative_to_batch_file(tmp_path: Pa
             "slug": "baseline-text-text",
             "description": "Baseline benchmark.",
             "benchmark": {
-                "click_delay_pattern_ms": [300],
+                "click_delay_ms": 300,
                 "iat_slug": "sample-iat",
                 "plan_seed": 123,
                 "run_count": 5,
@@ -235,7 +235,7 @@ def test_benchmark_batch_spec_resolves_paths_relative_to_batch_file(tmp_path: Pa
             "slug": "network-degradation-fast-3g",
             "description": "Network benchmark.",
             "benchmark": {
-                "click_delay_pattern_ms": [300],
+                "click_delay_ms": 300,
                 "iat_slug": "sample-iat",
                 "plan_seed": 123,
                 "run_count": 5,

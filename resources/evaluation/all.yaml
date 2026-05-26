@@ -1,6 +1,10 @@
 jobs:
-  - spec: ./baseline-text-text.yaml
-    output_dir: ../evaluation-results/baseline-text-text
+  - spec: ./delay-300.yaml
+    output_dir: ../evaluation-results/delay-300
+  - spec: ./delay-700.yaml
+    output_dir: ../evaluation-results/delay-700
+  - spec: ./delay-1500.yaml
+    output_dir: ../evaluation-results/delay-1500
   - spec: ./baseline-image-text.yaml
     output_dir: ../evaluation-results/baseline-image-text
   - spec: ./baseline-image-image.yaml

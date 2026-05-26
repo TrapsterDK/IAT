@@ -30,7 +30,7 @@ class CpuEmulationSettings(ConfigModel):
 class BenchmarkSettings(ConfigModel):
     """All runtime settings for one benchmark spec."""
 
-    click_delay_pattern_ms: tuple[int, ...] = Field(min_length=1)
+    click_delay_ms: int = Field(ge=0)
     cpu_emulation: CpuEmulationSettings | None = None
     iat_slug: NonBlankString255
     network_emulation: NetworkEmulationSettings | None = None

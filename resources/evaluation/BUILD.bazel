@@ -43,6 +43,24 @@ filegroup(
 )
 
 filegroup(
+    name = "delay-300",
+    srcs = ["delay-300.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "delay-700",
+    srcs = ["delay-700.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "delay-1500",
+    srcs = ["delay-1500.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
     name = "cpu-throttling-heavy",
     srcs = ["cpu-throttling-heavy.yaml"],
     tags = ["yaml"],
