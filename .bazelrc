@@ -11,6 +11,9 @@ common:lint --aspects=//tools/lint:defs.bzl%buildifier
 # Bazel format relies on runfiles to find the buildifier binary, doing this here reduces rebuilds.
 common --build_runfile_links
 
+# Repository rules: put Bazel's JDK on the path so Java tools resolve hermetically.
+common --repo_env="JAVA_HOME=../bazel_tools/jdk"
+
 common --color=yes
 common --curses=yes
 
