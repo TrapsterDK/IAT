@@ -61,7 +61,7 @@ export function buildBlockIntroPage(
       ),
     ),
     runtime.device.prefersTouchInput ? "touch" : "keyboard",
-    "block_intro",
+    session.state === SessionStateKind.StartingBlock ? "starting_block" : "block_intro",
     session.bootstrap.session_key,
     session.iatDetail.slug,
     session.currentBlockIndex,

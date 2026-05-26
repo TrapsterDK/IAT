@@ -1,4 +1,10 @@
-import type { RuntimeState, SessionBlock, SessionTrial, TrialSessionState } from "../../state/types.mjs";
+import {
+  ResponseSide,
+  type RuntimeState,
+  type SessionBlock,
+  type SessionTrial,
+  type TrialSessionState,
+} from "../../state/types.mjs";
 import { applyAutomationMetadata, buildSessionPage, buildStageFrame, buildStimulusSurface } from "../parts.mjs";
 
 export function buildTrialPage(
@@ -36,5 +42,6 @@ export function buildTrialPage(
     session.iatDetail.slug,
     session.currentBlockIndex,
     session.currentTrialIndex,
+    trial.correct_response_side === ResponseSide.Left ? "left" : "right",
   );
 }

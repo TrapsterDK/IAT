@@ -78,11 +78,20 @@ export function buildSessionPage(document: Document, title: string, content: HTM
 export function applyAutomationMetadata(
   element: HTMLElement,
   inputMode: "keyboard" | "touch",
-  sessionState: "block_intro" | "catalog" | "finalizing" | "preloading" | "results" | "review" | "trial",
+  sessionState:
+    | "block_intro"
+    | "catalog"
+    | "finalizing"
+    | "preloading"
+    | "results"
+    | "review"
+    | "starting_block"
+    | "trial",
   sessionKey?: string,
   iatSlug?: string,
   blockIndex?: number,
   trialIndex?: number,
+  correctResponseSide?: "left" | "right",
 ) {
   element.dataset.inputMode = inputMode;
   element.dataset.sessionState = sessionState;
@@ -90,6 +99,7 @@ export function applyAutomationMetadata(
   setOptionalAutomationDatasetValue(element, "iatSlug", iatSlug);
   setOptionalAutomationDatasetValue(element, "blockIndex", integerToStringOrUndefined(blockIndex));
   setOptionalAutomationDatasetValue(element, "trialIndex", integerToStringOrUndefined(trialIndex));
+  setOptionalAutomationDatasetValue(element, "correctResponseSide", correctResponseSide);
   return element;
 }
 
