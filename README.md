@@ -15,7 +15,7 @@ Without `direnv`:
 bazel run //tools:env
 ```
 
-That command creates wrapper tools under `bazel-out/bazel_env-opt/bin/tools/bazel_env/bin` and refreshes the local `venv/`.
+That command creates wrapper tools under `bazel-out/bazel_env-opt/bin/tools/bazel_env/bin` and refreshes the local `.venv/`.
 
 ## Stimuli generation
 

@@ -6,7 +6,7 @@
 bazel run //tools:env
 ```
 
-That command creates wrapper tools under `bazel-out/bazel_env-opt/bin/tools/bazel_env/bin` and refreshes `venv/`.
+That command creates wrapper tools under `bazel-out/bazel_env-opt/bin/tools/bazel_env/bin` and refreshes `.venv/`.
 
 Use those commands from a reloaded `direnv` shell, through `bazel run //tools/cli:main -- <command>`, or by calling the generated wrapper path directly.
 

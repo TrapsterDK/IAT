@@ -33,6 +33,7 @@ gazelle_python_manifest(
 
 create_venv(
     name = "_venv",
+    destination_folder = ".venv",
     requirements_txt = "//:requirements.txt",
 )
 

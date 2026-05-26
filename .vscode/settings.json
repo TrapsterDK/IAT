@@ -85,7 +85,6 @@
   },
   "ruff.path": ["${workspaceFolder}/bazel-out/bazel_env-opt/bin/tools/bazel_env/bin/ruff"],
   "ty.path": ["${workspaceFolder}/bazel-out/bazel_env-opt/bin/tools/bazel_env/bin/ty"],
-  "python.defaultInterpreterPath": "${workspaceFolder}/venv",
   "ty.configuration": {
     "environment": {
       "extra-paths": ["./bazel-bin"]
