@@ -16,6 +16,7 @@ manifest:
     asttokens: asttokens
     attr: attrs
     attrs: attrs
+    backoff: backoff
     bs4: beautifulsoup4
     certifi: certifi
     charset_normalizer: charset_normalizer
@@ -32,6 +33,8 @@ manifest:
     functorch: torch
     gdown: gdown
     google.protobuf: protobuf
+    gql: gql
+    graphql: graphql_core
     greenlet: greenlet
     h11: h11
     hf_xet: hf_xet
@@ -51,6 +54,7 @@ manifest:
     matplotlib_inline: matplotlib_inline
     mdurl: mdurl
     mpmath: mpmath
+    multidict: multidict
     multipart: python_multipart
     networkx: networkx
     numpy: numpy
@@ -66,6 +70,7 @@ manifest:
     pkg_resources: setuptools
     pluggy: pluggy
     prompt_toolkit: prompt_toolkit
+    propcache: propcache
     psutil: psutil
     ptyprocess: ptyprocess
     pure_eval: pure_eval
@@ -78,6 +83,7 @@ manifest:
     python_multipart: python_multipart
     regex: regex
     requests: requests
+    requests_toolbelt: requests_toolbelt
     rich: rich
     ruff: ruff
     runfiles: bazel_runfiles
@@ -117,7 +123,8 @@ manifest:
     wsproto: wsproto
     yaml: pyyaml
     yamllint: yamllint
+    yarl: yarl
     zipp: zipp
   pip_repository:
     name: pip
-integrity: db48df9baa1ecdca922b89555a9c82737173db585e54822351896920ff5bb3c1
+integrity: b9a0897c96bb94bfb72071bfa2abd1cc76b62e255e3252679821585828c77f7f
