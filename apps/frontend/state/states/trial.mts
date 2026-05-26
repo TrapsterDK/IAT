@@ -44,7 +44,7 @@ export function registerTrialResponse(
   elapsedMs: number,
 ): TrialResponseResult {
   const trial = currentTrial(session);
-  if (trial === null || session.trial.responseLocked) {
+  if (trial === null || session.trial.startedAtMs === null || session.trial.responseLocked) {
     return { kind: TrialResponseKind.Ignored };
   }
 
@@ -66,7 +66,6 @@ export function registerTrialResponse(
 export function advanceSessionAfterCompletedTrial(
   session: TrialSessionState,
   completedTrial: CompletedTrial,
-  nextTrialStartedAtMs: number,
 ): TrialAdvanceResult {
   const block = currentBlock(session);
   if (block === null) {
@@ -85,7 +84,7 @@ export function advanceSessionAfterCompletedTrial(
         trial: {
           activeEvents: [],
           responseLocked: false,
-          startedAtMs: nextTrialStartedAtMs,
+          startedAtMs: null,
         },
       },
     };

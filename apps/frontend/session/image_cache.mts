@@ -20,6 +20,14 @@ export async function ensureImageObjectUrl(sourceUrl: string, imageObjectUrls: M
   const response = await fetchImageResponseWithRetry(sourceUrl);
   const imageBlob = await response.blob();
   const objectUrl = URL.createObjectURL(imageBlob);
+  try {
+    const image = new Image();
+    image.src = objectUrl;
+    await image.decode();
+  } catch (error: unknown) {
+    URL.revokeObjectURL(objectUrl);
+    throw error;
+  }
   imageObjectUrls.set(sourceUrl, objectUrl);
   return objectUrl;
 }

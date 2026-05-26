@@ -147,7 +147,7 @@ export interface SessionPreloadState {
 export interface ActiveTrialState {
   activeEvents: TrialEvent[];
   responseLocked: boolean;
-  startedAtMs: number;
+  startedAtMs: number | null;
 }
 
 export interface SessionResultState {

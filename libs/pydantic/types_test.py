@@ -13,6 +13,7 @@ from libs.pydantic.types import (
     AbsolutePath,
     NonBlankString,
     NonBlankString255,
+    Slug,
     UniqueHashable,
     UniqueUnhashable,
 )
@@ -112,6 +113,56 @@ def test_non_blank_string_255_rejects_values_over_its_length_limit(raw_value: st
     # When: the shared string alias validates the value.
     # Then: overlong values are rejected with the configured length limit.
     with pytest.raises(ValidationError, match=expected_fragment):
+        adapter.validate_python(raw_value)
+
+
+@pytest.mark.parametrize(
+    ("raw_value", "expected_value"),
+    [
+        pytest.param("sample-iat", "sample-iat", id="already_trimmed"),
+        pytest.param(" sample-iat ", "sample-iat", id="trimmed"),
+        pytest.param("worker-123", "worker-123", id="numeric_suffix"),
+    ],
+)
+def test_slug_accepts_lowercase_dash_separated_identifiers(raw_value: str, expected_value: str) -> None:
+    # Given: one slug value that follows the shared lowercase dash-separated identifier rules.
+    adapter = TypeAdapter(Slug)
+
+    # When: the slug type validates the value.
+    validated_value = adapter.validate_python(raw_value)
+
+    # Then: the slug is accepted and surrounding whitespace is removed.
+    assert validated_value == expected_value
+
+
+def test_slug_accepts_repeated_or_edge_dashes_when_the_characters_are_otherwise_valid() -> None:
+    # Given: one slug value that only uses lowercase letters, digits, and dashes.
+    adapter = TypeAdapter(Slug)
+
+    # When: the slug type validates the value.
+    validated_value = adapter.validate_python("-double--dash-")
+
+    # Then: the simpler shared slug rule accepts the value.
+    assert validated_value == "-double--dash-"
+
+
+@pytest.mark.parametrize(
+    "raw_value",
+    [
+        pytest.param("", id="empty"),
+        pytest.param("with space", id="space"),
+        pytest.param("WithUppercase", id="uppercase"),
+        pytest.param("with_underscore", id="underscore"),
+        pytest.param("with.dot", id="dot"),
+    ],
+)
+def test_slug_rejects_values_outside_the_shared_identifier_shape(raw_value: str) -> None:
+    # Given: one value that violates the shared slug format.
+    adapter = TypeAdapter(Slug)
+
+    # When: the slug type validates the value.
+    # Then: the invalid slug is rejected.
+    with pytest.raises(ValidationError):
         adapter.validate_python(raw_value)
 
 

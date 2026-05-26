@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from libs.config.config import ConfigModel
 from libs.path.path import resolve_path
-from libs.pydantic.types import AbsoluteFilePath, NonBlankString  # noqa: TC001
+from libs.pydantic.types import AbsoluteFilePath, NonBlankString, Slug  # noqa: TC001
 
 
 class StimulusSpec(BaseModel):
@@ -60,7 +60,7 @@ class CategorySpec(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    slug: NonBlankString
+    slug: Slug
     label: NonBlankString
     stimuli: tuple[StimulusSpec, ...] = Field(min_length=1)
 
@@ -121,7 +121,7 @@ class CategoryPairSpec(BaseModel):
 class IatSpec(ConfigModel):
     """One fully validated IAT YAML definition."""
 
-    slug: NonBlankString
+    slug: Slug
     title: NonBlankString
     description: NonBlankString
     categories: tuple[CategoryPairSpec, CategoryPairSpec]

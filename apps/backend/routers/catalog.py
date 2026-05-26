@@ -10,6 +10,7 @@ from apps.backend.dependencies import get_catalog_service
 from apps.backend.routers.stimuli import build_stimulus_url
 from apps.backend.schemas.catalog import IatResponse, IatSummaryResponse, StimulusUrlBuilder
 from apps.backend.services.catalog import CatalogService  # noqa: TC001
+from libs.pydantic.types import Slug  # noqa: TC001
 
 router = APIRouter(prefix="/iats", tags=["catalog"])
 
@@ -29,7 +30,7 @@ def list_iats(catalog_service: Annotated[CatalogService, Depends(get_catalog_ser
 
 @router.get("/{slug}")
 def get_iat(
-    slug: str,
+    slug: Slug,
     request: Request,
     catalog_service: Annotated[CatalogService, Depends(get_catalog_service)],
 ) -> IatResponse:

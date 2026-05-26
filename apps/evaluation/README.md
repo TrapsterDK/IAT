@@ -26,7 +26,7 @@ If you are provisioning worker machines outside this repository, install:
 
 - Java 11 or newer
 - the target browser on each worker machine
-- Selenium Server 4.44.0, which matches the version pinned in this repo
+- Selenium Server 4.44.0, which matches the version pinned in this repository
 
 Example install:
 

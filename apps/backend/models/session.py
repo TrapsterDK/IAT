@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from datetime import datetime
 
+    from libs.pydantic.types import Slug
+
 
 class TrialEventType(StrEnum):
     """Primitive participant actions captured while one trial is active."""
@@ -39,7 +41,7 @@ class ClientContext:
 class SessionCreateInput:
     """Typed session-creation payload passed beyond the API boundary."""
 
-    iat_slug: str
+    iat_slug: Slug
     client_context: ClientContext
     session_mode: SessionMode
     plan_seed: int | None

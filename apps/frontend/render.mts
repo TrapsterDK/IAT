@@ -1,7 +1,7 @@
+import { publishAutomationSnapshot } from "./automation.mjs";
 import { currentBlock, currentTrial } from "./state/selectors.mjs";
 import { SessionStateKind, type RuntimeState } from "./state/types.mjs";
 import { createElement } from "./ui/dom.mjs";
-import { buildErrorBanner } from "./ui/parts.mjs";
 import { buildBlockIntroPage } from "./ui/pages/block_intro.mjs";
 import { buildCatalogPage } from "./ui/pages/catalog.mjs";
 import { buildFinalizingPage } from "./ui/pages/finalizing.mjs";
@@ -9,6 +9,7 @@ import { buildPreloadingPage } from "./ui/pages/preloading.mjs";
 import { buildResultPage } from "./ui/pages/result.mjs";
 import { buildReviewPage } from "./ui/pages/review.mjs";
 import { buildTrialPage } from "./ui/pages/trial.mjs";
+import { buildErrorBanner } from "./ui/parts.mjs";
 
 export function render(appRoot: HTMLElement, runtime: RuntimeState) {
   const document = appRoot.ownerDocument;
@@ -17,7 +18,7 @@ export function render(appRoot: HTMLElement, runtime: RuntimeState) {
 
   const nextSessionState = runtime.session?.state ?? null;
   if (shouldScrollToTop(lastRenderedSessionState, nextSessionState)) {
-    document.defaultView?.scrollTo?.({ top: 0 });
+    window.scrollTo?.({ top: 0 });
   }
   lastRenderedSessionState = nextSessionState;
 
@@ -27,6 +28,8 @@ export function render(appRoot: HTMLElement, runtime: RuntimeState) {
 
   shell.append(buildPage(document, runtime));
   appRoot.replaceChildren(shell);
+
+  publishAutomationSnapshot(window, runtime);
 }
 
 let lastRenderedSessionState: SessionStateKind | null = null;
@@ -39,13 +42,13 @@ function buildPage(document: Document, runtime: RuntimeState) {
 
   switch (session.state) {
     case SessionStateKind.Results:
-      return buildResultPage(document, runtime, session);
+      return buildResultPage(document, session);
 
     case SessionStateKind.Review:
-      return buildReviewPage(document, runtime, session);
+      return buildReviewPage(document, session);
 
     case SessionStateKind.Preloading:
-      return buildPreloadingPage(document, runtime, session);
+      return buildPreloadingPage(document, session);
 
     case SessionStateKind.BlockIntro:
     case SessionStateKind.StartingBlock: {
@@ -68,7 +71,7 @@ function buildPage(document: Document, runtime: RuntimeState) {
     }
 
     case SessionStateKind.Finalizing:
-      return buildFinalizingPage(document, runtime, session);
+      return buildFinalizingPage(document, session);
   }
 }
 

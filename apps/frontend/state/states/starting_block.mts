@@ -1,6 +1,6 @@
 import { SessionStateKind, type StartingBlockSessionState, type TrialSessionState } from "../types.mjs";
 
-export function beginTrial(session: StartingBlockSessionState, startedAtMs: number): TrialSessionState {
+export function beginTrial(session: StartingBlockSessionState): TrialSessionState {
   return {
     ...session,
     currentBlockTrials: [],
@@ -9,7 +9,7 @@ export function beginTrial(session: StartingBlockSessionState, startedAtMs: numb
     trial: {
       activeEvents: [],
       responseLocked: false,
-      startedAtMs,
+      startedAtMs: null,
     },
   };
 }

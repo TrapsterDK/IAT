@@ -19,7 +19,7 @@ from apps.backend.models.session import (
     TrialEventInput,
     TrialEventType,
 )
-from libs.pydantic.types import NonBlankString, NonBlankString255
+from libs.pydantic.types import NonBlankString, NonBlankString255, Slug
 
 if TYPE_CHECKING:
     from apps.backend.models.plan import BlockPlan, PlannedStimulus, RunPlan, TrialPlan
@@ -60,7 +60,7 @@ class CreateSessionRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    iat_slug: NonBlankString255
+    iat_slug: Slug
     client_context: ClientContextRequest | None = None
     session_mode: SessionMode = SessionMode.PARTICIPANT
     plan_seed: int | None = Field(default=None, ge=0)

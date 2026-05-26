@@ -49,6 +49,15 @@ def _validate_unique_unhashable_items[T](values: T) -> T:
 
 type NonBlankString = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 type NonBlankString255 = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)]
+type Slug = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=1,
+        max_length=255,
+        pattern=r"^[a-z0-9-]+$",
+    ),
+]
 type AbsolutePath = Annotated[Path, AfterValidator(_absolute_path)]
 type AbsoluteDirectoryPath = Annotated[DirectoryPath, AfterValidator(_absolute_path)]
 type AbsoluteFilePath = Annotated[FilePath, AfterValidator(_absolute_path)]

@@ -5,6 +5,7 @@ package(default_visibility = ["//:__subpackages__"])
 ts_project(
     name = "state",
     srcs = [
+        "automation.mts",
         "block_uploads.mts",
         "runtime.mts",
         "selectors.mts",
@@ -19,6 +20,7 @@ ts_project(
     name = "state_tests",
     testonly = True,
     srcs = [
+        "automation_test.mts",
         "block_uploads_test.mts",
         "runtime_test.mts",
         "selectors_test.mts",

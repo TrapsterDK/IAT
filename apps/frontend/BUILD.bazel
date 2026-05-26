@@ -24,6 +24,7 @@ ts_config(
 esbuild(
     name = "bundle",
     srcs = [
+        "automation.mts",
         "bootstrap.mts",
         "controller.mts",
         "main.mts",
@@ -63,6 +64,7 @@ filegroup(
 ts_project(
     name = "frontend",
     srcs = [
+        "automation.mts",
         "bootstrap.mts",
         "controller.mts",
         "main.mts",

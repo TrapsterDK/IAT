@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 from pydantic import BaseModel, ConfigDict, Field, Json
+
+if TYPE_CHECKING:
+    from yarl import URL
 
 DISCOVERY_TIMEOUT_SECONDS = 10.0
 WORKER_ID_CAPABILITY_NAME = "iat:workerId"
@@ -101,7 +105,7 @@ def _parse_grid_workers(graphql_payload: object) -> list[GridWorker]:
     return [worker for worker, _ in workers_by_id.values()]
 
 
-def discover_grid_workers(grid_url: str) -> list[GridWorker]:
+def discover_grid_workers(grid_url: URL) -> list[GridWorker]:
     """Discover all configured evaluation workers from one Selenium Grid.
 
     Args:
@@ -112,7 +116,7 @@ def discover_grid_workers(grid_url: str) -> list[GridWorker]:
     """
     client = Client(
         transport=RequestsHTTPTransport(
-            url=f"{grid_url.rstrip('/')}/graphql",
+            url=str(grid_url / "graphql"),
             headers={"Accept": "application/json"},
             timeout=int(DISCOVERY_TIMEOUT_SECONDS),
         ),

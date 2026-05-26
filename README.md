@@ -56,6 +56,16 @@ Runtime benchmark tooling lives in [`apps/evaluation`](apps/evaluation/README.md
 - Run one spec: `bazel run //apps/evaluation:main -- spec <spec> --output-dir <dir> --app-url <url>`
 - Run the checked-in batch: `bazel run //apps/evaluation:main -- batch resources/evaluation/all.yaml --app-url <url>`
 
+## Analysis
+
+Offline analysis tooling lives in [`apps/analysis`](apps/analysis/README.md).
+
+- Purpose: join evaluation result files with the backend SQLite database and generate thesis-ready outputs
+- Inputs: `resources/evaluation-results/` and the backend SQLite database, with a corresponding database.
+- Outputs: one normalized `collection.json`, one compact `report.txt`, and variance-focused PNG figures
+- Collect data: `bazel run //apps/analysis:main -- collect --output-dir <dir>`
+- Write report: `bazel run //apps/analysis:main -- report --collection <collection.json> --output-dir <dir>`
+
 ## Resources
 
 The [`resources/`](resources/README.md) tree holds generation inputs, generated assets, IAT definitions, checked-in evaluation benchmark specs, and generated evaluation output.

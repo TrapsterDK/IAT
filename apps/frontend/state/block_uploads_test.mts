@@ -22,7 +22,7 @@ test("hasBlockUploads returns true only for upload-owning session states", () =>
   const reviewSession = createSessionState(createIatDetailFixture(), createBootstrapFixture());
   const blockIntroSession = beginBlockIntro(beginPreloading(reviewSession));
   const startingBlockSession = beginStartingBlock(blockIntroSession);
-  const trialSession = beginTrial(startingBlockSession, 25);
+  const trialSession = beginTrial(startingBlockSession);
   const { trial, ...sessionWithoutTrial } = trialSession;
   void trial;
   const finalizingSession: FinalizingSessionState = {

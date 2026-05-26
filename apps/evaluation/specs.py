@@ -10,7 +10,7 @@ from pydantic import Field, model_validator
 from libs.config.config import ConfigModel
 from libs.config.extending_config import ExtendingConfigModel
 from libs.path.path import resolve_path
-from libs.pydantic.types import AbsoluteFilePath, AbsolutePath, NonBlankString, NonBlankString255  # noqa: TC001
+from libs.pydantic.types import AbsoluteFilePath, AbsolutePath, NonBlankString, Slug  # noqa: TC001
 
 
 class NetworkEmulationSettings(ConfigModel):
@@ -32,7 +32,7 @@ class BenchmarkSettings(ConfigModel):
 
     click_delay_ms: int = Field(ge=0)
     cpu_emulation: CpuEmulationSettings | None = None
-    iat_slug: NonBlankString255
+    iat_slug: Slug
     network_emulation: NetworkEmulationSettings | None = None
     plan_seed: int = Field(ge=0)
     run_count: int = Field(ge=1)
@@ -41,7 +41,7 @@ class BenchmarkSettings(ConfigModel):
 class BenchmarkSpec(ExtendingConfigModel):
     """One runnable leaf spec for evaluation benchmarks."""
 
-    slug: NonBlankString255
+    slug: Slug
     description: NonBlankString
     benchmark: BenchmarkSettings
 

@@ -75,34 +75,6 @@ export function buildSessionPage(document: Document, title: string, content: HTM
   return page;
 }
 
-export function applyAutomationMetadata(
-  element: HTMLElement,
-  inputMode: "keyboard" | "touch",
-  sessionState:
-    | "block_intro"
-    | "catalog"
-    | "finalizing"
-    | "preloading"
-    | "results"
-    | "review"
-    | "starting_block"
-    | "trial",
-  sessionKey?: string,
-  iatSlug?: string,
-  blockIndex?: number,
-  trialIndex?: number,
-  correctResponseSide?: "left" | "right",
-) {
-  element.dataset.inputMode = inputMode;
-  element.dataset.sessionState = sessionState;
-  setOptionalAutomationDatasetValue(element, "sessionKey", sessionKey);
-  setOptionalAutomationDatasetValue(element, "iatSlug", iatSlug);
-  setOptionalAutomationDatasetValue(element, "blockIndex", integerToStringOrUndefined(blockIndex));
-  setOptionalAutomationDatasetValue(element, "trialIndex", integerToStringOrUndefined(trialIndex));
-  setOptionalAutomationDatasetValue(element, "correctResponseSide", correctResponseSide);
-  return element;
-}
-
 export function buildStimulusSurface(
   document: Document,
   runtime: RuntimeState,
@@ -219,17 +191,4 @@ function buildLabelCard(
 
 function createSpan(document: Document, className: string, textContent: string) {
   return createElement(document, "span", className, textContent);
-}
-
-function integerToStringOrUndefined(value: number | undefined) {
-  return value === undefined ? undefined : `${value}`;
-}
-
-function setOptionalAutomationDatasetValue(element: HTMLElement, key: keyof DOMStringMap, value: string | undefined) {
-  if (value === undefined) {
-    delete element.dataset[key];
-    return;
-  }
-
-  element.dataset[key] = value;
 }

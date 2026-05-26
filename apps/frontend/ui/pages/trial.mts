@@ -1,11 +1,5 @@
-import {
-  ResponseSide,
-  type RuntimeState,
-  type SessionBlock,
-  type SessionTrial,
-  type TrialSessionState,
-} from "../../state/types.mjs";
-import { applyAutomationMetadata, buildSessionPage, buildStageFrame, buildStimulusSurface } from "../parts.mjs";
+import { type RuntimeState, type SessionBlock, type SessionTrial, type TrialSessionState } from "../../state/types.mjs";
+import { buildSessionPage, buildStageFrame, buildStimulusSurface } from "../parts.mjs";
 
 export function buildTrialPage(
   document: Document,
@@ -17,31 +11,22 @@ export function buildTrialPage(
   const lastEvent = session.trial.activeEvents.at(-1);
   const showIncorrectFeedback = lastEvent !== undefined && lastEvent.eventType !== trial.correct_response_side;
 
-  return applyAutomationMetadata(
-    buildSessionPage(
+  return buildSessionPage(
+    document,
+    session.iatDetail.title,
+    buildStageFrame(
       document,
-      session.iatDetail.title,
-      buildStageFrame(
-        document,
-        block,
-        showIncorrectFeedback ? "feedback feedback-error" : "feedback",
-        runtime.device.prefersTouchInput,
-        `Trial ${session.currentTrialIndex + 1} of ${block.trials.length}`,
-        buildStimulusSurface(document, runtime, trial.stimulus),
-        showIncorrectFeedback
-          ? runtime.device.prefersTouchInput
-            ? "Incorrect. Tap the other side to continue."
-            : "Incorrect. Press the other side to continue."
-          : undefined,
-        showIncorrectFeedback ? "X" : undefined,
-      ),
+      block,
+      showIncorrectFeedback ? "feedback feedback-error" : "feedback",
+      runtime.device.prefersTouchInput,
+      `Trial ${session.currentTrialIndex + 1} of ${block.trials.length}`,
+      buildStimulusSurface(document, runtime, trial.stimulus),
+      showIncorrectFeedback
+        ? runtime.device.prefersTouchInput
+          ? "Incorrect. Tap the other side to continue."
+          : "Incorrect. Press the other side to continue."
+        : undefined,
+      showIncorrectFeedback ? "X" : undefined,
     ),
-    runtime.device.prefersTouchInput ? "touch" : "keyboard",
-    "trial",
-    session.bootstrap.session_key,
-    session.iatDetail.slug,
-    session.currentBlockIndex,
-    session.currentTrialIndex,
-    trial.correct_response_side === ResponseSide.Left ? "left" : "right",
   );
 }

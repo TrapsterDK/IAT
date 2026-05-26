@@ -15,7 +15,7 @@ test("beginTrial starts the first trial with cleared response state", () => {
   );
 
   // When: the trial stage begins
-  const trialSession = beginTrial(startingBlockSession, 125);
+  const trialSession = beginTrial(startingBlockSession);
 
   // Then: the first trial starts unlocked with empty response history and preserved upload state
   assert.equal(trialSession.state, SessionStateKind.Trial);
@@ -23,6 +23,6 @@ test("beginTrial starts the first trial with cleared response state", () => {
   assert.deepEqual(trialSession.currentBlockTrials, []);
   assert.deepEqual(trialSession.trial.activeEvents, []);
   assert.equal(trialSession.trial.responseLocked, false);
-  assert.equal(trialSession.trial.startedAtMs, 125);
+  assert.equal(trialSession.trial.startedAtMs, null);
   assert.equal(trialSession.blockUploads, startingBlockSession.blockUploads);
 });

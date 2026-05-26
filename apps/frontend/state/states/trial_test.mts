@@ -64,7 +64,7 @@ test("advanceSessionAfterCompletedTrial advances to the next trial inside the sa
   };
 
   // When: the first trial is completed
-  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial, 125);
+  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial);
 
   // Then: the session stays in the trial stage and starts the next trial immediately
   assert.equal(advanceResult.kind, TrialAdvanceKind.AdvancedTrial);
@@ -74,7 +74,21 @@ test("advanceSessionAfterCompletedTrial advances to the next trial inside the sa
   assert.deepEqual(advanceResult.session.currentBlockTrials, [completedTrial]);
   assert.deepEqual(advanceResult.session.trial.activeEvents, []);
   assert.equal(advanceResult.session.trial.responseLocked, false);
-  assert.equal(advanceResult.session.trial.startedAtMs, 125);
+  assert.equal(advanceResult.session.trial.startedAtMs, null);
+});
+
+test("registerTrialResponse ignores input before presentation is ready", () => {
+  // Given: one active trial session has not finished its presentation-ready handshake
+  const trialSession = createTrialSession();
+  trialSession.trial.startedAtMs = null;
+
+  // When: one response is registered before the trial is ready
+  const responseResult = registerTrialResponse(trialSession, ResponseSide.Left, 45);
+
+  // Then: the response is ignored and no trial events are recorded yet
+  assert.equal(responseResult.kind, TrialResponseKind.Ignored);
+  assert.deepEqual(trialSession.trial.activeEvents, []);
+  assert.equal(trialSession.trial.responseLocked, false);
 });
 
 test("advanceSessionAfterCompletedTrial advances to the next block after the final trial", () => {
@@ -85,7 +99,7 @@ test("advanceSessionAfterCompletedTrial advances to the next block after the fin
   };
 
   // When: the block's final trial is completed
-  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial, 200);
+  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial);
 
   // Then: the next block becomes active and the finished block is queued for upload
   assert.equal(advanceResult.kind, TrialAdvanceKind.AdvancedBlock);
@@ -109,7 +123,7 @@ test("advanceSessionAfterCompletedTrial finalizes after the last block completes
   };
 
   // When: the session completes its last remaining trial
-  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial, 240);
+  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial);
 
   // Then: the session enters finalizing with one queued block upload and no score error yet
   assert.equal(advanceResult.kind, TrialAdvanceKind.Finalizing);
@@ -136,7 +150,7 @@ test("advanceSessionAfterCompletedTrial returns ignored when no current block ex
   };
 
   // When: advancement is attempted without an active block
-  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial, 240);
+  const advanceResult = advanceSessionAfterCompletedTrial(trialSession, completedTrial);
 
   // Then: the session is returned unchanged with an ignored advance result
   assert.equal(advanceResult.kind, TrialAdvanceKind.Ignored);
@@ -144,10 +158,12 @@ test("advanceSessionAfterCompletedTrial returns ignored when no current block ex
 });
 
 function createTrialSession(bootstrap = createBootstrapFixture()) {
-  return beginTrial(
+  const trialSession = beginTrial(
     beginStartingBlock(beginBlockIntro(beginPreloading(createSessionState(createIatDetailFixture(), bootstrap)))),
-    10,
   );
+
+  trialSession.trial.startedAtMs = 10;
+  return trialSession;
 }
 
 function createBootstrapWithTrialCounts(trialCounts: number[]) {

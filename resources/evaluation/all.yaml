@@ -15,8 +15,6 @@ jobs:
     output_dir: ../evaluation-results/cpu-throttling-moderate
   - spec: ./cpu-throttling-heavy.yaml
     output_dir: ../evaluation-results/cpu-throttling-heavy
-  - spec: ./network-degradation-wifi-constrained.yaml
-    output_dir: ../evaluation-results/network-degradation-wifi-constrained
   - spec: ./network-degradation-fast-3g.yaml
     output_dir: ../evaluation-results/network-degradation-fast-3g
   - spec: ./network-degradation-slow-3g.yaml

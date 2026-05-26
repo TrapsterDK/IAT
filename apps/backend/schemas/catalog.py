@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from libs.pydantic.types import NonBlankString  # noqa: TC001
+from libs.pydantic.types import NonBlankString, Slug  # noqa: TC001
 
 if TYPE_CHECKING:
     from apps.backend.models.catalog import (
@@ -63,7 +63,7 @@ class CategoryResponse(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    slug: NonBlankString
+    slug: Slug
     label: NonBlankString
     stimuli: list[StimulusResponse] = Field(min_length=1)
 
@@ -117,7 +117,7 @@ class IatSummaryResponse(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    slug: NonBlankString
+    slug: Slug
     title: NonBlankString
     description: NonBlankString
 
@@ -139,7 +139,7 @@ class IatResponse(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    slug: NonBlankString
+    slug: Slug
     title: NonBlankString
     description: NonBlankString
     categories: tuple[CategoryPairResponse, CategoryPairResponse]

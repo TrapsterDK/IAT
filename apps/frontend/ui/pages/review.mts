@@ -1,7 +1,7 @@
-import type { IatCategory, IatStimulus, ReviewSessionState, RuntimeState } from "../../state/types.mjs";
-import { applyAutomationMetadata, buildSessionPage, createActionButton } from "../parts.mjs";
+import type { IatCategory, IatStimulus, ReviewSessionState } from "../../state/types.mjs";
+import { buildSessionPage, createActionButton } from "../parts.mjs";
 
-export function buildReviewPage(document: Document, runtime: RuntimeState, session: ReviewSessionState) {
+export function buildReviewPage(document: Document, session: ReviewSessionState) {
   const section = document.createElement("section");
   section.className = "stack";
 
@@ -27,13 +27,7 @@ export function buildReviewPage(document: Document, runtime: RuntimeState, sessi
     section.append(reviewMessage, buildStimulusPreviewList(document, session.iatDetail.categories), toolbar);
   }
 
-  return applyAutomationMetadata(
-    buildSessionPage(document, session.iatDetail.title, section),
-    runtime.device.prefersTouchInput ? "touch" : "keyboard",
-    "review",
-    session.bootstrap.session_key,
-    session.iatDetail.slug,
-  );
+  return buildSessionPage(document, session.iatDetail.title, section);
 }
 
 function buildStimulusPreviewList(document: Document, categories: ReviewSessionState["iatDetail"]["categories"]) {

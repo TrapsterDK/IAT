@@ -1,5 +1,5 @@
 import type { CatalogItem, RuntimeState } from "../../state/types.mjs";
-import { applyAutomationMetadata, buildMessage, buildPageHeader, createActionButton } from "../parts.mjs";
+import { buildMessage, buildPageHeader, createActionButton } from "../parts.mjs";
 
 export function buildCatalogPage(document: Document, runtime: RuntimeState) {
   const page = document.createElement("section");
@@ -32,7 +32,7 @@ export function buildCatalogPage(document: Document, runtime: RuntimeState) {
   }
 
   page.append(list);
-  return applyAutomationMetadata(page, runtime.device.prefersTouchInput ? "touch" : "keyboard", "catalog");
+  return page;
 }
 
 function buildCatalogItem(document: Document, iat: CatalogItem, startingIatSlug: string | null) {

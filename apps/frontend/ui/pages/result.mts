@@ -1,7 +1,7 @@
-import type { ResultSessionState, RuntimeState } from "../../state/types.mjs";
-import { applyAutomationMetadata, createActionButton } from "../parts.mjs";
+import type { ResultSessionState } from "../../state/types.mjs";
+import { createActionButton } from "../parts.mjs";
 
-export function buildResultPage(document: Document, runtime: RuntimeState, session: ResultSessionState) {
+export function buildResultPage(document: Document, session: ResultSessionState) {
   const page = document.createElement("section");
   page.className = "page page-centered";
 
@@ -27,11 +27,5 @@ export function buildResultPage(document: Document, runtime: RuntimeState, sessi
   toolbar.append(createActionButton(document, "back-to-catalog", "button button-primary", "Back to catalog"));
 
   page.append(panel, toolbar);
-  return applyAutomationMetadata(
-    page,
-    runtime.device.prefersTouchInput ? "touch" : "keyboard",
-    "results",
-    session.bootstrap.session_key,
-    session.iatDetail.slug,
-  );
+  return page;
 }

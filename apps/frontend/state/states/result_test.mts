@@ -15,7 +15,6 @@ test("storeSessionResult removes upload state and stores the final score payload
     beginStartingBlock(
       beginBlockIntro(beginPreloading(createSessionState(createIatDetailFixture(), createBootstrapFixture()))),
     ),
-    15,
   );
   const { trial, ...sessionWithoutTrial } = trialSession;
   void trial;

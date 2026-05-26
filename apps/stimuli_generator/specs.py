@@ -10,7 +10,7 @@ from pydantic import Field, model_validator
 from libs.config.config import ConfigModel
 from libs.config.extending_config import ExtendingConfigModel
 from libs.path.path import resolve_path
-from libs.pydantic.types import AbsoluteFilePath, AbsolutePath, NonBlankString  # noqa: TC001
+from libs.pydantic.types import AbsoluteFilePath, AbsolutePath, NonBlankString, Slug  # noqa: TC001
 
 
 class ImageSettings(ConfigModel):
@@ -74,7 +74,7 @@ class StimuliGenerationSettings(ConfigModel):
 class StimulusGenerationSpec(ExtendingConfigModel):
     """One runnable leaf spec for synthetic stimulus generation."""
 
-    slug: NonBlankString
+    slug: Slug
     description: NonBlankString
     stimuli_generation: StimuliGenerationSettings
 

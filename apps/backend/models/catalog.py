@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import PurePosixPath
 
+    from libs.pydantic.types import Slug
+
 
 @dataclass(frozen=True, slots=True)
 class CatalogStimulus:
@@ -21,7 +23,7 @@ class CatalogStimulus:
 class CatalogCategory:
     """One catalog category in one IAT."""
 
-    slug: str
+    slug: Slug
     label: str
     stimuli: tuple[CatalogStimulus, ...]
 
@@ -33,7 +35,7 @@ type CatalogCategoryPair = tuple[CatalogCategory, CatalogCategory]
 class CatalogIat:
     """One catalog IAT with public stimulus paths."""
 
-    slug: str
+    slug: Slug
     title: str
     description: str
     categories: tuple[CatalogCategoryPair, CatalogCategoryPair]

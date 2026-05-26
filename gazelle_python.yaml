@@ -21,14 +21,18 @@ manifest:
     certifi: certifi
     charset_normalizer: charset_normalizer
     click: click
+    contourpy: contourpy
     cuda.bindings: cuda_bindings
     cuda.pathfinder: cuda_pathfinder
+    cycler: cycler
+    dateutil: python_dateutil
     decorator: decorator
     diffusers: diffusers
     docstring_parser: docstring_parser_fork
     executing: executing
     fastapi: fastapi
     filelock: filelock
+    fontTools: fonttools
     fsspec: fsspec
     functorch: torch
     gdown: gdown
@@ -48,11 +52,16 @@ manifest:
     isympy: sympy
     jedi: jedi
     jinja2: jinja2
+    kiwisolver: kiwisolver
     loguru: loguru
     markdown_it: markdown_it_py
     markupsafe: markupsafe
+    matplotlib: matplotlib
     matplotlib_inline: matplotlib_inline
     mdurl: mdurl
+    mpl_toolkits.axes_grid1: matplotlib
+    mpl_toolkits.axisartist: matplotlib
+    mpl_toolkits.mplot3d: matplotlib
     mpmath: mpmath
     multidict: multidict
     multipart: python_multipart
@@ -79,6 +88,8 @@ manifest:
     pydantic_core: pydantic_core
     pydoclint: pydoclint
     pygments: pygments
+    pylab: matplotlib
+    pyparsing: pyparsing
     pytest: pytest
     python_multipart: python_multipart
     regex: regex
@@ -92,6 +103,7 @@ manifest:
     sentencepiece: sentencepiece
     setuptools: setuptools
     shellingham: shellingham
+    six: six
     sniffio: sniffio
     socks: PySocks
     sockshandler: PySocks
@@ -127,4 +139,4 @@ manifest:
     zipp: zipp
   pip_repository:
     name: pip
-integrity: b9a0897c96bb94bfb72071bfa2abd1cc76b62e255e3252679821585828c77f7f
+integrity: 3e4d7f81be943db150b0273c63b7864695a87c4ec8210a4c4afe1f9ac8b5480f

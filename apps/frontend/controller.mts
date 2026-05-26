@@ -31,10 +31,12 @@ export function bindAppController(
         return;
 
       case "start-session": {
-        const { slug } = actionElement.dataset;
-        if (slug !== undefined && slug !== "") {
-          void sessionFlow.startSession(slug);
+        const slug = actionElement.dataset.slug;
+        if (slug === undefined || slug === "") {
+          return;
         }
+
+        void sessionFlow.startSession(slug);
         return;
       }
 

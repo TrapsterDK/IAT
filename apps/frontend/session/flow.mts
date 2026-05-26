@@ -65,7 +65,21 @@ export function createBrowserSessionFlowEnvironment() {
     setInterval: (callback: () => void, intervalMs: number) => window.setInterval(callback, intervalMs),
     setTimeout: (callback: () => void, delayMs: number) => window.setTimeout(callback, delayMs),
     sleep,
+    waitForPostPaint,
   };
+}
+
+function waitForAnimationFrame() {
+  return new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => {
+      resolve();
+    });
+  });
+}
+
+async function waitForPostPaint() {
+  await waitForAnimationFrame();
+  await waitForAnimationFrame();
 }
 
 export function createSessionFlow(
@@ -178,8 +192,9 @@ export function createSessionFlow(
       return;
     }
 
-    runtime.session = beginTrial(trackedSession, environment.getPerformanceNow());
+    runtime.session = beginTrial(trackedSession);
     render();
+    await startCurrentTrialAfterPaint(sessionKey);
   }
 
   function registerResponse(side: ResponseSide) {
@@ -189,6 +204,10 @@ export function createSessionFlow(
     }
 
     const now = environment.getPerformanceNow();
+    if (session.trial.startedAtMs === null) {
+      return;
+    }
+
     const elapsedMs = Math.max(0, Math.round(now - session.trial.startedAtMs));
     const responseResult = registerTrialResponse(session, side, elapsedMs);
     if (responseResult.kind === TrialResponseKind.Ignored) {
@@ -215,9 +234,13 @@ export function createSessionFlow(
       return;
     }
 
-    const advanceResult = advanceSessionAfterCompletedTrial(session, completedTrial, environment.getPerformanceNow());
+    const advanceResult = advanceSessionAfterCompletedTrial(session, completedTrial);
     runtime.session = advanceResult.session;
     render();
+
+    if (advanceResult.kind === TrialAdvanceKind.AdvancedTrial) {
+      void startCurrentTrialAfterPaint(sessionKey);
+    }
 
     if (advanceResult.kind === TrialAdvanceKind.Ignored) {
       return;
@@ -520,6 +543,18 @@ export function createSessionFlow(
     blockUploadPromise = null;
     stopPreloadHeartbeat();
     revokeImageObjectUrls(runtime.assets.imageObjectUrls);
+    render();
+  }
+
+  async function startCurrentTrialAfterPaint(sessionKey: string) {
+    await environment.waitForPostPaint();
+
+    const session = currentSessionOrNull(sessionKey);
+    if (session === null || session.state !== SessionStateKind.Trial || session.trial.startedAtMs !== null) {
+      return;
+    }
+
+    session.trial.startedAtMs = environment.getPerformanceNow();
     render();
   }
 
