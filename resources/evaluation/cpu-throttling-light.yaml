@@ -1,6 +1,6 @@
 extends: ./base.yaml
 slug: cpu-throttling-light
-description: CPU-throttling benchmark with a light 1.5x slowdown rate.
+description: CPU-throttling benchmark with a light 2x slowdown rate.
 benchmark:
-  kind: cpu_throttling
-  cpu_throttling_rate: 1.5
+  cpu_emulation:
+    rate: 2

@@ -2,4 +2,4 @@ extends: ./base.yaml
 slug: baseline-text-text
 description: Baseline benchmark for one text/text IAT under default worker conditions.
 benchmark:
-  kind: baseline
+  iat_slug: female-male-science-liberal-arts

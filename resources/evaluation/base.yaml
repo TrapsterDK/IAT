@@ -3,6 +3,6 @@ benchmark:
     - 300
     - 400
     - 500
-  iat_slug: female-male-science-liberal-arts
+  iat_slug: white-black-pleasant-unpleasant
   plan_seed: 123
   run_count: 10

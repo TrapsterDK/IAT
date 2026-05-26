@@ -1,6 +1,6 @@
 extends: ./base.yaml
 slug: cpu-throttling-moderate
-description: CPU-throttling benchmark with a moderate 2x slowdown rate.
+description: CPU-throttling benchmark with a moderate 4x slowdown rate.
 benchmark:
-  kind: cpu_throttling
-  cpu_throttling_rate: 2.0
+  cpu_emulation:
+    rate: 4

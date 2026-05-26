@@ -71,9 +71,3 @@ filegroup(
     srcs = ["cpu-throttling-light.yaml"],
     tags = ["yaml"],
 )
-
-filegroup(
-    name = "network-degradation-wifi-constrained",
-    srcs = ["network-degradation-wifi-constrained.yaml"],
-    tags = ["yaml"],
-)
