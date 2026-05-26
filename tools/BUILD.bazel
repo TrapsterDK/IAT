@@ -2,6 +2,7 @@ load("@aspect_gazelle_prebuilt//:def.bzl", "aspect_gazelle")
 load("@bazel_env.bzl", bazel_env_rule = "bazel_env")
 load("@bazelrc-preset.bzl", "bazelrc_preset")
 load("@multitool//:tools.bzl", "TOOLS")
+load("@rules_java//java:defs.bzl", "java_binary")
 load("@rules_multirun//:defs.bzl", "multirun")
 
 package(default_visibility = ["//:__subpackages__"])
@@ -38,6 +39,7 @@ bazel_env_rule(
         "pydoclint": "//tools/lint:pydoclint",
         "python": "$(PYTHON3)",
         "python3": "$(PYTHON3)",
+        "selenium-server": ":selenium-server",
         "starpls": "@multitool//tools/starpls:starpls",
         "test": "//tools/cli:test",
         "tool": "//tools/cli:main",
@@ -62,6 +64,12 @@ multirun(
     print_command = False,
     tags = ["manual"],
     visibility = ["//visibility:public"],
+)
+
+java_binary(
+    name = "selenium-server",
+    main_class = "org.openqa.selenium.grid.Bootstrap",
+    runtime_deps = ["@selenium_server//jar"],
 )
 
 aspect_gazelle(

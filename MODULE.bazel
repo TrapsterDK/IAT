@@ -24,6 +24,16 @@ bazel_dep(name = "ape", version = "1.1.0")
 bazel_dep(name = "rules_multirun", version = "0.13.0")
 bazel_dep(name = "rules_multitool", version = "1.11.1")
 
+http_jar = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_jar")
+
+http_jar(
+    name = "selenium_server",
+    integrity = "sha256-oSAV0aFmJL1zSRU2s+u8zm5N4dUg9RZheKIy1FakZnY=",
+    urls = [
+        "https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.44.0/selenium-server-4.44.0.jar",
+    ],
+)
+
 single_version_override(
     module_name = "aspect_rules_lint",
     patch_strip = 1,
