@@ -9,7 +9,6 @@ py_library(
     deps = [
         "//apps/backend/models:catalog",
         "//apps/backend/repositories:catalog",
-        "//libs/pydantic:types",
     ],
 )
 

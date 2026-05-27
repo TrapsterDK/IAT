@@ -7,18 +7,15 @@ import pytest
 from apps.evaluation.grid import _parse_grid_workers
 
 
-def test_parse_grid_workers_returns_one_unique_worker_per_worker_capability() -> None:
-    # Given: one Selenium Grid GraphQL payload with two unique worker identities and one duplicate stereotype.
+def test_parse_grid_workers_returns_one_worker_per_unique_ready_worker_capability() -> None:
+    # Given: one Selenium Grid GraphQL payload with two unique ready worker identities and one incomplete stereotype.
     graphql_payload = {
         "nodesInfo": {
             "nodes": [
                 {
                     "id": "node-a",
                     "status": "UP",
-                    "stereotypes": (
-                        '[{"stereotype":{"browserName":"chrome","iat:workerId":"worker-a"},"slots":1},'
-                        '{"stereotype":{"browserName":"chrome","iat:workerId":"worker-a"},"slots":1}]'
-                    ),
+                    "stereotypes": '[{"stereotype":{"browserName":"chrome","iat:workerId":"worker-a"},"slots":1}]',
                     "uri": "http://node-a:5555",
                 },
                 {
@@ -77,7 +74,7 @@ def test_parse_grid_workers_rejects_duplicate_worker_ids_on_different_nodes() ->
         _parse_grid_workers(graphql_payload)
 
 
-def test_parse_grid_workers_keeps_first_duplicate_worker_id_when_browser_matches() -> None:
+def test_parse_grid_workers_rejects_duplicate_worker_ids_even_when_browser_matches() -> None:
     # Given: one Selenium Grid GraphQL payload that exposes the same worker identity twice with the same browser.
     graphql_payload = {
         "nodesInfo": {
@@ -99,10 +96,9 @@ def test_parse_grid_workers_keeps_first_duplicate_worker_id_when_browser_matches
     }
 
     # When: workers are extracted from the Grid GraphQL payload.
-    workers = _parse_grid_workers(graphql_payload)
-
-    # Then: discovery keeps the first matching worker entry and ignores the duplicate.
-    assert [(worker.worker_id, worker.browser_name) for worker in workers] == [("worker-a", "chrome")]
+    # Then: discovery rejects the duplicate worker identity.
+    with pytest.raises(ValueError, match="duplicate evaluation worker id"):
+        _parse_grid_workers(graphql_payload)
 
 
 def test_parse_grid_workers_ignores_worker_stereotypes_without_browser_name() -> None:

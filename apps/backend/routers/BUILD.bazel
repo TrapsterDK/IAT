@@ -11,6 +11,7 @@ py_library(
         "//apps/backend:dependencies",
         "//apps/backend/schemas:catalog",
         "//apps/backend/services:catalog",
+        "//libs/pydantic:types",
         "@pip//fastapi",
     ],
 )

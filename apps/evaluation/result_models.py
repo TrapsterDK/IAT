@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path  # noqa: TC003
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
 
 from apps.evaluation.specs import BenchmarkSettings  # noqa: TC001
 from libs.config.config import ConfigModel
@@ -35,8 +35,8 @@ class WorkerBenchmarkBrowserResult(ConfigModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    viewport_height_px: int
-    viewport_width_px: int
+    viewport_height_px: int = Field(ge=0)
+    viewport_width_px: int = Field(ge=0)
 
 
 class WorkerBenchmarkResult(ConfigModel):
@@ -45,8 +45,8 @@ class WorkerBenchmarkResult(ConfigModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     browser: WorkerBenchmarkBrowserResult
-    run_duration_ms: int
-    session_keys: list[str]
+    run_duration_ms: int = Field(ge=0)
+    session_keys: list[str] = Field(min_length=1)
 
 
 class ManifestJobRecord(ConfigModel):
@@ -63,4 +63,4 @@ class BenchmarkManifest(ConfigModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     benchmark: BenchmarkSettings
-    jobs: list[ManifestJobRecord]
+    jobs: list[ManifestJobRecord] = Field(min_length=1)

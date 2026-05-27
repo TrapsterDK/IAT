@@ -80,7 +80,7 @@ def _parse_grid_workers(graphql_payload: object) -> list[GridWorker]:
         The discovered workers in first-seen discovery order.
     """
     payload = _GraphqlResponse.model_validate(graphql_payload)
-    workers_by_id: dict[str, tuple[GridWorker, str]] = {}
+    workers_by_id: dict[str, GridWorker] = {}
     for node in payload.nodes_info.nodes:
         if node.status != "UP":
             continue
@@ -95,14 +95,15 @@ def _parse_grid_workers(graphql_payload: object) -> list[GridWorker]:
                 browser_name=stereotype.browser_name,
             )
 
-            existing_entry = workers_by_id.setdefault(resolved_worker.worker_id, (resolved_worker, node.id))
-            if existing_entry[0] != resolved_worker:
+            if resolved_worker.worker_id in workers_by_id:
                 raise ValueError(
                     f"Discovered duplicate evaluation worker id '{resolved_worker.worker_id}'. "
                     f"Each worker must expose one unique '{WORKER_ID_CAPABILITY_NAME}' capability."
                 )
 
-    return [worker for worker, _ in workers_by_id.values()]
+            workers_by_id[resolved_worker.worker_id] = resolved_worker
+
+    return list(workers_by_id.values())
 
 
 def discover_grid_workers(grid_url: URL) -> list[GridWorker]:

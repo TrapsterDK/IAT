@@ -21,6 +21,7 @@ from libs.path.path import resolve_path
 if TYPE_CHECKING:
     from apps.evaluation.grid import GridWorker
 
+
 app = typer.Typer(no_args_is_help=True)
 DEFAULT_GRID_URL = URL("http://127.0.0.1:4444")
 
@@ -52,39 +53,48 @@ def _run_specs(
     typer.echo("workers: " + "\n".join(f" - {worker.worker_id} {worker.browser_name}" for worker in workers))
 
     completed_workers_by_output_dir: dict[Path, list[str]] = defaultdict(list)
+    failed_job_count = 0
 
     for _, resolved_output_dir in resolved_jobs:
         resolved_output_dir.mkdir(parents=True, exist_ok=True)
 
-    with ThreadPoolExecutor(max_workers=len(workers) * len(resolved_jobs)) as executor:
-        futures: dict[Future[BenchmarkJobResult], tuple[GridWorker, BenchmarkSpec, Path]] = {
-            executor.submit(run_benchmark_job, grid_url, worker, benchmark_spec.benchmark, app_url): (
-                worker,
-                benchmark_spec,
-                resolved_output_dir,
-            )
-            for worker in workers
-            for benchmark_spec, resolved_output_dir in resolved_jobs
-        }
+    with ThreadPoolExecutor(max_workers=len(workers)) as executor:
+        for benchmark_spec, resolved_output_dir in resolved_jobs:
+            futures: dict[Future[BenchmarkJobResult], GridWorker] = {
+                executor.submit(run_benchmark_job, grid_url, worker, benchmark_spec.benchmark, app_url): worker
+                for worker in workers
+            }
 
-        for future in as_completed(futures):
-            worker, benchmark_spec, resolved_output_dir = futures[future]
-            try:
-                payload = future.result()
-            except Exception as error:  # noqa: BLE001
-                typer.echo(f"{benchmark_spec.slug}/{worker.worker_id}: benchmark failed: {error}", err=True)
-            else:
-                payload.to_yaml_file(resolved_output_dir / f"{worker.worker_id}.yaml")
-                completed_workers_by_output_dir[resolved_output_dir].append(worker.worker_id)
+            for future in as_completed(futures):
+                worker = futures[future]
+                try:
+                    payload = future.result()
+                except Exception as error:  # noqa: BLE001
+                    failed_job_count += 1
+                    typer.echo(f"{benchmark_spec.slug}/{worker.worker_id}: benchmark failed: {error}", err=True)
+                else:
+                    payload.to_yaml_file(resolved_output_dir / f"{worker.worker_id}.yaml")
+                    completed_workers_by_output_dir[resolved_output_dir].append(worker.worker_id)
 
     for benchmark_spec, resolved_output_dir in resolved_jobs:
         completed_worker_ids = sorted(completed_workers_by_output_dir[resolved_output_dir])
+        if not completed_worker_ids:
+            typer.echo(
+                f"{benchmark_spec.slug}: no benchmark jobs completed successfully; skipped manifest.",
+                err=True,
+            )
+            continue
+
         manifest = BenchmarkManifest(
             benchmark=benchmark_spec.benchmark,
             jobs=[ManifestJobRecord(result_file=Path(f"{worker_id}.yaml")) for worker_id in completed_worker_ids],
         )
         manifest.to_yaml_file(resolved_output_dir / "manifest.yaml")
         typer.echo(f"{benchmark_spec.slug}: wrote evaluation results to {resolved_output_dir}")
+
+    if failed_job_count > 0:
+        typer.echo(f"{failed_job_count} benchmark job(s) failed. See error logs for details.", err=True)
+        raise typer.Exit(code=1)
 
 
 @app.command("spec")

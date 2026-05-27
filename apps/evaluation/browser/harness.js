@@ -101,7 +101,7 @@ async function runSession(clickDelayMs, iatSlug) {
         );
 
         await sleep(remainingDelayMs);
-        dispatchAction(snapshot.inputMode, responseSide);
+        dispatchAction(readySnapshot.inputMode, responseSide);
         await waitForNextTrial(blockIndex, trialIndex);
         continue;
       }

@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.options import ArgOptions
@@ -43,6 +43,21 @@ class BrowserHarnessResponse(BaseModel):
     ok: bool
     result: WorkerBenchmarkResult | None = None
     error: str | None = None
+
+    @model_validator(mode="after")
+    def validate_payload(self) -> BrowserHarnessResponse:
+        """Require exactly one matching success or failure payload.
+
+        Returns:
+            The validated harness response.
+        """
+        if self.ok:
+            if self.result is None or self.error is not None:
+                raise ValueError("Successful harness responses must include one result and no error.")
+        elif self.result is not None or self.error is None:
+            raise ValueError("Failed harness responses must include one error and no result.")
+
+        return self
 
 
 def run_benchmark_job(
@@ -82,19 +97,23 @@ def _run_browser_harness(
     benchmark_settings: BenchmarkSettings,
     app_url: URL,
 ) -> WorkerBenchmarkResult:
-    driver.set_script_timeout(BENCHMARK_TIMEOUT_SECONDS)
+    driver.set_script_timeout(BENCHMARK_TIMEOUT_SECONDS * benchmark_settings.run_count)
     driver.get(_build_evaluation_url(app_url, benchmark_settings.plan_seed))
     driver.execute_script(load_browser_harness())
-    harness_response = BrowserHarnessResponse.model_validate(
-        driver.execute_async_script(
-            HARNESS_EXECUTION_SOURCE,
-            {
-                "clickDelayMs": benchmark_settings.click_delay_ms,
-                "iatSlug": benchmark_settings.iat_slug,
-                "sessionCount": benchmark_settings.run_count,
-            },
+    try:
+        harness_response = BrowserHarnessResponse.model_validate(
+            driver.execute_async_script(
+                HARNESS_EXECUTION_SOURCE,
+                {
+                    "clickDelayMs": benchmark_settings.click_delay_ms,
+                    "iatSlug": benchmark_settings.iat_slug,
+                    "sessionCount": benchmark_settings.run_count,
+                },
+            )
         )
-    )
+    except ValidationError as error:
+        raise RuntimeError(f"Benchmark harness returned one invalid response payload: {error}") from error
+
     if harness_response.ok and harness_response.result is not None:
         return harness_response.result
 
