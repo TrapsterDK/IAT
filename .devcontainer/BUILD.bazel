@@ -1,0 +1,28 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "dockerfile",
+    srcs = ["Dockerfile"],
+)
+
+filegroup(
+    name = "devcontainer_json",
+    srcs = ["devcontainer.json"],
+    tags = ["json"],
+)
+
+filegroup(
+    name = "on_create_command",
+    srcs = ["on_create_command.sh"],
+)
+
+filegroup(
+    name = "update_content_command",
+    srcs = ["update_content_command.sh"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

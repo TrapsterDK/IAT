@@ -1,0 +1,48 @@
+{
+  "name": "IAT DevContainer",
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "UV_CACHE_DIR": "${containerWorkspaceFolder}/.cache/uv",
+    "GH_TOKEN": "${localEnv:GH_TOKEN}",
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}"
+  },
+  "remoteEnv": {
+    "PATH": "/home/vscode/.opencode/bin:${containerEnv:PATH}"
+  },
+  "init": true,
+  "runArgs": ["--shm-size=3g"],
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "initializeCommand": "mkdir -p ~/.local/share/opencode ~/.config/opencode ~/.config/gh ~/.cache/opencode ~/.local/state/opencode",
+  "mounts": [
+    "source=${localEnv:HOME}/.local/share/opencode,target=/home/vscode/.local/share/opencode,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.config/opencode,target=/home/vscode/.config/opencode,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.cache/opencode,target=/home/vscode/.cache/opencode,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.local/state/opencode,target=/home/vscode/.local/state/opencode,type=bind,consistency=cached",
+    "source=${devcontainerId}-bazel-cache,target=/home/vscode/.cache/bazel,type=volume,volume-nocopy"
+  ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.useEnvironmentsExtension": false
+      },
+      "extensions": [
+        "charliermarsh.ruff",
+        "ms-python.python",
+        "ms-azuretools.vscode-containers",
+        "BazelBuild.vscode-bazel",
+        "astral-sh.ty",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "usernamehw.errorlens",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "waitFor": "updateContentCommand",
+  "onCreateCommand": ["bash", "${containerWorkspaceFolder}/.devcontainer/on_create_command.sh"],
+  "updateContentCommand": ["bash", "${containerWorkspaceFolder}/.devcontainer/update_content_command.sh"]
+}
