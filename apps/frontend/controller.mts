@@ -20,6 +20,7 @@ export function bindAppController(
 
     const actionElement = target.closest<HTMLElement>("[data-action]");
     if (actionElement === null) {
+      handleViewportPointerResponse(event);
       return;
     }
 
@@ -109,6 +110,15 @@ export function bindAppController(
     }
   }
 
+  function handleViewportPointerResponse(event: MouseEvent) {
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    if (viewportWidth <= 0) {
+      return;
+    }
+
+    handlePointerResponse(event.clientX < viewportWidth / 2 ? ResponseSide.Left : ResponseSide.Right);
+  }
+
   function handleKeyboardResponse(event: KeyboardEvent, side: ResponseSide) {
     const session = runtime.session;
     if (session === null) {
@@ -136,7 +146,16 @@ export function bindAppController(
 
     switch (session?.state) {
       case undefined:
+        break;
+
       case SessionStateKind.Results:
+        if (!session.pending) {
+          break;
+        }
+
+        if (window.confirm("Leave this test and lose the current progress?") !== true) {
+          return;
+        }
         break;
 
       default:

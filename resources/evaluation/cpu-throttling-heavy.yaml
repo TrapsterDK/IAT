@@ -1,6 +1,0 @@
-extends: ./base.yaml
-slug: cpu-throttling-heavy
-description: CPU-throttling benchmark with a heavier 10x slowdown rate.
-benchmark:
-  cpu_emulation:
-    rate: 10

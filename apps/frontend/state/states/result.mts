@@ -1,21 +1,22 @@
 import {
   SessionStateKind,
-  type FinalizingSessionState,
+  type PendingResultSessionState,
   type ResultSessionState,
   type SessionScore,
 } from "../types.mjs";
 
 export function storeSessionResult(
-  session: FinalizingSessionState,
+  session: PendingResultSessionState,
   score: SessionScore | null,
   scoreError: string | null,
 ): ResultSessionState {
-  const { blockUploads, pendingScoreError, ...sessionWithoutUploads } = session;
-  void blockUploads;
-  void pendingScoreError;
+  const { blockUpload, pending, ...sessionWithoutPendingResult } = session;
+  void blockUpload;
+  void pending;
 
   return {
-    ...sessionWithoutUploads,
+    ...sessionWithoutPendingResult,
+    pending: false,
     result: {
       score,
       scoreError,

@@ -1,5 +1,4 @@
 benchmark:
-  click_delay_ms: 300
-  iat_slug: white-black-pleasant-unpleasant
+  click_delay_ms: 310
   plan_seed: 123
   run_count: 5

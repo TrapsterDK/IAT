@@ -5,11 +5,8 @@ export enum ResponseSide {
 
 export enum SessionStateKind {
   Review,
-  Preloading,
   BlockIntro,
-  StartingBlock,
   Trial,
-  Finalizing,
   Results,
 }
 
@@ -21,8 +18,8 @@ export enum TrialResponseKind {
 
 export enum TrialAdvanceKind {
   AdvancedBlock,
+  AdvancedResult,
   AdvancedTrial,
-  Finalizing,
   Ignored,
 }
 
@@ -122,15 +119,14 @@ interface UiState {
   screenError: string | null;
 }
 
-export interface QueuedBlockUpload {
+export interface PendingBlockUpload {
   blockIndex: number;
-  lastError: string | null;
   payload: CompletedBlockPayload;
-  uploaded: boolean;
 }
 
-export interface SessionBlockUploadsState {
-  queuedBlockUploads: QueuedBlockUpload[];
+export interface SessionBlockUploadState {
+  pendingUpload: PendingBlockUpload | null;
+  uploadError: string | null;
   uploading: boolean;
 }
 
@@ -165,7 +161,7 @@ export interface SessionBlockProgressState extends SessionBaseState {
 }
 
 interface SessionBlockUploadOwnerState {
-  blockUploads: SessionBlockUploadsState;
+  blockUpload: SessionBlockUploadState;
 }
 
 export interface SessionTrialProgressState extends SessionBlockProgressState {
@@ -174,45 +170,35 @@ export interface SessionTrialProgressState extends SessionBlockProgressState {
 }
 
 export interface ReviewSessionState extends SessionBaseState {
+  preload: SessionPreloadState;
   state: SessionStateKind.Review;
 }
 
-export interface PreloadingSessionState extends SessionBaseState {
-  preload: SessionPreloadState;
-  state: SessionStateKind.Preloading;
-}
-
 export interface BlockIntroSessionState extends SessionBlockProgressState, SessionBlockUploadOwnerState {
+  starting: boolean;
   state: SessionStateKind.BlockIntro;
 }
 
-export interface StartingBlockSessionState extends SessionBlockProgressState, SessionBlockUploadOwnerState {
-  state: SessionStateKind.StartingBlock;
-}
-
-export interface TrialSessionState extends SessionTrialProgressState, SessionBlockUploadOwnerState {
+export interface TrialSessionState extends SessionTrialProgressState {
   state: SessionStateKind.Trial;
   trial: ActiveTrialState;
 }
 
-export interface FinalizingSessionState extends SessionBaseState, SessionBlockUploadOwnerState {
-  pendingScoreError: string | null;
-  state: SessionStateKind.Finalizing;
-}
-
-export interface ResultSessionState extends SessionBaseState {
+export interface PendingResultSessionState extends SessionBaseState, SessionBlockUploadOwnerState {
+  pending: true;
   result: SessionResultState;
   state: SessionStateKind.Results;
 }
 
-export type SessionState =
-  | ReviewSessionState
-  | PreloadingSessionState
-  | BlockIntroSessionState
-  | StartingBlockSessionState
-  | TrialSessionState
-  | FinalizingSessionState
-  | ResultSessionState;
+export interface CompletedResultSessionState extends SessionBaseState {
+  pending: false;
+  result: SessionResultState;
+  state: SessionStateKind.Results;
+}
+
+export type ResultSessionState = PendingResultSessionState | CompletedResultSessionState;
+
+export type SessionState = ReviewSessionState | BlockIntroSessionState | TrialSessionState | ResultSessionState;
 
 export interface RuntimeState {
   assets: AssetState;

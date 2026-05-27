@@ -1,8 +1,0 @@
-extends: ./base.yaml
-slug: network-degradation-slow-3g
-description: Network-degradation benchmark using a slow 3G profile.
-benchmark:
-  network_emulation:
-    download_throughput_kbps: 500
-    latency_ms: 400
-    upload_throughput_kbps: 500

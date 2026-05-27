@@ -129,6 +129,7 @@ export function buildStageFrame(
   feedbackAnnouncement?: string,
   feedbackSymbol?: string,
   feedbackText?: string,
+  responseControlsDisabled = false,
 ) {
   const section = createElement(document, "section", "stack session-stage");
   const feedback = createElement(document, "div", feedbackClassName);
@@ -153,15 +154,41 @@ export function buildStageFrame(
 
   const stageStatus = createElement(document, "p", "muted", stageStatusText);
 
-  section.append(stageStatus, buildResponseHeaderGrid(document, block, prefersTouchInput), surface, feedback);
+  section.append(
+    stageStatus,
+    buildResponseHeaderGrid(document, block, prefersTouchInput, responseControlsDisabled),
+    surface,
+    feedback,
+  );
   return section;
 }
 
-function buildResponseHeaderGrid(document: Document, block: ResponseLabels, prefersTouchInput: boolean) {
-  const grid = createElement(document, "div", "label-grid");
+function buildResponseHeaderGrid(
+  document: Document,
+  block: ResponseLabels,
+  prefersTouchInput: boolean,
+  responseControlsDisabled: boolean,
+) {
+  const grid = createElement(document, "div", "label-grid response-label-grid");
   grid.append(
-    buildLabelCard(document, "respond-left", false, block.left_labels, prefersTouchInput, "E"),
-    buildLabelCard(document, "respond-right", true, block.right_labels, prefersTouchInput, "I"),
+    buildLabelCard(
+      document,
+      "respond-left",
+      false,
+      block.left_labels,
+      prefersTouchInput,
+      responseControlsDisabled,
+      "E",
+    ),
+    buildLabelCard(
+      document,
+      "respond-right",
+      true,
+      block.right_labels,
+      prefersTouchInput,
+      responseControlsDisabled,
+      "I",
+    ),
   );
   return grid;
 }
@@ -172,6 +199,7 @@ function buildLabelCard(
   alignRight: boolean,
   labels: readonly string[],
   prefersTouchInput: boolean,
+  responseControlsDisabled: boolean,
   side: "E" | "I",
 ) {
   const classNames = ["label-card", "stack-sm"];
@@ -179,8 +207,9 @@ function buildLabelCard(
     classNames.push("label-card-right");
   }
 
-  const card = createActionButton(document, action, classNames.join(" "), undefined, !prefersTouchInput);
-  if (!prefersTouchInput) {
+  const disabled = !prefersTouchInput || responseControlsDisabled;
+  const card = createActionButton(document, action, classNames.join(" "), undefined, disabled);
+  if (disabled) {
     card.setAttribute("aria-disabled", "true");
   }
 

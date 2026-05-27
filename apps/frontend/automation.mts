@@ -16,9 +16,11 @@ export function publishAutomationSnapshot(globalObject: Window, runtime: Runtime
   if (
     previousSnapshot !== undefined &&
     previousSnapshot.blockIndex === snapshot.blockIndex &&
+    previousSnapshot.canAdvance === snapshot.canAdvance &&
     previousSnapshot.correctResponseSide === snapshot.correctResponseSide &&
     previousSnapshot.iatSlug === snapshot.iatSlug &&
     previousSnapshot.inputMode === snapshot.inputMode &&
+    previousSnapshot.pending === snapshot.pending &&
     previousSnapshot.sessionKey === snapshot.sessionKey &&
     previousSnapshot.sessionState === snapshot.sessionState &&
     previousSnapshot.trialIndex === snapshot.trialIndex &&

@@ -1,0 +1,6 @@
+extends: ./baseline-image-text.yaml
+slug: cpu-throttling
+description: CPU-throttling benchmark with a 10x slowdown rate.
+benchmark:
+  cpu_emulation:
+    rate: 10

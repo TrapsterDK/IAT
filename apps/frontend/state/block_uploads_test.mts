@@ -2,11 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { createBootstrapFixture, createIatDetailFixture } from "../testing/fixtures.mjs";
-import { beginStartingBlock } from "./states/block_intro.mjs";
-import { beginBlockIntro } from "./states/preloading.mjs";
-import { beginPreloading, createSessionState } from "./states/review.mjs";
-import { beginTrial } from "./states/starting_block.mjs";
 import {
+  canAdvanceSession,
   hasBlockUploads,
   hasPendingBlockUploads,
   markBlockUploadFailed,
@@ -15,148 +12,246 @@ import {
   nextPendingBlockUpload,
   setBlockUploadsActive,
 } from "./block_uploads.mjs";
-import { ResponseSide, SessionStateKind, type FinalizingSessionState, type QueuedBlockUpload } from "./types.mjs";
+import { beginBlockIntro, createSessionState } from "./states/review.mjs";
+import { ResponseSide, SessionStateKind, type PendingBlockUpload, type PendingResultSessionState } from "./types.mjs";
 
 test("hasBlockUploads returns true only for upload-owning session states", () => {
-  // Given: review, block-intro, starting-block, trial, and finalizing sessions share one bootstrap
+  // Given: review, block-intro, trial, and pending-results sessions share one bootstrap.
   const reviewSession = createSessionState(createIatDetailFixture(), createBootstrapFixture());
-  const blockIntroSession = beginBlockIntro(beginPreloading(reviewSession));
-  const startingBlockSession = beginStartingBlock(blockIntroSession);
-  const trialSession = beginTrial(startingBlockSession);
-  const { trial, ...sessionWithoutTrial } = trialSession;
-  void trial;
-  const finalizingSession: FinalizingSessionState = {
-    ...sessionWithoutTrial,
-    pendingScoreError: null,
-    state: SessionStateKind.Finalizing,
+  const blockIntroSession = beginBlockIntro(reviewSession);
+  const pendingResultSession: PendingResultSessionState = {
+    bootstrap: createBootstrapFixture(),
+    iatDetail: createIatDetailFixture(),
+    blockUpload: {
+      pendingUpload: createPendingBlockUpload(),
+      uploadError: null,
+      uploading: false,
+    },
+    pending: true,
+    result: {
+      score: null,
+      scoreError: null,
+    },
+    state: SessionStateKind.Results,
   };
 
-  // When: each session is checked for block-upload support
+  // When: each session is checked for block-upload support.
   const reviewHasUploads = hasBlockUploads(reviewSession);
   const blockIntroHasUploads = hasBlockUploads(blockIntroSession);
-  const startingBlockHasUploads = hasBlockUploads(startingBlockSession);
-  const trialHasUploads = hasBlockUploads(trialSession);
-  const finalizingHasUploads = hasBlockUploads(finalizingSession);
+  const trialHasUploads = hasBlockUploads({
+    ...blockIntroSession,
+    currentBlockTrials: [],
+    currentTrialIndex: 0,
+    state: SessionStateKind.Trial,
+    trial: {
+      activeEvents: [],
+      responseLocked: false,
+      startedAtMs: null,
+    },
+  });
+  const pendingResultHasUploads = hasBlockUploads(pendingResultSession);
 
-  // Then: only the upload-owning states report queued upload support
+  // Then: only block-intro and pending-results sessions report upload ownership.
   assert.equal(reviewHasUploads, false);
   assert.equal(blockIntroHasUploads, true);
-  assert.equal(startingBlockHasUploads, true);
-  assert.equal(trialHasUploads, true);
-  assert.equal(finalizingHasUploads, true);
+  assert.equal(trialHasUploads, false);
+  assert.equal(pendingResultHasUploads, true);
 });
 
-test("nextPendingBlockUpload returns the first queued upload that is still pending", () => {
-  // Given: one starting-block session has uploaded and pending entries in its queue
-  const uploadedEntry = createQueuedBlockUpload({ uploaded: true });
-  const pendingEntry = createQueuedBlockUpload({ blockIndex: 2, uploaded: false });
-  const session = createStartingBlockSession([uploadedEntry, pendingEntry]);
+test("nextPendingBlockUpload returns the pending upload", () => {
+  // Given: one block-intro session has one pending upload.
+  const pendingUpload = createPendingBlockUpload();
+  const session = createBlockIntroSession(pendingUpload);
 
-  // When: the next pending upload is requested
+  // When: the next pending upload is requested.
   const nextUpload = nextPendingBlockUpload(session);
 
-  // Then: the first still-pending queue entry is returned
-  assert.equal(nextUpload, pendingEntry);
+  // Then: the pending upload is returned.
+  assert.equal(nextUpload, pendingUpload);
 });
 
-test("nextPendingBlockUpload returns null when no queued upload is still pending", () => {
-  // Given: one starting-block session has only already-uploaded queue entries
-  const session = createStartingBlockSession([createQueuedBlockUpload({ uploaded: true })]);
+test("nextPendingBlockUpload returns null when no upload is pending", () => {
+  // Given: one block-intro session has no pending upload entry.
+  const session = createBlockIntroSession(null);
 
-  // When: the next pending upload is requested
+  // When: the next pending upload is requested.
   const nextUpload = nextPendingBlockUpload(session);
 
-  // Then: the queue reports that no pending upload remains
+  // Then: no pending upload is reported.
   assert.equal(nextUpload, null);
 });
 
-test("hasPendingBlockUploads returns true when any queued upload is still pending", () => {
-  // Given: one starting-block session still has one queued upload marked pending
-  const session = createStartingBlockSession([createQueuedBlockUpload({ uploaded: false })]);
+test("hasPendingBlockUploads returns true when one upload is pending", () => {
+  // Given: one block-intro session still has one pending upload.
+  const session = createBlockIntroSession(createPendingBlockUpload());
 
-  // When: pending upload state is checked
+  // When: pending upload state is checked.
   const hasPendingUploads = hasPendingBlockUploads(session);
 
-  // Then: the session reports that block uploads are still pending
+  // Then: the session reports pending upload work.
   assert.equal(hasPendingUploads, true);
 });
 
-test("hasPendingBlockUploads returns false when every queued upload has finished", () => {
-  // Given: one starting-block session has only uploaded queue entries left
-  const session = createStartingBlockSession([createQueuedBlockUpload({ uploaded: true })]);
+test("hasPendingBlockUploads returns false when no upload is pending", () => {
+  // Given: one block-intro session has no pending upload work.
+  const session = createBlockIntroSession(null);
 
-  // When: pending upload state is checked
+  // When: pending upload state is checked.
   const hasPendingUploads = hasPendingBlockUploads(session);
 
-  // Then: the session reports that no block uploads remain pending
+  // Then: the session reports that no upload remains.
   assert.equal(hasPendingUploads, false);
 });
 
-test("setBlockUploadsActive updates the session uploading flag", () => {
-  // Given: one starting-block session is idle before upload work begins
-  const session = createStartingBlockSession([createQueuedBlockUpload()]);
+test("canAdvanceSession returns true when review preloading is complete", () => {
+  // Given: one review session has fully loaded every preload asset.
+  const session = createSessionState(createIatDetailFixture(), createBootstrapFixture());
+  session.preload.loaded = session.preload.total;
 
-  // When: block uploads are marked active
-  setBlockUploadsActive(session, true);
+  // When: review readiness is checked.
+  const canAdvance = canAdvanceSession(session);
 
-  // Then: the uploading flag reflects the active upload state
-  assert.equal(session.blockUploads.uploading, true);
-
-  // When: block uploads are marked inactive again
-  setBlockUploadsActive(session, false);
-
-  // Then: the uploading flag returns to the idle state
-  assert.equal(session.blockUploads.uploading, false);
+  // Then: the review can advance into the first block.
+  assert.equal(canAdvance, true);
 });
 
-test("markBlockUploadStarted clears the last error before another upload attempt", () => {
-  // Given: one queued upload already recorded one previous failure
-  const queuedUpload = createQueuedBlockUpload({ lastError: "Previous failure." });
+test("canAdvanceSession returns false when review preloading is still active", () => {
+  // Given: one review session is still preloading assets.
+  const session = createSessionState(createIatDetailFixture(), createBootstrapFixture());
+  session.preload.running = true;
 
-  // When: the queued upload starts another attempt
-  markBlockUploadStarted(queuedUpload);
+  // When: review readiness is checked.
+  const canAdvance = canAdvanceSession(session);
 
-  // Then: the stale error is cleared
-  assert.equal(queuedUpload.lastError, null);
+  // Then: the review cannot advance yet.
+  assert.equal(canAdvance, false);
+});
+
+test("canAdvanceSession returns true when no block uploads are pending or active", () => {
+  // Given: one block-intro session has no pending upload work.
+  const session = createBlockIntroSession(null);
+
+  // When: block readiness is checked.
+  const canAdvance = canAdvanceSession(session);
+
+  // Then: the block can begin immediately.
+  assert.equal(canAdvance, true);
+});
+
+test("canAdvanceSession returns false while a previous block upload is pending", () => {
+  // Given: one block-intro session is waiting for a previous block upload.
+  const session = createBlockIntroSession(createPendingBlockUpload());
+
+  // When: block readiness is checked.
+  const canAdvance = canAdvanceSession(session);
+
+  // Then: the next block cannot begin yet.
+  assert.equal(canAdvance, false);
+});
+
+test("canAdvanceSession returns false while upload work is still active", () => {
+  // Given: one block-intro session has no pending uploads but the upload loop is still active.
+  const session = createBlockIntroSession(null);
+  session.blockUpload.uploading = true;
+
+  // When: block readiness is checked.
+  const canAdvance = canAdvanceSession(session);
+
+  // Then: the next block waits until upload work becomes idle.
+  assert.equal(canAdvance, false);
+});
+
+test("canAdvanceSession returns false while the next block is in its starting delay", () => {
+  // Given: one block-intro session has begun its visible start delay.
+  const session = createBlockIntroSession(null);
+  session.starting = true;
+
+  // When: block readiness is checked.
+  const canAdvance = canAdvanceSession(session);
+
+  // Then: the block does not begin again while the delay is active.
+  assert.equal(canAdvance, false);
+});
+
+test("setBlockUploadsActive updates the session uploading flag", () => {
+  // Given: one pending-results session is idle before upload work begins.
+  const session: PendingResultSessionState = {
+    bootstrap: createBootstrapFixture(),
+    iatDetail: createIatDetailFixture(),
+    blockUpload: {
+      pendingUpload: createPendingBlockUpload(),
+      uploadError: null,
+      uploading: false,
+    },
+    pending: true,
+    result: {
+      score: null,
+      scoreError: null,
+    },
+    state: SessionStateKind.Results,
+  };
+
+  // When: block uploads are marked active.
+  setBlockUploadsActive(session, true);
+
+  // Then: the uploading flag reflects the active upload state.
+  assert.equal(session.blockUpload.uploading, true);
+
+  // When: block uploads are marked inactive again.
+  setBlockUploadsActive(session, false);
+
+  // Then: the uploading flag returns to the idle state.
+  assert.equal(session.blockUpload.uploading, false);
+});
+
+test("markBlockUploadStarted clears the last upload error before another attempt", () => {
+  // Given: one block-intro session already recorded one previous upload failure.
+  const session = createBlockIntroSession(createPendingBlockUpload());
+  session.blockUpload.uploadError = "Previous failure.";
+
+  // When: the pending upload starts another attempt.
+  markBlockUploadStarted(session);
+
+  // Then: the stale upload error is cleared.
+  assert.equal(session.blockUpload.uploadError, null);
 });
 
 test("markBlockUploadFailed stores the latest upload error message", () => {
-  // Given: one queued upload has not yet recorded an error for the current attempt
-  const queuedUpload = createQueuedBlockUpload();
+  // Given: one block-intro session has not yet recorded an upload error.
+  const session = createBlockIntroSession(createPendingBlockUpload());
 
-  // When: the upload attempt fails
-  markBlockUploadFailed(queuedUpload, "Upload failed.");
+  // When: the upload attempt fails.
+  markBlockUploadFailed(session, "Upload failed.");
 
-  // Then: the queued upload stores the latest failure message
-  assert.equal(queuedUpload.lastError, "Upload failed.");
+  // Then: the session stores the latest failure message.
+  assert.equal(session.blockUpload.uploadError, "Upload failed.");
 });
 
-test("markBlockUploadUploaded marks the upload complete and clears any error", () => {
-  // Given: one queued upload finishes after previously recording an upload error
-  const queuedUpload = createQueuedBlockUpload({ lastError: "Upload failed." });
+test("markBlockUploadUploaded clears the completed pending upload", () => {
+  // Given: one block-intro session holds one pending upload.
+  const session = createBlockIntroSession(createPendingBlockUpload());
 
-  // When: the upload completes successfully
-  markBlockUploadUploaded(queuedUpload);
+  // When: the upload completes successfully.
+  markBlockUploadUploaded(session);
 
-  // Then: the upload records completion and clears the error
-  assert.equal(queuedUpload.lastError, null);
-  assert.equal(queuedUpload.uploaded, true);
+  // Then: the pending upload and upload error are cleared.
+  assert.equal(session.blockUpload.pendingUpload, null);
+  assert.equal(session.blockUpload.uploadError, null);
 });
 
-function createStartingBlockSession(queuedBlockUploads: QueuedBlockUpload[]) {
-  const blockIntroSession = beginBlockIntro(
-    beginPreloading(createSessionState(createIatDetailFixture(), createBootstrapFixture())),
-  );
-  blockIntroSession.blockUploads.queuedBlockUploads = queuedBlockUploads;
-  return beginStartingBlock(blockIntroSession);
+function createBlockIntroSession(pendingUpload: PendingBlockUpload | null) {
+  const reviewSession = createSessionState(createIatDetailFixture(), createBootstrapFixture());
+  reviewSession.preload.loaded = reviewSession.preload.total;
+
+  const blockIntroSession = beginBlockIntro(reviewSession);
+  blockIntroSession.blockUpload.pendingUpload = pendingUpload;
+  return blockIntroSession;
 }
 
-function createQueuedBlockUpload(overrides: Partial<QueuedBlockUpload> = {}): QueuedBlockUpload {
+function createPendingBlockUpload(overrides: Partial<PendingBlockUpload> = {}): PendingBlockUpload {
   return {
     blockIndex: 1,
-    lastError: null,
     payload: { trials: [{ events: [{ elapsedMs: 30, eventType: ResponseSide.Left }] }] },
-    uploaded: false,
     ...overrides,
   };
 }

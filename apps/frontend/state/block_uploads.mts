@@ -1,22 +1,19 @@
 import {
   type BlockIntroSessionState,
+  type PendingBlockUpload,
+  type PendingResultSessionState,
   SessionStateKind,
-  type FinalizingSessionState,
-  type QueuedBlockUpload,
+  type ReviewSessionState,
   type SessionState,
-  type StartingBlockSessionState,
-  type TrialSessionState,
 } from "./types.mjs";
 
-export function hasBlockUploads(
-  session: SessionState,
-): session is BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState {
+export function hasBlockUploads(session: SessionState): session is BlockIntroSessionState | PendingResultSessionState {
   switch (session.state) {
     case SessionStateKind.BlockIntro:
-    case SessionStateKind.StartingBlock:
-    case SessionStateKind.Trial:
-    case SessionStateKind.Finalizing:
       return true;
+
+    case SessionStateKind.Results:
+      return session.pending;
 
     default:
       return false;
@@ -24,33 +21,41 @@ export function hasBlockUploads(
 }
 
 export function nextPendingBlockUpload(
-  session: BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
-): QueuedBlockUpload | null {
-  return session.blockUploads.queuedBlockUploads.find((queuedUpload) => !queuedUpload.uploaded) ?? null;
+  session: BlockIntroSessionState | PendingResultSessionState,
+): PendingBlockUpload | null {
+  return session.blockUpload.pendingUpload;
 }
 
-export function hasPendingBlockUploads(
-  session: BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
-): boolean {
+export function hasPendingBlockUploads(session: BlockIntroSessionState | PendingResultSessionState): boolean {
   return nextPendingBlockUpload(session) !== null;
 }
 
-export function setBlockUploadsActive(
-  session: BlockIntroSessionState | StartingBlockSessionState | TrialSessionState | FinalizingSessionState,
-  uploading: boolean,
-) {
-  session.blockUploads.uploading = uploading;
+export function canAdvanceSession(session: ReviewSessionState | BlockIntroSessionState): boolean {
+  if (session.state === SessionStateKind.Review) {
+    return (
+      !session.preload.running &&
+      session.preload.inFlightCount === 0 &&
+      session.preload.failures.length === 0 &&
+      session.preload.loaded >= session.preload.total
+    );
+  }
+
+  return !session.starting && !session.blockUpload.uploading && !hasPendingBlockUploads(session);
 }
 
-export function markBlockUploadStarted(queuedUpload: QueuedBlockUpload) {
-  queuedUpload.lastError = null;
+export function setBlockUploadsActive(session: BlockIntroSessionState | PendingResultSessionState, uploading: boolean) {
+  session.blockUpload.uploading = uploading;
 }
 
-export function markBlockUploadFailed(queuedUpload: QueuedBlockUpload, message: string) {
-  queuedUpload.lastError = message;
+export function markBlockUploadStarted(session: BlockIntroSessionState | PendingResultSessionState) {
+  session.blockUpload.uploadError = null;
 }
 
-export function markBlockUploadUploaded(queuedUpload: QueuedBlockUpload) {
-  queuedUpload.uploaded = true;
-  queuedUpload.lastError = null;
+export function markBlockUploadFailed(session: BlockIntroSessionState | PendingResultSessionState, message: string) {
+  session.blockUpload.uploadError = message;
+}
+
+export function markBlockUploadUploaded(session: BlockIntroSessionState | PendingResultSessionState) {
+  session.blockUpload.pendingUpload = null;
+  session.blockUpload.uploadError = null;
 }

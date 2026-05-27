@@ -17,17 +17,17 @@ import {
   TrialResponseKind,
 } from "../state/types.mjs";
 import { sleep } from "../core/utils.mjs";
-import { beginStartingBlock } from "../state/states/block_intro.mjs";
+import { beginStartingBlock, beginTrial } from "../state/states/block_intro.mjs";
 import { storeSessionResult } from "../state/states/result.mjs";
 import {
   applyPreloadProgress,
   beginBlockIntro,
+  createSessionState,
   setPreloadRunning,
   type PreloadProgressSnapshot,
-} from "../state/states/preloading.mjs";
-import { beginPreloading, createSessionState } from "../state/states/review.mjs";
-import { beginTrial } from "../state/states/starting_block.mjs";
+} from "../state/states/review.mjs";
 import {
+  canAdvanceSession,
   hasBlockUploads,
   hasPendingBlockUploads,
   markBlockUploadFailed,
@@ -91,6 +91,7 @@ export function createSessionFlow(
   planSeed: number | null = null,
 ) {
   let blockUploadPromise: Promise<void> | null = null;
+  let blockStartPromise: Promise<void> | null = null;
   let preloadPromise: Promise<void> | null = null;
   let preloadHeartbeatId: number | null = null;
   function currentSessionOrNull(sessionKey: string) {
@@ -153,8 +154,9 @@ export function createSessionFlow(
         return;
       }
 
-      runtime.session = createSessionState(iatDetailResult.data, createSessionResult.data);
+      runtime.session = createSessionState(iatDetailResult.data, createSessionResult.data, environment.getNow());
       render();
+      void preloadSessionImages();
     } catch (error: unknown) {
       runtime.ui.screenError = unknownErrorMessage(error);
     } finally {
@@ -169,14 +171,30 @@ export function createSessionFlow(
       return;
     }
 
-    runtime.session = beginPreloading(session, environment.getNow());
+    if (!canAdvanceSession(session)) {
+      if (!session.preload.running) {
+        void preloadSessionImages();
+      }
+
+      return;
+    }
+
+    runtime.session = beginBlockIntro(session);
     render();
-    await preloadSessionImages();
   }
 
   async function beginCurrentBlock() {
+    if (blockStartPromise !== null) {
+      return blockStartPromise;
+    }
+
     const session = runtime.session;
     if (session === null || session.state !== SessionStateKind.BlockIntro) {
+      return;
+    }
+
+    if (!canAdvanceSession(session)) {
+      void flushQueuedBlockUploads();
       return;
     }
 
@@ -185,16 +203,30 @@ export function createSessionFlow(
     runtime.session = beginStartingBlock(session);
     render();
 
-    await environment.sleep(START_BLOCK_DELAY_MS);
+    const currentBlockStartPromise = (async () => {
+      await environment.sleep(START_BLOCK_DELAY_MS);
 
-    const trackedSession = currentSessionOrNull(sessionKey);
-    if (trackedSession === null || trackedSession.state !== SessionStateKind.StartingBlock) {
-      return;
-    }
+      const trackedSession = currentSessionOrNull(sessionKey);
+      if (trackedSession === null || trackedSession.state !== SessionStateKind.BlockIntro) {
+        return;
+      }
 
-    runtime.session = beginTrial(trackedSession);
-    render();
-    await startCurrentTrialAfterPaint(sessionKey);
+      if (trackedSession.blockUpload.uploading || trackedSession.blockUpload.pendingUpload !== null) {
+        void flushQueuedBlockUploads();
+        return;
+      }
+
+      runtime.session = beginTrial(trackedSession);
+      render();
+      await startCurrentTrialAfterPaint(sessionKey);
+    })().finally(() => {
+      if (blockStartPromise === currentBlockStartPromise) {
+        blockStartPromise = null;
+      }
+    });
+
+    blockStartPromise = currentBlockStartPromise;
+    return blockStartPromise;
   }
 
   function registerResponse(side: ResponseSide) {
@@ -255,7 +287,7 @@ export function createSessionFlow(
     }
 
     const session = runtime.session;
-    if (session === null || session.state !== SessionStateKind.Preloading) {
+    if (session === null || session.state !== SessionStateKind.Review) {
       return;
     }
 
@@ -287,9 +319,9 @@ export function createSessionFlow(
           total: imageUrls.length,
         };
 
-        function currentPreloadingSessionOrNull() {
+        function currentReviewSessionOrNull() {
           const currentSession = currentSessionOrNull(sessionKey);
-          if (currentSession === null || currentSession.state !== SessionStateKind.Preloading) {
+          if (currentSession === null || currentSession.state !== SessionStateKind.Review) {
             return null;
           }
 
@@ -297,7 +329,7 @@ export function createSessionFlow(
         }
 
         function renderPreloadProgress() {
-          const currentSession = currentPreloadingSessionOrNull();
+          const currentSession = currentReviewSessionOrNull();
           if (currentSession === null) {
             return false;
           }
@@ -307,7 +339,7 @@ export function createSessionFlow(
           return true;
         }
 
-        const currentSession = currentPreloadingSessionOrNull();
+        const currentSession = currentReviewSessionOrNull();
         if (currentSession === null) {
           return;
         }
@@ -317,8 +349,6 @@ export function createSessionFlow(
         render();
 
         if (remainingUrls.length === 0) {
-          runtime.session = beginBlockIntro(currentSession);
-          render();
           return;
         }
 
@@ -367,15 +397,12 @@ export function createSessionFlow(
 
         await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
-        const finishedSession = currentPreloadingSessionOrNull();
+        const finishedSession = currentReviewSessionOrNull();
         if (finishedSession === null) {
           return;
         }
 
         applyPreloadProgress(finishedSession, preloadProgress);
-        if (preloadProgress.failures.length === 0) {
-          runtime.session = beginBlockIntro(finishedSession);
-        }
         render();
       } finally {
         revokeImageObjectUrls(preloadedImageObjectUrls);
@@ -388,7 +415,7 @@ export function createSessionFlow(
       })
       .finally(() => {
         const currentSession = currentSessionOrNull(sessionKey);
-        if (currentSession !== null && currentSession.state === SessionStateKind.Preloading) {
+        if (currentSession !== null && currentSession.state === SessionStateKind.Review) {
           setPreloadRunning(currentSession, false);
           render();
         }
@@ -422,8 +449,8 @@ export function createSessionFlow(
         return;
       }
 
-      if (currentSession.state === SessionStateKind.Finalizing) {
-        currentSession.pendingScoreError = null;
+      if (currentSession.state === SessionStateKind.Results) {
+        currentSession.result.scoreError = null;
       }
       setBlockUploadsActive(currentSession, true);
       render();
@@ -439,7 +466,7 @@ export function createSessionFlow(
           break;
         }
 
-        markBlockUploadStarted(queuedUpload);
+        markBlockUploadStarted(currentSession);
         render();
 
         try {
@@ -454,21 +481,26 @@ export function createSessionFlow(
 
           if (completeBlockResult.data === undefined) {
             markBlockUploadFailed(
-              queuedUpload,
+              currentSession,
               await apiErrorMessage(completeBlockResult, "Unable to upload the block."),
             );
             render();
             return;
           }
 
-          markBlockUploadUploaded(queuedUpload);
+          const refreshedSession = currentSessionOrNull(sessionKey);
+          if (refreshedSession === null || !hasBlockUploads(refreshedSession)) {
+            return;
+          }
+
+          markBlockUploadUploaded(refreshedSession);
           render();
         } catch (error: unknown) {
           if (currentSessionOrNull(sessionKey) === null) {
             return;
           }
 
-          markBlockUploadFailed(queuedUpload, unknownErrorMessage(error));
+          markBlockUploadFailed(currentSession, unknownErrorMessage(error));
           render();
           return;
         }
@@ -479,26 +511,31 @@ export function createSessionFlow(
         return;
       }
 
-      if (refreshedSession.state !== SessionStateKind.Finalizing || hasPendingBlockUploads(refreshedSession)) {
+      if (
+        refreshedSession.state !== SessionStateKind.Results ||
+        !refreshedSession.pending ||
+        hasPendingBlockUploads(refreshedSession)
+      ) {
         return;
       }
 
       try {
         const scoreResult = await api.getScore(sessionKey);
         const currentSession = currentSessionOrNull(sessionKey);
-        if (currentSession === null || currentSession.state !== SessionStateKind.Finalizing) {
+        if (currentSession === null || currentSession.state !== SessionStateKind.Results || !currentSession.pending) {
           return;
         }
 
         if (scoreResult.data === undefined) {
-          const pendingScoreError = await apiErrorMessage(scoreResult, "Unable to calculate the result.");
+          const scoreError = await apiErrorMessage(scoreResult, "Unable to calculate the result.");
           if (scoreResult.response.status === 422) {
-            runtime.session = storeSessionResult(currentSession, null, pendingScoreError);
+            runtime.session = storeSessionResult(currentSession, null, scoreError);
             render();
             return;
           }
 
-          currentSession.pendingScoreError = pendingScoreError;
+          currentSession.result.scoreError = scoreError;
+          render();
           return;
         }
 
@@ -506,8 +543,9 @@ export function createSessionFlow(
         render();
       } catch (error: unknown) {
         const currentSession = currentSessionOrNull(sessionKey);
-        if (currentSession !== null && currentSession.state === SessionStateKind.Finalizing) {
-          currentSession.pendingScoreError = unknownErrorMessage(error);
+        if (currentSession !== null && currentSession.state === SessionStateKind.Results && currentSession.pending) {
+          currentSession.result.scoreError = unknownErrorMessage(error);
+          render();
         }
       }
     })().finally(() => {
@@ -530,7 +568,7 @@ export function createSessionFlow(
   function clearSession() {
     const session = runtime.session;
     if (session !== null) {
-      if (session.state === SessionStateKind.Preloading) {
+      if (session.state === SessionStateKind.Review) {
         setPreloadRunning(session, false);
       } else if (hasBlockUploads(session)) {
         setBlockUploadsActive(session, false);
@@ -539,6 +577,7 @@ export function createSessionFlow(
 
     runtime.session = null;
     runtime.ui.screenError = null;
+    blockStartPromise = null;
     preloadPromise = null;
     blockUploadPromise = null;
     stopPreloadHeartbeat();
@@ -564,7 +603,7 @@ export function createSessionFlow(
     }
 
     preloadHeartbeatId = environment.setInterval(() => {
-      if (runtime.session?.state !== SessionStateKind.Preloading || runtime.session.preload.running !== true) {
+      if (runtime.session?.state !== SessionStateKind.Review || runtime.session.preload.running !== true) {
         stopPreloadHeartbeat();
         return;
       }

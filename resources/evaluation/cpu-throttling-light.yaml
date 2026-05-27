@@ -1,6 +1,0 @@
-extends: ./base.yaml
-slug: cpu-throttling-light
-description: CPU-throttling benchmark with a light 2x slowdown rate.
-benchmark:
-  cpu_emulation:
-    rate: 2

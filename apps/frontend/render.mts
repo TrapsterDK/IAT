@@ -4,8 +4,6 @@ import { SessionStateKind, type RuntimeState } from "./state/types.mjs";
 import { createElement } from "./ui/dom.mjs";
 import { buildBlockIntroPage } from "./ui/pages/block_intro.mjs";
 import { buildCatalogPage } from "./ui/pages/catalog.mjs";
-import { buildFinalizingPage } from "./ui/pages/finalizing.mjs";
-import { buildPreloadingPage } from "./ui/pages/preloading.mjs";
 import { buildResultPage } from "./ui/pages/result.mjs";
 import { buildReviewPage } from "./ui/pages/review.mjs";
 import { buildTrialPage } from "./ui/pages/trial.mjs";
@@ -45,13 +43,9 @@ function buildPage(document: Document, runtime: RuntimeState) {
       return buildResultPage(document, session);
 
     case SessionStateKind.Review:
-      return buildReviewPage(document, session);
+      return buildReviewPage(document, runtime, session);
 
-    case SessionStateKind.Preloading:
-      return buildPreloadingPage(document, session);
-
-    case SessionStateKind.BlockIntro:
-    case SessionStateKind.StartingBlock: {
+    case SessionStateKind.BlockIntro: {
       const block = currentBlock(session);
       if (block === null) {
         throw new Error("Expected a current block for the block intro screen.");
@@ -69,9 +63,6 @@ function buildPage(document: Document, runtime: RuntimeState) {
 
       return buildTrialPage(document, runtime, session, block, trial);
     }
-
-    case SessionStateKind.Finalizing:
-      return buildFinalizingPage(document, session);
   }
 }
 
@@ -80,9 +71,9 @@ function shouldScrollToTop(previousSessionState: SessionStateKind | null, nextSe
     return false;
   }
 
-  return !(isActiveSessionState(previousSessionState) && isActiveSessionState(nextSessionState));
+  return !(isStageSessionState(previousSessionState) && isStageSessionState(nextSessionState));
 }
 
-function isActiveSessionState(sessionState: SessionStateKind | null) {
-  return sessionState !== null && sessionState !== SessionStateKind.Results;
+function isStageSessionState(sessionState: SessionStateKind | null) {
+  return sessionState === SessionStateKind.BlockIntro || sessionState === SessionStateKind.Trial;
 }

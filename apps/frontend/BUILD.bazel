@@ -39,13 +39,20 @@ esbuild(
     deps = [":frontend"],
 )
 
+genrule(
+    name = "normalize_css",
+    srcs = ["//:node_modules/normalize.css"],
+    outs = ["normalize.css"],
+    cmd = "set -- $(locations //:node_modules/normalize.css); cp \"$$1/normalize.css\" \"$@\"",
+)
+
 copy_to_directory(
     name = "dist",
     srcs = [
         "app.css",
         "index.html",
         ":bundle",
-        "//:node_modules/normalize.css",
+        ":normalize_css",
     ],
     out = "dist",
     replace_prefixes = {

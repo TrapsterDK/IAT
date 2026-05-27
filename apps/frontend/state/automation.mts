@@ -1,23 +1,18 @@
+import { canAdvanceSession } from "./block_uploads.mjs";
 import { currentTrial } from "./selectors.mjs";
 import { ResponseSide, SessionStateKind, type RuntimeState } from "./types.mjs";
 
 export type AutomationInputMode = "keyboard" | "touch";
 
-export type AutomationSessionState =
-  | "block_intro"
-  | "catalog"
-  | "finalizing"
-  | "preloading"
-  | "results"
-  | "review"
-  | "starting_block"
-  | "trial";
+export type AutomationSessionState = "block_intro" | "catalog" | "results" | "review" | "trial";
 
 export interface AutomationSnapshot {
   blockIndex: number | null;
+  canAdvance: boolean;
   correctResponseSide: "left" | "right" | null;
   iatSlug: string | null;
   inputMode: AutomationInputMode;
+  pending: boolean;
   sessionKey: string | null;
   sessionState: AutomationSessionState;
   trialIndex: number | null;
@@ -29,9 +24,11 @@ export function buildAutomationSnapshot(runtime: RuntimeState): AutomationSnapsh
   if (runtime.session === null) {
     return {
       blockIndex: null,
+      canAdvance: false,
       correctResponseSide: null,
       iatSlug: null,
       inputMode,
+      pending: false,
       sessionKey: null,
       sessionState: "catalog",
       trialIndex: null,
@@ -41,9 +38,11 @@ export function buildAutomationSnapshot(runtime: RuntimeState): AutomationSnapsh
 
   const snapshot: AutomationSnapshot = {
     blockIndex: null,
+    canAdvance: false,
     correctResponseSide: null,
     iatSlug: runtime.session.iatDetail.slug,
     inputMode,
+    pending: false,
     sessionKey: runtime.session.bootstrap.session_key,
     sessionState: mapSessionState(runtime.session.state),
     trialIndex: null,
@@ -52,16 +51,22 @@ export function buildAutomationSnapshot(runtime: RuntimeState): AutomationSnapsh
 
   switch (runtime.session.state) {
     case SessionStateKind.Review:
-    case SessionStateKind.Preloading:
-    case SessionStateKind.Finalizing:
+      return {
+        ...snapshot,
+        canAdvance: canAdvanceSession(runtime.session),
+      };
+
     case SessionStateKind.Results:
-      return snapshot;
+      return {
+        ...snapshot,
+        pending: runtime.session.pending,
+      };
 
     case SessionStateKind.BlockIntro:
-    case SessionStateKind.StartingBlock:
       return {
         ...snapshot,
         blockIndex: runtime.session.currentBlockIndex,
+        canAdvance: canAdvanceSession(runtime.session),
       };
 
     case SessionStateKind.Trial: {
@@ -86,20 +91,11 @@ function mapSessionState(sessionState: SessionStateKind) {
     case SessionStateKind.BlockIntro:
       return "block_intro";
 
-    case SessionStateKind.Finalizing:
-      return "finalizing";
-
-    case SessionStateKind.Preloading:
-      return "preloading";
-
     case SessionStateKind.Results:
       return "results";
 
     case SessionStateKind.Review:
       return "review";
-
-    case SessionStateKind.StartingBlock:
-      return "starting_block";
 
     case SessionStateKind.Trial:
       return "trial";

@@ -7,8 +7,6 @@ ts_project(
     srcs = [
         "block_intro.mts",
         "catalog.mts",
-        "finalizing.mts",
-        "preloading.mts",
         "result.mts",
         "review.mts",
         "trial.mts",

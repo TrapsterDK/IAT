@@ -1,23 +1,9 @@
 const BENCHMARK_NAMESPACE = "__iatEvaluation";
 const AUTOMATION_EVENT_NAME = "iat:automation-state";
 const AUTOMATION_NAMESPACE = "__iatAutomation";
-const SESSION_STATES = [
-  "block_intro",
-  "catalog",
-  "finalizing",
-  "preloading",
-  "results",
-  "review",
-  "starting_block",
-  "trial",
-];
+const SESSION_STATES = ["block_intro", "catalog", "results", "review", "trial"];
 const INPUT_MODES = ["keyboard", "touch"];
 const RESPONSE_SIDES = ["left", "right"];
-const NEXT_SESSION_STATE_BY_WAITING_STATE = {
-  finalizing: "results",
-  preloading: "block_intro",
-  starting_block: "trial",
-};
 const ACTION_NAME_BY_RESPONSE_SIDE = {
   left: "respond-left",
   right: "respond-right",
@@ -57,7 +43,7 @@ async function executeBenchmark(globalObject, config) {
 
 async function runSession(clickDelayMs, iatSlug) {
   const snapshot = getAutomationSnapshot(true);
-  if (snapshot?.sessionState === "results") {
+  if (snapshot?.sessionState === "results" && snapshot.pending !== true) {
     clickActionButton("back-to-catalog");
   }
 
@@ -69,39 +55,39 @@ async function runSession(clickDelayMs, iatSlug) {
   );
   const sessionKey = requireSessionKey(reviewSnapshot.sessionKey);
 
+  await waitForReviewReadiness();
   beginTest();
-  await waitForSessionStateChange("review");
+  await waitForSessionState("block_intro");
 
   while (true) {
     const snapshot = getAutomationSnapshot();
 
     switch (snapshot.sessionState) {
       case "results":
+        await waitForSnapshot(
+          (nextSnapshot) => nextSnapshot.sessionState !== "results" || nextSnapshot.pending !== true,
+        );
         return sessionKey;
 
-      case "block_intro":
-        advanceBlockIntro(snapshot.inputMode);
+      case "block_intro": {
+        const blockSnapshot = await waitForBlockIntroReadiness();
+        advanceBlockIntro(blockSnapshot.inputMode);
         await waitForSessionStateChange("block_intro");
         continue;
-
-      case "starting_block":
-      case "preloading":
-      case "finalizing":
-        await waitForSessionState(NEXT_SESSION_STATE_BY_WAITING_STATE[snapshot.sessionState]);
-        continue;
+      }
 
       case "trial": {
         const blockIndex = requireTrialBlockIndex(snapshot.blockIndex);
         const trialIndex = requireTrialIndex(snapshot.trialIndex);
         const responseSide = requireTrialResponseSide(snapshot.correctResponseSide);
-        const readySnapshot = await waitForTrialReadiness(blockIndex, trialIndex);
+        const trialSnapshot = await waitForTrialReadiness(blockIndex, trialIndex);
         const remainingDelayMs = Math.max(
           0,
-          clickDelayMs - Math.round(window.performance.now() - readySnapshot.trialStartedAtMs),
+          clickDelayMs - Math.round(window.performance.now() - trialSnapshot.trialStartedAtMs),
         );
 
         await sleep(remainingDelayMs);
-        dispatchAction(readySnapshot.inputMode, responseSide);
+        dispatchAction(trialSnapshot.inputMode, responseSide);
         await waitForNextTrial(blockIndex, trialIndex);
         continue;
       }
@@ -127,6 +113,14 @@ function waitForSessionState(expectedState) {
 
 function waitForSessionStateChange(previousState) {
   return waitForSnapshot((snapshot) => snapshot.sessionState !== previousState);
+}
+
+function waitForBlockIntroReadiness() {
+  return waitForSnapshot((snapshot) => snapshot.sessionState === "block_intro" && snapshot.canAdvance);
+}
+
+function waitForReviewReadiness() {
+  return waitForSnapshot((snapshot) => snapshot.sessionState === "review" && snapshot.canAdvance);
 }
 
 function waitForTrialReadiness(blockIndex, trialIndex) {
@@ -286,9 +280,11 @@ function parseAutomationSnapshot(rawSnapshot) {
 
   return {
     blockIndex: parseOptional(rawSnapshot.blockIndex, parseInteger),
+    canAdvance: parseBoolean(rawSnapshot.canAdvance),
     correctResponseSide: parseOptional(rawSnapshot.correctResponseSide, parseCorrectResponseSide),
     inputMode: parseInputMode(rawSnapshot.inputMode),
     iatSlug: parseOptional(rawSnapshot.iatSlug, parseAutomationText),
+    pending: parseBoolean(rawSnapshot.pending),
     sessionKey: parseOptional(rawSnapshot.sessionKey, parseAutomationText),
     sessionState: parseSessionState(rawSnapshot.sessionState),
     trialStartedAtMs: parseOptional(rawSnapshot.trialStartedAtMs, parseNumber),
@@ -307,6 +303,14 @@ function parseInteger(rawValue) {
 function parseNumber(rawValue) {
   if (typeof rawValue !== "number" || !Number.isFinite(rawValue) || rawValue < 0) {
     throw new Error(`Expected one non-negative numeric automation value, received '${rawValue}'.`);
+  }
+
+  return rawValue;
+}
+
+function parseBoolean(rawValue) {
+  if (typeof rawValue !== "boolean") {
+    throw new Error(`Expected one boolean automation value, received '${rawValue}'.`);
   }
 
   return rawValue;

@@ -6,10 +6,8 @@ ts_project(
     name = "states",
     srcs = [
         "block_intro.mts",
-        "preloading.mts",
         "result.mts",
         "review.mts",
-        "starting_block.mts",
         "trial.mts",
     ],
     declaration = True,
@@ -23,10 +21,8 @@ ts_project(
     testonly = True,
     srcs = [
         "block_intro_test.mts",
-        "preloading_test.mts",
         "result_test.mts",
         "review_test.mts",
-        "starting_block_test.mts",
         "trial_test.mts",
     ],
     declaration = True,

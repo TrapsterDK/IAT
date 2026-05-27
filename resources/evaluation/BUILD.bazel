@@ -43,49 +43,19 @@ filegroup(
 )
 
 filegroup(
-    name = "delay-300",
-    srcs = ["delay-300.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
     name = "delay-700",
     srcs = ["delay-700.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "delay-1500",
-    srcs = ["delay-1500.yaml"],
+    name = "cpu-throttling",
+    srcs = ["cpu-throttling.yaml"],
     tags = ["yaml"],
 )
 
 filegroup(
-    name = "cpu-throttling-heavy",
-    srcs = ["cpu-throttling-heavy.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
-    name = "cpu-throttling-moderate",
-    srcs = ["cpu-throttling-moderate.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
-    name = "network-degradation-fast-3g",
-    srcs = ["network-degradation-fast-3g.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
-    name = "network-degradation-slow-3g",
-    srcs = ["network-degradation-slow-3g.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
-    name = "cpu-throttling-light",
-    srcs = ["cpu-throttling-light.yaml"],
+    name = "network-degradation",
+    srcs = ["network-degradation.yaml"],
     tags = ["yaml"],
 )

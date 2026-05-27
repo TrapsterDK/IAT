@@ -1,23 +1,29 @@
 import { collectImageUrls } from "../selectors.mjs";
 import {
   SessionStateKind,
+  type BlockIntroSessionState,
   type IatDetail,
-  type PreloadingSessionState,
   type ReviewSessionState,
   type SessionBootstrap,
 } from "../types.mjs";
 
-export function createSessionState(iatDetail: IatDetail, bootstrap: SessionBootstrap): ReviewSessionState {
+export interface PreloadProgressSnapshot {
+  failures: string[];
+  inFlightCount: number;
+  lastProgressAt: Date;
+  loaded: number;
+  startedAt: Date;
+  total: number;
+}
+
+export function createSessionState(
+  iatDetail: IatDetail,
+  bootstrap: SessionBootstrap,
+  startedAt = new Date(),
+): ReviewSessionState {
   return {
     bootstrap,
     iatDetail,
-    state: SessionStateKind.Review,
-  };
-}
-
-export function beginPreloading(session: ReviewSessionState, startedAt = new Date()): PreloadingSessionState {
-  return {
-    ...session,
     preload: {
       failures: [],
       inFlightCount: 0,
@@ -25,8 +31,38 @@ export function beginPreloading(session: ReviewSessionState, startedAt = new Dat
       loaded: 0,
       running: false,
       startedAt,
-      total: collectImageUrls(session.bootstrap).length,
+      total: collectImageUrls(bootstrap).length,
     },
-    state: SessionStateKind.Preloading,
+    state: SessionStateKind.Review,
+  };
+}
+
+export function applyPreloadProgress(session: ReviewSessionState, preloadProgress: PreloadProgressSnapshot) {
+  session.preload.total = preloadProgress.total;
+  session.preload.loaded = preloadProgress.loaded;
+  session.preload.inFlightCount = preloadProgress.inFlightCount;
+  session.preload.failures = [...preloadProgress.failures];
+  session.preload.startedAt = preloadProgress.startedAt;
+  session.preload.lastProgressAt = preloadProgress.lastProgressAt;
+}
+
+export function setPreloadRunning(session: ReviewSessionState, preloadRunning: boolean) {
+  session.preload.running = preloadRunning;
+}
+
+export function beginBlockIntro(session: ReviewSessionState): BlockIntroSessionState {
+  const { preload, ...sessionWithoutPreload } = session;
+  void preload;
+
+  return {
+    ...sessionWithoutPreload,
+    blockUpload: {
+      pendingUpload: null,
+      uploadError: null,
+      uploading: false,
+    },
+    currentBlockIndex: 0,
+    starting: false,
+    state: SessionStateKind.BlockIntro,
   };
 }

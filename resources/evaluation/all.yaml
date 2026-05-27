@@ -1,21 +1,13 @@
 jobs:
-  - spec: ./delay-300.yaml
-    output_dir: ../evaluation-results/delay-300
-  - spec: ./delay-700.yaml
-    output_dir: ../evaluation-results/delay-700
-  - spec: ./delay-1500.yaml
-    output_dir: ../evaluation-results/delay-1500
+  - spec: ./baseline-text-text.yaml
+    output_dir: ../evaluation-results/baseline-text-text
   - spec: ./baseline-image-text.yaml
     output_dir: ../evaluation-results/baseline-image-text
   - spec: ./baseline-image-image.yaml
     output_dir: ../evaluation-results/baseline-image-image
-  - spec: ./cpu-throttling-light.yaml
-    output_dir: ../evaluation-results/cpu-throttling-light
-  - spec: ./cpu-throttling-moderate.yaml
-    output_dir: ../evaluation-results/cpu-throttling-moderate
-  - spec: ./cpu-throttling-heavy.yaml
-    output_dir: ../evaluation-results/cpu-throttling-heavy
-  - spec: ./network-degradation-fast-3g.yaml
-    output_dir: ../evaluation-results/network-degradation-fast-3g
-  - spec: ./network-degradation-slow-3g.yaml
-    output_dir: ../evaluation-results/network-degradation-slow-3g
+  - spec: ./delay-700.yaml
+    output_dir: ../evaluation-results/delay-700
+  - spec: ./cpu-throttling.yaml
+    output_dir: ../evaluation-results/cpu-throttling
+  - spec: ./network-degradation.yaml
+    output_dir: ../evaluation-results/network-degradation

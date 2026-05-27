@@ -6,7 +6,7 @@ import {
   TrialResponseKind,
   type BlockIntroSessionState,
   type CompletedTrial,
-  type FinalizingSessionState,
+  type PendingResultSessionState,
   type TrialEvent,
   type TrialSessionState,
 } from "../types.mjs";
@@ -30,8 +30,8 @@ type TrialAdvanceResult =
       session: TrialSessionState;
     }
   | {
-      kind: TrialAdvanceKind.Finalizing;
-      session: FinalizingSessionState;
+      kind: TrialAdvanceKind.AdvancedResult;
+      session: PendingResultSessionState;
     }
   | {
       kind: TrialAdvanceKind.Ignored;
@@ -90,42 +90,51 @@ export function advanceSessionAfterCompletedTrial(
     };
   }
 
-  const nextBlockUploads = {
-    ...session.blockUploads,
-    queuedBlockUploads: [
-      ...session.blockUploads.queuedBlockUploads,
-      {
-        blockIndex: session.currentBlockIndex + 1,
-        lastError: null,
-        payload: {
-          trials: updatedBlockTrials,
-        },
-        uploaded: false,
-      },
-    ],
+  const nextBlockUpload = {
+    blockIndex: session.currentBlockIndex + 1,
+    payload: {
+      trials: updatedBlockTrials,
+    },
   };
-  const { trial, ...sessionWithoutTrial } = session;
+  const nextBlockIndex = session.currentBlockIndex + 1;
+  const { currentBlockIndex, currentBlockTrials, currentTrialIndex, trial, ...sessionWithoutTrialProgress } = session;
+  void currentBlockIndex;
+  void currentBlockTrials;
+  void currentTrialIndex;
   void trial;
   const hasMoreBlocks = session.currentBlockIndex < session.bootstrap.blocks.length - 1;
   if (hasMoreBlocks) {
     return {
       kind: TrialAdvanceKind.AdvancedBlock,
       session: {
-        ...sessionWithoutTrial,
-        blockUploads: nextBlockUploads,
-        currentBlockIndex: session.currentBlockIndex + 1,
+        ...sessionWithoutTrialProgress,
+        blockUpload: {
+          pendingUpload: nextBlockUpload,
+          uploadError: null,
+          uploading: false,
+        },
+        currentBlockIndex: nextBlockIndex,
+        starting: false,
         state: SessionStateKind.BlockIntro,
       },
     };
   }
 
   return {
-    kind: TrialAdvanceKind.Finalizing,
+    kind: TrialAdvanceKind.AdvancedResult,
     session: {
-      ...sessionWithoutTrial,
-      blockUploads: nextBlockUploads,
-      pendingScoreError: null,
-      state: SessionStateKind.Finalizing,
+      ...sessionWithoutTrialProgress,
+      blockUpload: {
+        pendingUpload: nextBlockUpload,
+        uploadError: null,
+        uploading: false,
+      },
+      pending: true,
+      result: {
+        score: null,
+        scoreError: null,
+      },
+      state: SessionStateKind.Results,
     },
   };
 }

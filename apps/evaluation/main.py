@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-from collections import defaultdict
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
@@ -50,9 +49,8 @@ def _run_specs(
     if not workers:
         raise ValueError("Evaluation runs require at least one discovered worker.")
 
-    typer.echo("workers: " + "\n".join(f" - {worker.worker_id} {worker.browser_name}" for worker in workers))
+    typer.echo("workers: \n" + "\n".join(f" - {worker.worker_id} {worker.browser_name}" for worker in workers))
 
-    completed_workers_by_output_dir: dict[Path, list[str]] = defaultdict(list)
     failed_job_count = 0
 
     for _, resolved_output_dir in resolved_jobs:
@@ -65,6 +63,7 @@ def _run_specs(
                 for worker in workers
             }
 
+            completed_worker_ids = []
             for future in as_completed(futures):
                 worker = futures[future]
                 try:
@@ -74,23 +73,22 @@ def _run_specs(
                     typer.echo(f"{benchmark_spec.slug}/{worker.worker_id}: benchmark failed: {error}", err=True)
                 else:
                     payload.to_yaml_file(resolved_output_dir / f"{worker.worker_id}.yaml")
-                    completed_workers_by_output_dir[resolved_output_dir].append(worker.worker_id)
+                    completed_worker_ids.append(worker.worker_id)
 
-    for benchmark_spec, resolved_output_dir in resolved_jobs:
-        completed_worker_ids = sorted(completed_workers_by_output_dir[resolved_output_dir])
-        if not completed_worker_ids:
-            typer.echo(
-                f"{benchmark_spec.slug}: no benchmark jobs completed successfully; skipped manifest.",
-                err=True,
+            completed_worker_ids = sorted(completed_worker_ids)
+            if not completed_worker_ids:
+                typer.echo(
+                    f"{benchmark_spec.slug}: no benchmark jobs completed successfully; skipped manifest.",
+                    err=True,
+                )
+                continue
+
+            manifest = BenchmarkManifest(
+                benchmark=benchmark_spec.benchmark,
+                jobs=[ManifestJobRecord(result_file=Path(f"{worker_id}.yaml")) for worker_id in completed_worker_ids],
             )
-            continue
-
-        manifest = BenchmarkManifest(
-            benchmark=benchmark_spec.benchmark,
-            jobs=[ManifestJobRecord(result_file=Path(f"{worker_id}.yaml")) for worker_id in completed_worker_ids],
-        )
-        manifest.to_yaml_file(resolved_output_dir / "manifest.yaml")
-        typer.echo(f"{benchmark_spec.slug}: wrote evaluation results to {resolved_output_dir}")
+            manifest.to_yaml_file(resolved_output_dir / "manifest.yaml")
+            typer.echo(f"{benchmark_spec.slug}: wrote evaluation results to {resolved_output_dir}")
 
     if failed_job_count > 0:
         typer.echo(f"{failed_job_count} benchmark job(s) failed. See error logs for details.", err=True)

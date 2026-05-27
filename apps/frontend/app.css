@@ -240,6 +240,17 @@ button:disabled {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.response-label-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: start;
+}
+
+.response-label-grid > .label-card {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .label-card {
   display: grid;
   gap: 0.35rem;
@@ -341,8 +352,7 @@ noscript main {
 }
 
 @media (max-width: 48rem) {
-  .catalog-item,
-  .label-grid {
+  .catalog-item {
     grid-template-columns: 1fr;
   }
 
