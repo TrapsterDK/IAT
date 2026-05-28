@@ -308,7 +308,7 @@ def test_get_session_service_uses_runtime_score_interpretation_settings(
                                         if trial.correct_response_side.value == TrialEventType.LEFT.value
                                         else TrialEventType.RIGHT
                                     ),
-                                    elapsed_ms=350 + block_index * 50,
+                                    elapsed_ms=350.125 + block_index * 50,
                                 ),
                             )
                         )

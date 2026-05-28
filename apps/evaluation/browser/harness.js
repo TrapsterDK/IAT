@@ -35,7 +35,7 @@ async function executeBenchmark(globalObject, config) {
   }
 
   return {
-    run_duration_ms: Math.round(globalObject.performance.now() - runStartedAtPerfMs),
+    run_duration_ms: globalObject.performance.now() - runStartedAtPerfMs,
     session_keys: sessionKeys,
   };
 }
@@ -82,7 +82,7 @@ async function runSession(clickDelayMs, iatSlug) {
         const trialSnapshot = await waitForTrialReadiness(blockIndex, trialIndex);
         const remainingDelayMs = Math.max(
           0,
-          clickDelayMs - Math.round(window.performance.now() - trialSnapshot.trialStartedAtMs),
+          clickDelayMs - (window.performance.now() - trialSnapshot.trialStartedAtMs),
         );
 
         await sleep(remainingDelayMs);

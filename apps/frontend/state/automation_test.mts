@@ -121,7 +121,7 @@ test("buildAutomationSnapshot reports when one block intro is waiting for upload
   const blockIntroSession = beginBlockIntro(reviewSession);
   blockIntroSession.blockUpload.pendingUpload = {
     blockIndex: 1,
-    payload: { trials: [{ events: [{ elapsedMs: 30, eventType: ResponseSide.Left }] }] },
+    payload: { trials: [{ events: [{ elapsedMs: 30.125, eventType: ResponseSide.Left }] }] },
   };
   const runtime = createRuntimeFixture(false);
   runtime.session = blockIntroSession;

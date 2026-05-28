@@ -27,11 +27,11 @@ test("registerTrialResponse returns incorrect when the response side does not ma
   const trialSession = createTrialSession();
 
   // When: an incorrect response side is entered.
-  const responseResult = registerTrialResponse(trialSession, ResponseSide.Right, 45);
+  const responseResult = registerTrialResponse(trialSession, ResponseSide.Right, 45.5);
 
   // Then: the response is recorded as incorrect and the trial stays unlocked.
   assert.equal(responseResult.kind, TrialResponseKind.Incorrect);
-  assert.deepEqual(trialSession.trial.activeEvents, [{ elapsedMs: 45, eventType: ResponseSide.Right }]);
+  assert.deepEqual(trialSession.trial.activeEvents, [{ elapsedMs: 45.5, eventType: ResponseSide.Right }]);
   assert.equal(trialSession.trial.responseLocked, false);
 });
 
@@ -41,14 +41,14 @@ test("registerTrialResponse accepts the correct response and clears active event
   trialSession.trial.activeEvents = [{ elapsedMs: 20, eventType: ResponseSide.Right }];
 
   // When: the correct side is entered for the current trial.
-  const responseResult = registerTrialResponse(trialSession, ResponseSide.Left, 55);
+  const responseResult = registerTrialResponse(trialSession, ResponseSide.Left, 55.75);
 
   // Then: the completed trial is returned and the session locks until advancement.
   assert.equal(responseResult.kind, TrialResponseKind.Accepted);
   assert.deepEqual(responseResult.completedTrial, {
     events: [
       { elapsedMs: 20, eventType: ResponseSide.Right },
-      { elapsedMs: 55, eventType: ResponseSide.Left },
+      { elapsedMs: 55.75, eventType: ResponseSide.Left },
     ],
   });
   assert.deepEqual(trialSession.trial.activeEvents, []);
@@ -59,7 +59,7 @@ test("advanceSessionAfterCompletedTrial advances to the next trial inside the sa
   // Given: one trial session is in a block that still has another trial remaining.
   const trialSession = createTrialSession(createBootstrapWithTrialCounts([2]));
   const completedTrial = {
-    events: [{ elapsedMs: 40, eventType: ResponseSide.Left }],
+    events: [{ elapsedMs: 40.125, eventType: ResponseSide.Left }],
   };
 
   // When: the first trial is completed.
@@ -94,7 +94,7 @@ test("advanceSessionAfterCompletedTrial advances to the next block after the fin
   // Given: one trial session is on the last trial of a non-final block.
   const trialSession = createTrialSession(createBootstrapWithTrialCounts([1, 1]));
   const completedTrial = {
-    events: [{ elapsedMs: 65, eventType: ResponseSide.Left }],
+    events: [{ elapsedMs: 65.25, eventType: ResponseSide.Left }],
   };
 
   // When: the block's final trial is completed.
@@ -117,7 +117,7 @@ test("advanceSessionAfterCompletedTrial enters pending results after the last bl
   // Given: one trial session is on the final trial of the final block.
   const trialSession = createTrialSession(createBootstrapWithTrialCounts([1]));
   const completedTrial = {
-    events: [{ elapsedMs: 90, eventType: ResponseSide.Left }],
+    events: [{ elapsedMs: 90.5, eventType: ResponseSide.Left }],
   };
 
   // When: the session completes its last remaining trial.
@@ -145,7 +145,7 @@ test("advanceSessionAfterCompletedTrial returns ignored when no current block ex
     currentBlockIndex: 1,
   };
   const completedTrial = {
-    events: [{ elapsedMs: 90, eventType: ResponseSide.Left }],
+    events: [{ elapsedMs: 90.5, eventType: ResponseSide.Left }],
   };
 
   // When: advancement is attempted without an active block.

@@ -35,7 +35,7 @@ class WorkerBenchmarkResult(ConfigModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    run_duration_ms: int = Field(ge=0)
+    run_duration_ms: float = Field(ge=0)
     session_keys: list[str] = Field(min_length=1)
 
 

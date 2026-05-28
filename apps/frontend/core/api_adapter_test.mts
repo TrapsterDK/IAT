@@ -187,7 +187,7 @@ test("completeBlock maps frontend event fields to API payload fields", async (te
   await api.completeBlock("session-1", 2, {
     trials: [
       {
-        events: [{ elapsedMs: 25, eventType: ResponseSide.Left }],
+        events: [{ elapsedMs: 25.125, eventType: ResponseSide.Left }],
       },
     ],
   });
@@ -196,7 +196,7 @@ test("completeBlock maps frontend event fields to API payload fields", async (te
   assert.deepEqual(JSON.parse(requestBody), {
     trials: [
       {
-        events: [{ elapsed_ms: 25, event_type: "left" }],
+        events: [{ elapsed_ms: 25.125, event_type: "left" }],
       },
     ],
   });

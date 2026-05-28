@@ -170,5 +170,5 @@ class SessionTrialEventRecord(Base):
     block_index: Mapped[int] = mapped_column(Integer, primary_key=True)
     trial_index: Mapped[int] = mapped_column(Integer, primary_key=True)
     event_index: Mapped[int] = mapped_column(Integer, primary_key=True)
-    elapsed_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    elapsed_ms: Mapped[float] = mapped_column(Float, nullable=False)
     event_type: Mapped[TrialEventType] = mapped_column(TRIAL_EVENT_TYPE_ENUM, nullable=False)

@@ -143,11 +143,11 @@ def _build_completed_scoring_data() -> CompletedSessionSnapshot:
                 trials=(
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.LEFT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=400),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=400.125),),
                     ),
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.RIGHT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=400),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=400.125),),
                     ),
                 ),
             ),
@@ -158,11 +158,11 @@ def _build_completed_scoring_data() -> CompletedSessionSnapshot:
                 trials=(
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.LEFT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=410),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=410.125),),
                     ),
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.RIGHT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=410),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=410.125),),
                     ),
                 ),
             ),
@@ -179,11 +179,11 @@ def _build_completed_scoring_data() -> CompletedSessionSnapshot:
                 trials=(
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.LEFT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=700),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=700.125),),
                     ),
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.RIGHT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=700),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=700.125),),
                     ),
                 ),
             ),
@@ -194,11 +194,11 @@ def _build_completed_scoring_data() -> CompletedSessionSnapshot:
                 trials=(
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.LEFT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=710),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.LEFT, elapsed_ms=710.125),),
                     ),
                     SessionScoringTrial(
                         correct_response_side=ResponseSide.RIGHT,
-                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=710),),
+                        events=(SessionScoringEvent(event_type=TrialEventType.RIGHT, elapsed_ms=710.125),),
                     ),
                 ),
             ),
@@ -323,7 +323,7 @@ def test_complete_block_raises_not_found_for_missing_session() -> None:
 
     # Given: one typed block-upload input.
     completed_block_input = CompletedBlockInput(
-        trials=(CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),)
+        trials=(CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)),)
     )
 
     # When: one client uploads one block for one missing session.
@@ -345,7 +345,7 @@ def test_complete_block_saves_validated_completed_block() -> None:
         score_interpretation=_build_score_thresholds(),
     )
     completed_block_input = CompletedBlockInput(
-        trials=(CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),)
+        trials=(CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)),)
     )
 
     # When: the client uploads one valid deterministic block.

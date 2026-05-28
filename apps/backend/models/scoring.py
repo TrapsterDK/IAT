@@ -15,7 +15,7 @@ class SessionScoringEvent:
     """One persisted participant action within one completed trial."""
 
     event_type: TrialEventType
-    elapsed_ms: int
+    elapsed_ms: float
 
 
 @dataclass(frozen=True, slots=True)

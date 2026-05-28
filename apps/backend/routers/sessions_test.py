@@ -38,7 +38,7 @@ def _upload_completed_sample_session(session_client: TestClient) -> SessionBoots
     for block_index, block in enumerate(created_session.blocks, start=1):
         block_trial_payloads = [
             {
-                "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": 350 + block_index * 50}],
+                "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": 350.125 + block_index * 50}],
             }
             for trial in block.trials
         ]
@@ -57,7 +57,7 @@ def _upload_unscoreable_sample_session(session_client: TestClient) -> SessionBoo
     created_session = SessionBootstrapResponse.model_validate(created_response.json())
 
     for block_index, block in enumerate(created_session.blocks, start=1):
-        elapsed_ms = 250 if block_index in {3, 4, 6, 7} else 350
+        elapsed_ms = 250.125 if block_index in {3, 4, 6, 7} else 350.125
         block_trial_payloads = [
             {
                 "events": [{"event_type": trial.correct_response_side.value, "elapsed_ms": elapsed_ms}],

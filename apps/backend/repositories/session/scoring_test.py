@@ -48,13 +48,13 @@ def test_get_completed_session_snapshot_by_key_returns_completed_session_snapsho
                 database_session,
                 persisted_session.id,
                 {
-                    1: (400, 400),
-                    2: (410, 410),
-                    3: (420, 420),
-                    4: (430, 430),
-                    5: (440, 440),
-                    6: (700, 700),
-                    7: (710, 710),
+                    1: (400.125, 400.625),
+                    2: (410.125, 410.625),
+                    3: (420.125, 420.625),
+                    4: (430.125, 430.625),
+                    5: (440.125, 440.625),
+                    6: (700.125, 700.625),
+                    7: (710.125, 710.625),
                 },
             )
             persisted_session.completed_at_utc = persisted_session.created_at_utc.replace(tzinfo=UTC)
@@ -73,7 +73,7 @@ def test_get_completed_session_snapshot_by_key_returns_completed_session_snapsho
             assert completed_session_snapshot.blocks[4].left_labels == ("Beta",)
             assert completed_session_snapshot.blocks[4].right_labels == ("Alpha",)
             assert completed_session_snapshot.blocks[2].trials[0].correct_response_side is ResponseSide.LEFT
-            assert [event.elapsed_ms for event in completed_session_snapshot.blocks[2].trials[0].events] == [420]
+            assert [event.elapsed_ms for event in completed_session_snapshot.blocks[2].trials[0].events] == [420.125]
             assert completed_session_snapshot.blocks[6].trials[1].events[0].event_type is TrialEventType.RIGHT
     finally:
         engine.dispose()

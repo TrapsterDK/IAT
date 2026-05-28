@@ -24,7 +24,7 @@ MODERATE_ASSOCIATION_UPPER_BOUND = 0.65
 
 def _build_trial(
     correct_response_side: ResponseSide,
-    final_latency_ms: int,
+    final_latency_ms: float,
     *,
     wrong_before_final: bool = False,
     wrong_after_final: bool = False,
@@ -56,7 +56,7 @@ def _build_trial(
 
 def _build_snapshot(
     *,
-    block_latencies: dict[int, tuple[int, int]],
+    block_latencies: dict[int, tuple[float, float]],
     error_block_index: int | None = None,
     wrong_after_final_block_index: int | None = None,
     wrong_final_block_index: int | None = None,

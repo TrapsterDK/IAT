@@ -63,7 +63,7 @@ class TrialEventInput:
     """One typed raw participant action before completion semantics are validated."""
 
     event_type: TrialEventType
-    elapsed_ms: int
+    elapsed_ms: float
 
 
 @dataclass(frozen=True, slots=True)

@@ -37,8 +37,8 @@ def test_save_completed_block_accepts_same_payload_replay_after_stale_write_race
         run_plan = build_run_plan()
         completed_block_input = CompletedBlockInput(
             trials=(
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.125),)),
             )
         )
 
@@ -89,14 +89,14 @@ def test_save_completed_block_rejects_completed_session(tmp_path: Path) -> None:
         run_plan = build_run_plan()
         first_block_payload = CompletedBlockInput(
             trials=(
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.125),)),
             )
         )
         completed_block_input = CompletedBlockInput(
             trials=(
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=351),)),
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=351.125),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.125),)),
             )
         )
 
@@ -144,14 +144,14 @@ def test_save_completed_block_rejects_replay_with_different_payload(tmp_path: Pa
         run_plan = build_run_plan()
         first_payload = CompletedBlockInput(
             trials=(
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.125),)),
             )
         )
         conflicting_replay_payload = CompletedBlockInput(
             trials=(
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=351),)),
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=351.125),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.125),)),
             )
         )
 
@@ -327,8 +327,12 @@ def test_save_completed_block_persists_trial_events(tmp_path: Path) -> None:
                 1,
                 CompletedBlockInput(
                     trials=(
-                        CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
-                        CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+                        CompletedTrialInput(
+                            events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)
+                        ),
+                        CompletedTrialInput(
+                            events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.625),)
+                        ),
                     )
                 ),
             )
@@ -356,6 +360,7 @@ def test_save_completed_block_persists_trial_events(tmp_path: Path) -> None:
                 (1, 1, TrialEventType.LEFT),
                 (2, 1, TrialEventType.RIGHT),
             ]
+            assert [event.elapsed_ms for event in persisted_trial_events] == [350.125, 350.625]
     finally:
         engine.dispose()
 
@@ -368,12 +373,12 @@ def test_save_completed_block_accepts_identical_final_block_replay_after_complet
         run_plan = build_run_plan()
         first_block_payload = CompletedBlockInput(
             trials=(
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)),
-                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)),
+                CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.125),)),
             )
         )
         final_block_payload = CompletedBlockInput(
-            trials=(CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=450),)),)
+            trials=(CompletedTrialInput(events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=450.125),)),)
         )
 
         with session_factory() as database_session:
@@ -440,7 +445,7 @@ def test_save_completed_block_rejects_out_of_range_block_index(tmp_path: Path) -
                     CompletedBlockInput(
                         trials=(
                             CompletedTrialInput(
-                                events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350),)
+                                events=(TrialEventInput(event_type=TrialEventType.LEFT, elapsed_ms=350.125),)
                             ),
                         )
                     ),
@@ -481,7 +486,7 @@ def test_save_completed_block_rejects_uploaded_trial_without_events(tmp_path: Pa
                         trials=(
                             CompletedTrialInput(events=()),
                             CompletedTrialInput(
-                                events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350),)
+                                events=(TrialEventInput(event_type=TrialEventType.RIGHT, elapsed_ms=350.125),)
                             ),
                         )
                     ),

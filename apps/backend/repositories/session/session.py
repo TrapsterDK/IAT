@@ -244,12 +244,12 @@ class SessionRepository:
         if len(completed_block_input.trials) != expected_trial_count:
             raise SessionInputError("Uploaded blocks must include the full deterministic block payload.")
 
-        trial_event_rows: list[dict[str, int | str]] = []
+        trial_event_rows: list[dict[str, float | int | str]] = []
         for trial_index, completed_trial_input in enumerate(completed_block_input.trials, start=1):
             if not completed_trial_input.events:
                 raise SessionInputError("Uploaded trials must include at least one event.")
 
-            last_elapsed_ms = -1
+            last_elapsed_ms = -1.0
             for event_index, trial_event_input in enumerate(completed_trial_input.events, start=1):
                 elapsed_ms = trial_event_input.elapsed_ms
                 event_type = trial_event_input.event_type

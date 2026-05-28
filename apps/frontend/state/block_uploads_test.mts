@@ -251,7 +251,7 @@ function createBlockIntroSession(pendingUpload: PendingBlockUpload | null) {
 function createPendingBlockUpload(overrides: Partial<PendingBlockUpload> = {}): PendingBlockUpload {
   return {
     blockIndex: 1,
-    payload: { trials: [{ events: [{ elapsedMs: 30, eventType: ResponseSide.Left }] }] },
+    payload: { trials: [{ events: [{ elapsedMs: 30.125, eventType: ResponseSide.Left }] }] },
     ...overrides,
   };
 }

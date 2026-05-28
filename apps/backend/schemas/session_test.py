@@ -53,6 +53,23 @@ def test_completed_block_request_rejects_empty_trials() -> None:
         CompletedBlockRequest.model_validate({"trials": []})
 
 
+def test_completed_block_request_accepts_decimal_elapsed_ms() -> None:
+    # Given: one block-upload payload with one fractional event duration.
+    payload = {
+        "trials": [
+            {
+                "events": [{"event_type": "left", "elapsed_ms": 25.125}],
+            }
+        ]
+    }
+
+    # When: the request model is validated.
+    request_model = CompletedBlockRequest.model_validate(payload)
+
+    # Then: the fractional timing is preserved.
+    assert request_model.trials[0].events[0].elapsed_ms == 25.125
+
+
 def test_create_session_request_accepts_one_optional_plan_seed() -> None:
     # Given: one public evaluation session-creation payload with one explicit deterministic plan seed.
     payload = {

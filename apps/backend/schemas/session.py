@@ -244,7 +244,7 @@ class TrialEventRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     event_type: TrialEventType
-    elapsed_ms: int = Field(ge=0)
+    elapsed_ms: float = Field(ge=0)
 
     def to_business(self) -> TrialEventInput:
         """Build one typed internal trial-event payload from the validated request.

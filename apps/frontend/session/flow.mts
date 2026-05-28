@@ -240,7 +240,7 @@ export function createSessionFlow(
       return;
     }
 
-    const elapsedMs = Math.max(0, Math.round(now - session.trial.startedAtMs));
+    const elapsedMs = Math.max(0, now - session.trial.startedAtMs);
     const responseResult = registerTrialResponse(session, side, elapsedMs);
     if (responseResult.kind === TrialResponseKind.Ignored) {
       return;

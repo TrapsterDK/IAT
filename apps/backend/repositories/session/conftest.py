@@ -189,7 +189,7 @@ def build_standard_score_run_plan() -> RunPlan:
 def append_single_event_trials(
     database_session: Session,
     session_id: int,
-    block_trial_latencies: dict[int, tuple[int, ...]],
+    block_trial_latencies: dict[int, tuple[float, ...]],
 ) -> None:
     """Insert one event per trial for the provided block latencies.
 
