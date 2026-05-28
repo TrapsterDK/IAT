@@ -85,13 +85,18 @@ export function buildStimulusSurface(
   const surface = createElement(document, "div", "stimulus-surface");
 
   if (stimulus.image_url !== null) {
+    const preloadedImageUrl = runtime.assets.imageObjectUrls.get(stimulus.image_url);
+    if (preloadedImageUrl === undefined) {
+      throw new Error(`Expected one preloaded image object URL for '${stimulus.image_url}'.`);
+    }
+
     const image = createElement(
       document,
       "img",
       concealed ? "stimulus-image stimulus-image-concealed" : "stimulus-image",
     );
     image.alt = "Stimulus";
-    image.src = runtime.assets.imageObjectUrls.get(stimulus.image_url) ?? stimulus.image_url;
+    image.src = preloadedImageUrl;
     surface.append(image);
   } else {
     const text = createElement(
