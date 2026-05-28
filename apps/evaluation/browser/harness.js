@@ -35,7 +35,6 @@ async function executeBenchmark(globalObject, config) {
   }
 
   return {
-    browser: buildBrowserSnapshot(globalObject),
     run_duration_ms: Math.round(globalObject.performance.now() - runStartedAtPerfMs),
     session_keys: sessionKeys,
   };
@@ -201,13 +200,6 @@ function requireTrialResponseSide(responseSide) {
   }
 
   return responseSide;
-}
-
-function buildBrowserSnapshot(globalObject) {
-  return {
-    viewport_height_px: globalObject.innerHeight,
-    viewport_width_px: globalObject.innerWidth,
-  };
 }
 
 function startSession(iatSlug) {

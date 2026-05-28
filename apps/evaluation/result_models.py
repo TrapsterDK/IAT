@@ -30,21 +30,11 @@ class BenchmarkJobResult(ConfigModel):
     result: WorkerBenchmarkResult
 
 
-class WorkerBenchmarkBrowserResult(ConfigModel):
-    """Saved browser snapshot for one worker run."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    viewport_height_px: int = Field(ge=0)
-    viewport_width_px: int = Field(ge=0)
-
-
 class WorkerBenchmarkResult(ConfigModel):
     """Saved benchmark output for one worker run."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    browser: WorkerBenchmarkBrowserResult
     run_duration_ms: int = Field(ge=0)
     session_keys: list[str] = Field(min_length=1)
 
