@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
@@ -31,6 +32,10 @@ def _working_directory() -> Path:
 
 def _parse_url(value: str) -> URL:
     return URL(value)
+
+
+def _time_log() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # noqa: DTZ005
 
 
 def _run_specs(
@@ -70,7 +75,9 @@ def _run_specs(
                     payload = future.result()
                 except Exception as error:  # noqa: BLE001
                     failed_job_count += 1
-                    typer.echo(f"{benchmark_spec.slug}/{worker.worker_id}: benchmark failed: {error}", err=True)
+                    typer.echo(
+                        f"{_time_log()} {benchmark_spec.slug}/{worker.worker_id}: benchmark failed: {error}", err=True
+                    )
                 else:
                     payload.to_yaml_file(resolved_output_dir / f"{worker.worker_id}.yaml")
                     completed_worker_ids.append(worker.worker_id)
@@ -78,7 +85,7 @@ def _run_specs(
             completed_worker_ids = sorted(completed_worker_ids)
             if not completed_worker_ids:
                 typer.echo(
-                    f"{benchmark_spec.slug}: no benchmark jobs completed successfully; skipped manifest.",
+                    f"{_time_log()} {benchmark_spec.slug}: no benchmark jobs completed successfully; skipped manifest.",
                     err=True,
                 )
                 continue
@@ -88,10 +95,10 @@ def _run_specs(
                 jobs=[ManifestJobRecord(result_file=Path(f"{worker_id}.yaml")) for worker_id in completed_worker_ids],
             )
             manifest.to_yaml_file(resolved_output_dir / "manifest.yaml")
-            typer.echo(f"{benchmark_spec.slug}: wrote evaluation results to {resolved_output_dir}")
+            typer.echo(f"{_time_log()} {benchmark_spec.slug}: wrote evaluation results to {resolved_output_dir}")
 
     if failed_job_count > 0:
-        typer.echo(f"{failed_job_count} benchmark job(s) failed. See error logs for details.", err=True)
+        typer.echo(f"{_time_log()} {failed_job_count} benchmark job(s) failed. See error logs for details.", err=True)
         raise typer.Exit(code=1)
 
 
