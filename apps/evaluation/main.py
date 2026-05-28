@@ -22,8 +22,9 @@ if TYPE_CHECKING:
     from apps.evaluation.grid import GridWorker
 
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
 DEFAULT_GRID_URL = URL("http://127.0.0.1:4444")
+DEFAULT_APP_URL = URL("http://127.0.0.1:8000")
 
 
 def _working_directory() -> Path:
@@ -105,8 +106,8 @@ def _run_specs(
 @app.command("spec")
 def spec_command(
     spec_path: Annotated[Path, typer.Argument(help="Leaf benchmark spec file.")],
-    app_url: Annotated[URL, typer.Option("--app-url", parser=_parse_url)],
     output_dir: Annotated[Path, typer.Option("--output-dir")],
+    app_url: Annotated[URL, typer.Option("--app-url", parser=_parse_url)] = DEFAULT_APP_URL,
     grid_url: Annotated[URL, typer.Option("--grid-url", parser=_parse_url)] = DEFAULT_GRID_URL,
 ) -> None:
     """Run one benchmark resource spec on every discovered Grid worker.
@@ -135,7 +136,7 @@ def spec_command(
 @app.command("batch")
 def batch_command(
     batch_path: Annotated[Path, typer.Argument(help="Batch file with explicit benchmark spec jobs.")],
-    app_url: Annotated[URL, typer.Option("--app-url", parser=_parse_url)],
+    app_url: Annotated[URL, typer.Option("--app-url", parser=_parse_url)] = DEFAULT_APP_URL,
     grid_url: Annotated[URL, typer.Option("--grid-url", parser=_parse_url)] = DEFAULT_GRID_URL,
 ) -> None:
     """Run one benchmark batch file on every discovered Grid worker.

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from apps.evaluation.specs import BenchmarkSettings, NetworkEmulationSettings
 
 
-BENCHMARK_TIMEOUT_SECONDS = 300
+BENCHMARK_TIMEOUT_SECONDS = 600
 HARNESS_EXECUTION_SOURCE = """
 const callback = arguments[arguments.length - 1];
 window.__iatEvaluation

@@ -85,4 +85,13 @@ bazel run //apps/evaluation:main -- spec \
   --grid-url http://GRID_HOST:4444
 ```
 
+Or run a batch of benchmarks:
+
+```bash
+bazel run //apps/evaluation:main -- batch \
+  resources/evaluation/baseline-batch.yaml \
+  --app-url https://example.test/ \
+  --grid-url http://GRID_HOST:4444
+```
+
 The runner snapshots workers once at startup, so boot workers before running the CLI.
