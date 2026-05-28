@@ -29,6 +29,19 @@ test("buildAutomationSnapshot describes one touch-first catalog state without on
   });
 });
 
+test("buildAutomationSnapshot reports when the catalog is loading", () => {
+  // Given: one runtime has no active session and is still loading catalog items.
+  const runtime = createRuntimeFixture(false);
+  runtime.catalog.loading = true;
+
+  // When: the benchmark automation snapshot is built.
+  const snapshot = buildAutomationSnapshot(runtime);
+
+  // Then: the snapshot marks the catalog as pending so automation waits for items.
+  assert.equal(snapshot.sessionState, "catalog");
+  assert.equal(snapshot.pending, true);
+});
+
 test("buildAutomationSnapshot describes one ready review state after preloading completes", () => {
   // Given: one runtime is reviewing a fully prepared session.
   const runtime = createRuntimeFixture(false);

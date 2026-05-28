@@ -46,7 +46,7 @@ async function runSession(clickDelayMs, iatSlug) {
     clickActionButton("back-to-catalog");
   }
 
-  await waitForSessionState("catalog");
+  await waitForSnapshot((snapshot) => snapshot.sessionState === "catalog" && snapshot.pending !== true);
 
   startSession(iatSlug);
   const reviewSnapshot = await waitForSnapshot(

@@ -28,7 +28,7 @@ export function buildAutomationSnapshot(runtime: RuntimeState): AutomationSnapsh
       correctResponseSide: null,
       iatSlug: null,
       inputMode,
-      pending: false,
+      pending: runtime.catalog.loading,
       sessionKey: null,
       sessionState: "catalog",
       trialIndex: null,
