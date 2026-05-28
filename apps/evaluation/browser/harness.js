@@ -28,15 +28,19 @@ const KEY_BY_RESPONSE_SIDE = {
 async function executeBenchmark(globalObject, config) {
   const runStartedAtPerfMs = globalObject.performance.now();
   const clickDelayMs = requireClickDelayMs(config.clickDelayMs);
-  const sessionKey = await runSession(clickDelayMs, config.iatSlug);
+  const sessionResult = await runSession(clickDelayMs, config.iatSlug);
 
   return {
     run_duration_ms: globalObject.performance.now() - runStartedAtPerfMs,
-    session_key: sessionKey,
+    session_key: sessionResult.sessionKey,
+    click_latencies_after_ms: sessionResult.clickLatenciesAfterMs,
+    click_latencies_before_ms: sessionResult.clickLatenciesBeforeMs,
   };
 }
 
 async function runSession(clickDelayMs, iatSlug) {
+  const clickLatenciesAfterMs = [];
+  const clickLatenciesBeforeMs = [];
   const snapshot = getAutomationSnapshot(true);
   if (snapshot?.sessionState === "results" && snapshot.pending !== true) {
     clickActionButton("back-to-catalog");
@@ -62,7 +66,7 @@ async function runSession(clickDelayMs, iatSlug) {
         await waitForSnapshot(
           (nextSnapshot) => nextSnapshot.sessionState !== "results" || nextSnapshot.pending !== true,
         );
-        return sessionKey;
+        return { clickLatenciesAfterMs, clickLatenciesBeforeMs, sessionKey };
 
       case "block_intro": {
         const blockSnapshot = await waitForBlockIntroReadiness();
@@ -82,7 +86,11 @@ async function runSession(clickDelayMs, iatSlug) {
         );
 
         await sleep(remainingDelayMs);
+        const beforeClickAtMs = window.performance.now();
         dispatchAction(trialSnapshot.inputMode, responseSide);
+        const afterClickAtMs = window.performance.now();
+        clickLatenciesBeforeMs.push(beforeClickAtMs - trialSnapshot.trialStartedAtMs);
+        clickLatenciesAfterMs.push(afterClickAtMs - trialSnapshot.trialStartedAtMs);
         await waitForNextTrial(blockIndex, trialIndex);
         continue;
       }

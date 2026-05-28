@@ -46,6 +46,8 @@ class BrowserHarnessSessionResult(BaseModel):
 
     run_duration_ms: float
     session_key: str
+    click_latencies_before_ms: list[float]
+    click_latencies_after_ms: list[float]
 
 
 class BrowserHarnessResponse(BaseModel):
@@ -116,12 +118,21 @@ def _run_browser_harness(
 
     run_duration_ms = 0.0
     session_keys = []
+    click_latencies_before_ms = []
+    click_latencies_after_ms = []
     for session_index in range(benchmark_settings.run_count):
         session_result = _run_browser_harness_session(driver, benchmark_settings, session_index)
         run_duration_ms += session_result.run_duration_ms
         session_keys.append(session_result.session_key)
+        click_latencies_before_ms.extend(session_result.click_latencies_before_ms)
+        click_latencies_after_ms.extend(session_result.click_latencies_after_ms)
 
-    return WorkerBenchmarkResult(run_duration_ms=run_duration_ms, session_keys=session_keys)
+    return WorkerBenchmarkResult(
+        run_duration_ms=run_duration_ms,
+        session_keys=session_keys,
+        click_latencies_before_ms=click_latencies_before_ms,
+        click_latencies_after_ms=click_latencies_after_ms,
+    )
 
 
 def _run_browser_harness_session(

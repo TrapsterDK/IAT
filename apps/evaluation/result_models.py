@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path  # noqa: TC003
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, NonNegativeFloat
 
 from apps.evaluation.specs import BenchmarkSettings  # noqa: TC001
 from libs.config.config import ConfigModel
@@ -21,15 +21,6 @@ class WorkerInfo(ConfigModel):
     platform_name: str | None = None
 
 
-class BenchmarkJobResult(ConfigModel):
-    """Saved result for one successful worker benchmark run."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    worker: WorkerInfo
-    result: WorkerBenchmarkResult
-
-
 class WorkerBenchmarkResult(ConfigModel):
     """Saved benchmark output for one worker run."""
 
@@ -37,6 +28,17 @@ class WorkerBenchmarkResult(ConfigModel):
 
     run_duration_ms: float = Field(ge=0)
     session_keys: list[str] = Field(min_length=1)
+    click_latencies_before_ms: list[NonNegativeFloat] = Field(default_factory=list)
+    click_latencies_after_ms: list[NonNegativeFloat] = Field(default_factory=list)
+
+
+class BenchmarkJobResult(ConfigModel):
+    """Saved result for one successful worker benchmark run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    worker: WorkerInfo
+    result: WorkerBenchmarkResult
 
 
 class ManifestJobRecord(ConfigModel):
