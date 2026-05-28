@@ -61,10 +61,21 @@ py_library(
 )
 
 py_library(
+    name = "manifest_writer",
+    srcs = ["manifest_writer.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":result_models",
+        ":specs",
+    ],
+)
+
+py_library(
     name = "main_lib",
     srcs = ["main.py"],
     deps = [
         ":grid",
+        ":manifest_writer",
         ":result_models",
         ":runner",
         ":specs",
@@ -81,6 +92,7 @@ py_binary(
     visibility = ["//visibility:public"],
     deps = [
         ":grid",
+        ":manifest_writer",
         ":result_models",
         ":runner",
         ":specs",

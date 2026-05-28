@@ -12,7 +12,7 @@ import typer
 from yarl import URL
 
 from apps.evaluation.grid import discover_grid_workers
-from apps.evaluation.result_models import BenchmarkJobResult, BenchmarkManifest, ManifestJobRecord
+from apps.evaluation.manifest_writer import write_merged_manifest
 from apps.evaluation.runner import run_benchmark_job
 from apps.evaluation.specs import BenchmarkBatchSpec, BenchmarkSpec
 from libs.bazel.workspace import get_build_working_directory
@@ -20,6 +20,7 @@ from libs.path.path import resolve_path
 
 if TYPE_CHECKING:
     from apps.evaluation.grid import GridWorker
+    from apps.evaluation.result_models import BenchmarkJobResult
 
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
@@ -91,11 +92,7 @@ def _run_specs(
                 )
                 continue
 
-            manifest = BenchmarkManifest(
-                benchmark=benchmark_spec.benchmark,
-                jobs=[ManifestJobRecord(result_file=Path(f"{worker_id}.yaml")) for worker_id in completed_worker_ids],
-            )
-            manifest.to_yaml_file(resolved_output_dir / "manifest.yaml")
+            write_merged_manifest(resolved_output_dir, benchmark_spec, completed_worker_ids)
             typer.echo(f"{_time_log()} {benchmark_spec.slug}: wrote evaluation results to {resolved_output_dir}")
 
     if failed_job_count > 0:
@@ -114,8 +111,8 @@ def spec_command(
 
     Args:
         spec_path: Leaf benchmark spec file.
-        app_url: Participant app URL opened in the automated browser.
         output_dir: Output directory where this spec writes its manifest and worker result YAML files.
+        app_url: Participant app URL opened in the automated browser.
         grid_url: Selenium Grid router URL. Defaults to the local Grid router.
     """
     working_directory = _working_directory()
