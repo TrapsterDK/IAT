@@ -13,7 +13,7 @@ from yarl import URL
 
 from apps.evaluation.grid import discover_grid_workers
 from apps.evaluation.manifest_writer import write_merged_manifest
-from apps.evaluation.runner import run_benchmark_job
+from apps.evaluation.runner import RequirementError, run_benchmark_job
 from apps.evaluation.specs import BenchmarkBatchSpec, BenchmarkSpec
 from libs.bazel.workspace import get_build_working_directory
 from libs.path.path import resolve_path
@@ -75,11 +75,18 @@ def _run_specs(
                 worker = futures[future]
                 try:
                     payload = future.result()
-                except Exception as error:  # noqa: BLE001
+                except RequirementError as error:
+                    failed_job_count += 1
+                    typer.echo(
+                        f"{_time_log()} {benchmark_spec.slug}/{worker.worker_id}: benchmark requirement not met: {error}",
+                        err=True,
+                    )
+                except Exception as error:
                     failed_job_count += 1
                     typer.echo(
                         f"{_time_log()} {benchmark_spec.slug}/{worker.worker_id}: benchmark failed: {error}", err=True
                     )
+                    raise typer.Exit(code=1) from error
                 else:
                     payload.to_yaml_file(resolved_output_dir / f"{worker.worker_id}.yaml")
                     completed_worker_ids.append(worker.worker_id)

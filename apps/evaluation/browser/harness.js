@@ -28,15 +28,11 @@ const KEY_BY_RESPONSE_SIDE = {
 async function executeBenchmark(globalObject, config) {
   const runStartedAtPerfMs = globalObject.performance.now();
   const clickDelayMs = requireClickDelayMs(config.clickDelayMs);
-  const sessionKeys = [];
-
-  for (let sessionIndex = 0; sessionIndex < config.sessionCount; sessionIndex += 1) {
-    sessionKeys.push(await runSession(clickDelayMs, config.iatSlug));
-  }
+  const sessionKey = await runSession(clickDelayMs, config.iatSlug);
 
   return {
     run_duration_ms: globalObject.performance.now() - runStartedAtPerfMs,
-    session_keys: sessionKeys,
+    session_key: sessionKey,
   };
 }
 

@@ -35,13 +35,26 @@ window.__iatEvaluation
 """
 
 
+class RequirementError(RuntimeError):
+    """Raised when evaluation requirements are not met, such as missing workers or unsupported capabilities."""
+
+
+class BrowserHarnessSessionResult(BaseModel):
+    """Validated browser harness result for one completed session."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_duration_ms: float
+    session_key: str
+
+
 class BrowserHarnessResponse(BaseModel):
     """Validated browser harness response payload."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     ok: bool
-    result: WorkerBenchmarkResult | None = None
+    result: BrowserHarnessSessionResult | None = None
     error: str | None = None
 
     @model_validator(mode="after")
@@ -97,9 +110,25 @@ def _run_browser_harness(
     benchmark_settings: BenchmarkSettings,
     app_url: URL,
 ) -> WorkerBenchmarkResult:
-    driver.set_script_timeout(BENCHMARK_TIMEOUT_SECONDS * benchmark_settings.run_count)
+    driver.set_script_timeout(BENCHMARK_TIMEOUT_SECONDS)
     driver.get(_build_evaluation_url(app_url, benchmark_settings.plan_seed))
     driver.execute_script(load_browser_harness())
+
+    run_duration_ms = 0.0
+    session_keys = []
+    for session_index in range(benchmark_settings.run_count):
+        session_result = _run_browser_harness_session(driver, benchmark_settings, session_index)
+        run_duration_ms += session_result.run_duration_ms
+        session_keys.append(session_result.session_key)
+
+    return WorkerBenchmarkResult(run_duration_ms=run_duration_ms, session_keys=session_keys)
+
+
+def _run_browser_harness_session(
+    driver: WebDriver,
+    benchmark_settings: BenchmarkSettings,
+    session_index: int,
+) -> BrowserHarnessSessionResult:
     try:
         harness_response = BrowserHarnessResponse.model_validate(
             driver.execute_async_script(
@@ -107,17 +136,20 @@ def _run_browser_harness(
                 {
                     "clickDelayMs": benchmark_settings.click_delay_ms,
                     "iatSlug": benchmark_settings.iat_slug,
-                    "sessionCount": benchmark_settings.run_count,
                 },
             )
         )
     except ValidationError as error:
-        raise RuntimeError(f"Benchmark harness returned one invalid response payload: {error}") from error
+        raise RuntimeError(
+            f"Benchmark harness session {session_index + 1} returned one invalid response payload: {error}"
+        ) from error
 
     if harness_response.ok and harness_response.result is not None:
         return harness_response.result
 
-    raise RuntimeError(f"Benchmark run failed: {harness_response.error or 'unknown error'}")
+    raise RuntimeError(
+        f"Benchmark harness session {session_index + 1} failed: {harness_response.error or 'unknown error'}"
+    )
 
 
 def _build_worker_info(worker: GridWorker, session_capabilities: dict[str, object]) -> WorkerInfo:
@@ -140,7 +172,7 @@ def _apply_benchmark_environment(driver: WebDriver, benchmark_settings: Benchmar
         return
 
     if not _supports_cdp(driver):
-        raise RuntimeError(
+        raise RequirementError(
             "Benchmark environment setup requires one session with CDP support. "
             f"Received browserName={driver.capabilities.get('browserName')} without CDP support."
         )
@@ -165,7 +197,7 @@ def _apply_cpu_throttling(driver: WebDriver, cpu_throttling_rate: float) -> None
     try:
         driver.execute_cdp_cmd("Emulation.setCPUThrottlingRate", {"rate": cpu_throttling_rate})
     except WebDriverException as error:
-        raise RuntimeError(f"Failed to apply CPU throttling via CDP: {error}") from error
+        raise RequirementError(f"Failed to apply CPU throttling via CDP: {error}") from error
 
 
 def _apply_network_emulation(driver: WebDriver, network_emulation: NetworkEmulationSettings) -> None:
@@ -184,7 +216,7 @@ def _apply_network_emulation(driver: WebDriver, network_emulation: NetworkEmulat
             },
         )
     except WebDriverException as error:
-        raise RuntimeError(f"Failed to apply network emulation via CDP: {error}") from error
+        raise RequirementError(f"Failed to apply network emulation via CDP: {error}") from error
 
 
 def _kbps_to_bytes_per_second(throughput_kbps: int) -> int:
