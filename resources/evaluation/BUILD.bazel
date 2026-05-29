@@ -43,12 +43,6 @@ filegroup(
 )
 
 filegroup(
-    name = "delay-700",
-    srcs = ["delay-700.yaml"],
-    tags = ["yaml"],
-)
-
-filegroup(
     name = "cpu-throttling",
     srcs = ["cpu-throttling.yaml"],
     tags = ["yaml"],
@@ -57,5 +51,11 @@ filegroup(
 filegroup(
     name = "network-degradation",
     srcs = ["network-degradation.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "delay-1000",
+    srcs = ["delay-1000.yaml"],
     tags = ["yaml"],
 )
