@@ -3,6 +3,6 @@ slug: network-degradation
 description: Network-degradation benchmark using a slower network connection to evaluate its impact.
 benchmark:
   network_emulation:
-    download_throughput_kbps: 1000
+    download_throughput_kbps: 500
     latency_ms: 220
     upload_throughput_kbps: 500

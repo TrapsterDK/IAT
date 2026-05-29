@@ -1,5 +1,0 @@
-extends: ./baseline-image-text.yaml
-slug: delay-700
-description: Baseline benchmark for one image/text IAT with a fixed 700 ms click delay.
-benchmark:
-  click_delay_ms: 700

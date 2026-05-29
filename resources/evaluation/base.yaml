@@ -1,4 +1,4 @@
 benchmark:
   click_delay_ms: 410
   plan_seed: 123
-  run_count: 5
+  run_count: 10

@@ -1,0 +1,5 @@
+extends: ./baseline-image-text.yaml
+slug: delay-1000
+description: Baseline benchmark for one image/text IAT with a fixed 1000 ms click delay.
+benchmark:
+  click_delay_ms: 1000
