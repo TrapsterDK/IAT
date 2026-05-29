@@ -9,6 +9,6 @@ benchmark:
   plan_seed: 123
   run_count: 10
 jobs:
-- result_file: android-chrome.yaml
-- result_file: linux-chrome.yaml
-- result_file: win-chrome.yaml
+  - result_file: android-chrome.yaml
+  - result_file: linux-chrome.yaml
+  - result_file: win-chrome.yaml
