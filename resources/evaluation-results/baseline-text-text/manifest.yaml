@@ -1,0 +1,13 @@
+benchmark:
+  click_delay_ms: 410
+  cpu_emulation: null
+  iat_slug: female-male-science-liberal-arts
+  network_emulation: null
+  plan_seed: 123
+  run_count: 10
+jobs:
+- result_file: android-chrome.yaml
+- result_file: linux-chrome.yaml
+- result_file: linux-firefox.yaml
+- result_file: win-chrome.yaml
+- result_file: win-firefox.yaml

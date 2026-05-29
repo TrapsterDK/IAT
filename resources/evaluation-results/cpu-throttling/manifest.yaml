@@ -1,0 +1,12 @@
+benchmark:
+  click_delay_ms: 410
+  cpu_emulation:
+    rate: 10.0
+  iat_slug: white-black-pleasant-unpleasant
+  network_emulation: null
+  plan_seed: 123
+  run_count: 10
+jobs:
+- result_file: android-chrome.yaml
+- result_file: linux-chrome.yaml
+- result_file: win-chrome.yaml

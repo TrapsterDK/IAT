@@ -133,5 +133,4 @@ bazel-out
 bazel-testlogs
 bazel-*
 node_modules
-resources/evaluation-results/
-resources/evaluation-results/*
+!resources/evaluation-results/backend.sqlite3
