@@ -1,3 +1,5 @@
+package(default_visibility = ["//:__subpackages__"])
+
 filegroup(
     name = "manifest",
     srcs = ["manifest.yaml"],
