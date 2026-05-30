@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path  # noqa: TC003
 
-from pydantic import ConfigDict, Field, NonNegativeFloat
+from pydantic import ConfigDict, Field, NonNegativeFloat, model_validator
 
 from apps.evaluation.specs import BenchmarkSettings  # noqa: TC001
 from libs.config.config import ConfigModel
@@ -30,6 +30,21 @@ class WorkerBenchmarkResult(ConfigModel):
     session_keys: list[str] = Field(min_length=1)
     click_latencies_before_ms: list[NonNegativeFloat] = Field(default_factory=list)
     click_latencies_after_ms: list[NonNegativeFloat] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_matching_latency_lengths(self) -> WorkerBenchmarkResult:
+        """Ensure evaluator latency arrays align one-to-one.
+
+        Returns:
+            The validated worker benchmark result.
+        """
+        if len(self.click_latencies_before_ms) != len(self.click_latencies_after_ms):
+            raise ValueError(
+                "Evaluator latency counts must match: "
+                f"before={len(self.click_latencies_before_ms)} after={len(self.click_latencies_after_ms)}"
+            )
+
+        return self
 
 
 class BenchmarkJobResult(ConfigModel):

@@ -40,7 +40,7 @@ py_library(
     visibility = ["//:__subpackages__"],
     deps = [
         ":grid",
-        ":result_models",
+        ":models",
         ":runfiles",
         ":specs",
         "@pip//pydantic",
@@ -50,8 +50,8 @@ py_library(
 )
 
 py_library(
-    name = "result_models",
-    srcs = ["result_models.py"],
+    name = "models",
+    srcs = ["models.py"],
     visibility = ["//:__subpackages__"],
     deps = [
         ":specs",
@@ -65,7 +65,7 @@ py_library(
     srcs = ["manifest_writer.py"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":result_models",
+        ":models",
         ":specs",
     ],
 )
@@ -76,7 +76,7 @@ py_library(
     deps = [
         ":grid",
         ":manifest_writer",
-        ":result_models",
+        ":models",
         ":runner",
         ":specs",
         "//libs/bazel:workspace",
@@ -93,7 +93,7 @@ py_binary(
     deps = [
         ":grid",
         ":manifest_writer",
-        ":result_models",
+        ":models",
         ":runner",
         ":specs",
         "//libs/bazel:workspace",

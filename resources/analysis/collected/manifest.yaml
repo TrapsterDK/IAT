@@ -1,0 +1,86 @@
+database_sha256: 534212ffb54e2eb9fdbff78e06986822c3fd20a0c6e3fdf06e8457dcb4bc76ec
+conditions:
+  baseline-image-image:
+    benchmark:
+      click_delay_ms: 410
+      cpu_emulation: null
+      iat_slug: young-old-female-male
+      network_emulation: null
+      plan_seed: 123
+      run_count: 10
+    jobs:
+      - result_file: android-chrome.yaml
+      - result_file: linux-chrome.yaml
+      - result_file: linux-firefox.yaml
+      - result_file: win-chrome.yaml
+      - result_file: win-firefox.yaml
+  baseline-image-text:
+    benchmark:
+      click_delay_ms: 410
+      cpu_emulation: null
+      iat_slug: white-black-pleasant-unpleasant
+      network_emulation: null
+      plan_seed: 123
+      run_count: 10
+    jobs:
+      - result_file: android-chrome.yaml
+      - result_file: linux-chrome.yaml
+      - result_file: linux-firefox.yaml
+      - result_file: win-chrome.yaml
+      - result_file: win-firefox.yaml
+  baseline-text-text:
+    benchmark:
+      click_delay_ms: 410
+      cpu_emulation: null
+      iat_slug: female-male-science-liberal-arts
+      network_emulation: null
+      plan_seed: 123
+      run_count: 10
+    jobs:
+      - result_file: android-chrome.yaml
+      - result_file: linux-chrome.yaml
+      - result_file: linux-firefox.yaml
+      - result_file: win-chrome.yaml
+      - result_file: win-firefox.yaml
+  cpu-throttling:
+    benchmark:
+      click_delay_ms: 410
+      cpu_emulation:
+        rate: 10.0
+      iat_slug: white-black-pleasant-unpleasant
+      network_emulation: null
+      plan_seed: 123
+      run_count: 10
+    jobs:
+      - result_file: android-chrome.yaml
+      - result_file: linux-chrome.yaml
+      - result_file: win-chrome.yaml
+  delay-1000:
+    benchmark:
+      click_delay_ms: 1000
+      cpu_emulation: null
+      iat_slug: white-black-pleasant-unpleasant
+      network_emulation: null
+      plan_seed: 123
+      run_count: 10
+    jobs:
+      - result_file: android-chrome.yaml
+      - result_file: linux-chrome.yaml
+      - result_file: linux-firefox.yaml
+      - result_file: win-chrome.yaml
+      - result_file: win-firefox.yaml
+  network-degradation:
+    benchmark:
+      click_delay_ms: 410
+      cpu_emulation: null
+      iat_slug: white-black-pleasant-unpleasant
+      network_emulation:
+        download_throughput_kbps: 500
+        latency_ms: 220
+        upload_throughput_kbps: 500
+      plan_seed: 123
+      run_count: 10
+    jobs:
+      - result_file: android-chrome.yaml
+      - result_file: linux-chrome.yaml
+      - result_file: win-chrome.yaml

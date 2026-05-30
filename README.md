@@ -61,22 +61,23 @@ Runtime benchmark tooling lives in [`apps/evaluation`](apps/evaluation/README.md
 Offline analysis tooling lives in [`apps/analysis`](apps/analysis/README.md).
 
 - Purpose: join evaluation result files with the backend SQLite database and generate thesis-ready outputs
-- Inputs: `resources/evaluation-results/` and the backend SQLite database, with a corresponding database.
-- Outputs: one normalized `collection.json`, one compact `report.txt`, and variance-focused PNG figures
-- Collect data: `bazel run //apps/analysis:main -- collect --output-dir <dir>`
-- Write report: `bazel run //apps/analysis:main -- report --collection <collection.json> --output-dir <dir>`
+- Inputs: [`resources/evaluation-results/`](resources/evaluation-results/README.md) and the matching SQLite database
+- Outputs: [`resources/analysis/collected/`](resources/analysis/README.md) and [`resources/analysis/report/`](resources/analysis/README.md)
+- Collect data: `bazel run //apps/analysis:main -- collect --evaluation-results-dir <dir> --database-path <db> --output-dir <dir>`
+- Write report: `bazel run //apps/analysis:main -- report --collection-dir <dir> --output-dir <dir>`
 
 ## Resources
 
-The [`resources/`](resources/README.md) tree holds generation inputs, generated assets, IAT definitions, checked-in evaluation benchmark specs, and generated evaluation output.
+The [`resources/`](resources/README.md) tree holds generation inputs, generated assets, IAT definitions, checked-in evaluation benchmark specs, generated evaluation output, and derived analysis artifacts.
 
 - [`resources/stimuli_generation/`](resources/stimuli_generation/README.md): source YAML specs and batch files for synthetic stimulus generation
 - [`resources/stimuli/`](resources/stimuli/README.md): generated stimulus sets, including manifests and image assets
 - [`resources/iats/`](resources/iats/README.md): IAT definitions that reference stimuli from `resources/stimuli`
 - [`resources/evaluation/`](resources/evaluation/README.md): benchmark specs and batch inputs for Selenium Grid evaluation runs
-- [`resources/evaluation-results/`](resources/evaluation-results/README.md): default output location for generated evaluation manifests and per-worker JSON results
+- [`resources/evaluation-results/`](resources/evaluation-results/README.md): default output location for generated evaluation manifests and per-worker result files
+- [`resources/analysis/`](resources/analysis/README.md): collected datasets and report-ready CSV artifacts from offline analysis
 
-Together these directories define what to generate, store the generated assets, describe the IATs that use them, define the benchmark inputs used in runtime benchmarks, and keep generated evaluation output separate from checked-in specs.
+Together these directories define what to generate, store the generated assets, describe the IATs that use them, define the benchmark inputs used in runtime benchmarks, keep generated evaluation output separate from checked-in specs, and store derived analysis output separately from raw evaluation results.
 
 ## Common commands
 

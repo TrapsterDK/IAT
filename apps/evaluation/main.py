@@ -20,7 +20,7 @@ from libs.path.path import resolve_path
 
 if TYPE_CHECKING:
     from apps.evaluation.grid import GridWorker
-    from apps.evaluation.result_models import BenchmarkJobResult
+    from apps.evaluation.models import BenchmarkJobResult
 
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)

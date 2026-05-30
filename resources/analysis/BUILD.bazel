@@ -1,0 +1,13 @@
+package(default_visibility = ["//:__subpackages__"])
+
+filegroup(
+    name = "readme",
+    srcs = ["README.md"],
+    tags = ["markdown"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

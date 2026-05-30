@@ -1,0 +1,11 @@
+filegroup(
+    name = "manifest",
+    srcs = ["manifest.yaml"],
+    tags = ["yaml"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)

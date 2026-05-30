@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from apps.evaluation.result_models import BenchmarkManifest, ManifestJobRecord
+from apps.evaluation.models import BenchmarkManifest, ManifestJobRecord
 
 if TYPE_CHECKING:
     from apps.evaluation.specs import BenchmarkSpec

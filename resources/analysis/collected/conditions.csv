@@ -1,0 +1,7 @@
+condition_slug,click_delay_ms
+baseline-image-image,410
+baseline-image-text,410
+baseline-text-text,410
+cpu-throttling,410
+delay-1000,1000
+network-degradation,410

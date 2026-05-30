@@ -1,0 +1,2 @@
+condition_count,worker_run_count,session_count,trial_count,db_inside_evaluator_window_count,db_inside_evaluator_window_percent
+6,26,260,22880,22880,100.0

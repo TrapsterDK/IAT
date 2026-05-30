@@ -10,7 +10,7 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.options import ArgOptions
 
-from apps.evaluation.result_models import (
+from apps.evaluation.models import (
     BenchmarkJobResult,
     WorkerBenchmarkResult,
     WorkerInfo,

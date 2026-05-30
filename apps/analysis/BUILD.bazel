@@ -1,0 +1,72 @@
+load("//tools/python:defs.bzl", "py_binary", "py_library")
+
+package(default_visibility = ["//:__subpackages__"])
+
+py_library(
+    name = "models",
+    srcs = ["models.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//apps/evaluation:models",
+        "//libs/config",
+        "@pip//pydantic",
+    ],
+)
+
+py_library(
+    name = "file",
+    srcs = ["file.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//libs/config",
+    ],
+)
+
+py_library(
+    name = "collector",
+    srcs = ["collector.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":file",
+        ":models",
+        "//apps/backend:database",
+        "//apps/backend/models:session",
+        "//apps/evaluation:models",
+        "@pip//sqlalchemy",
+    ],
+)
+
+py_library(
+    name = "reporting",
+    srcs = ["reporting.py"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":file",
+        ":models",
+    ],
+)
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":collector",
+        ":reporting",
+        "//libs/bazel:workspace",
+        "//libs/path",
+        "@pip//typer",
+    ],
+)
+
+filegroup(
+    name = "readme",
+    srcs = ["README.md"],
+    tags = ["markdown"],
+)
+
+filegroup(
+    name = "build_bazel",
+    srcs = ["BUILD.bazel"],
+    tags = ["starlark"],
+)
