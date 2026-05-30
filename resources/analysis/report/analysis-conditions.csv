@@ -1,7 +1,7 @@
-condition_slug,click_delay_ms,worker_count,session_count,trial_count,client_latency_mean_ms,client_latency_sd_ms,client_latency_min_ms,client_latency_max_ms,db_minus_evaluator_before_mean_ms,db_minus_evaluator_before_sd_ms,db_minus_evaluator_before_min_ms,db_minus_evaluator_before_max_ms,evaluator_after_minus_db_mean_ms,evaluator_after_minus_db_sd_ms,evaluator_after_minus_db_min_ms,evaluator_after_minus_db_max_ms,dispatch_window_mean_ms,dispatch_window_sd_ms,dispatch_window_min_ms,dispatch_window_max_ms,db_inside_evaluator_window_count,db_inside_evaluator_window_percent
-baseline-image-image,410,5,50,4400,410.26,1.36,409.0,450.0,0.09,0.18,0.0,1.0,0.73,1.0,0.0,3.6,0.82,1.11,0.0,4.2,4400,100.0
-baseline-image-text,410,5,50,4400,410.26,1.32,409.0,446.0,0.09,0.18,0.0,2.0,0.64,0.9,0.0,3.5,0.73,1.0,0.0,4.2,4400,100.0
-baseline-text-text,410,5,50,4400,410.3,1.41,409.0,460.0,0.09,0.17,0.0,1.4,0.48,0.67,0.0,4.3,0.57,0.78,0.0,4.7,4400,100.0
-cpu-throttling,410,3,30,2640,411.56,6.95,409.1,742.8,0.45,0.81,0.0,3.7,2.96,3.65,0.0,13.9,3.4,4.15,0.0,14.5,2640,100.0
-delay-1000,1000,5,50,4400,1005.67,11.24,999.0,1088.0,0.1,0.19,0.0,2.0,0.66,0.88,0.0,4.1,0.75,0.97,0.0,5.3,4400,100.0
-network-degradation,410,3,30,2640,410.18,1.13,409.1,436.4,0.12,0.15,0.0,0.7,1.21,1.63,0.0,13.6,1.33,1.75,0.0,13.9,2640,100.0
+condition_slug,click_delay_ms,worker_count,run_duration,session_count,trial_count,client_latency_mean_ms,client_latency_sd_ms,client_latency_min_ms,client_latency_max_ms,db_minus_evaluator_before_mean_ms,db_minus_evaluator_before_sd_ms,db_minus_evaluator_before_min_ms,db_minus_evaluator_before_max_ms,evaluator_after_minus_db_mean_ms,evaluator_after_minus_db_sd_ms,evaluator_after_minus_db_min_ms,evaluator_after_minus_db_max_ms,dispatch_window_mean_ms,dispatch_window_sd_ms,dispatch_window_min_ms,dispatch_window_max_ms,db_inside_evaluator_window_count,db_inside_evaluator_window_percent
+baseline-image-image,410,5,45:46,50,4400,410.26,1.36,409.0,450.0,0.09,0.18,0.0,1.0,0.73,1.0,0.0,3.6,0.82,1.11,0.0,4.2,4400,100.0
+baseline-image-text,410,5,45:42,50,4400,410.26,1.32,409.0,446.0,0.09,0.18,0.0,2.0,0.64,0.9,0.0,3.5,0.73,1.0,0.0,4.2,4400,100.0
+baseline-text-text,410,5,45:36,50,4400,410.3,1.41,409.0,460.0,0.09,0.17,0.0,1.4,0.48,0.67,0.0,4.3,0.57,0.78,0.0,4.7,4400,100.0
+cpu-throttling,410,3,28:24,30,2640,411.56,6.95,409.1,742.8,0.45,0.81,0.0,3.7,2.96,3.65,0.0,13.9,3.4,4.15,0.0,14.5,2640,100.0
+delay-1000,1000,5,89:28,50,4400,1005.67,11.24,999.0,1088.0,0.1,0.19,0.0,2.0,0.66,0.88,0.0,4.1,0.75,0.97,0.0,5.3,4400,100.0
+network-degradation,410,3,49:56,30,2640,410.18,1.13,409.1,436.4,0.12,0.15,0.0,0.7,1.21,1.63,0.0,13.6,1.33,1.75,0.0,13.9,2640,100.0

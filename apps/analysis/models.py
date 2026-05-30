@@ -82,6 +82,7 @@ class AnalysisConditionRow(ConfigModel):
     condition_slug: str
     click_delay_ms: int
     worker_count: int
+    run_duration: str
     session_count: int
     trial_count: int
     client_latency_mean_ms: float | None
@@ -115,6 +116,7 @@ class AnalysisFullRow(ConfigModel):
     platform_name: str | None
     browser_name: str | None
     browser_version: str | None
+    run_duration: str
     session_count: int
     trial_count: int
     client_latency_mean_ms: float | None

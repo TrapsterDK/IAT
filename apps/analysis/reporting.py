@@ -75,13 +75,17 @@ def _build_condition_summary_rows(
     rows: list[AnalysisConditionRow] = []
     for condition_slug in sorted(click_delay_by_condition):
         condition_trials = trials_by_condition[condition_slug]
+        condition_worker_runs = worker_runs_by_condition[condition_slug]
         session_count = _session_count(condition_trials)
         db_inside_window_count = _count_inside_window(condition_trials)
         rows.append(
             AnalysisConditionRow(
                 condition_slug=condition_slug,
                 click_delay_ms=click_delay_by_condition[condition_slug],
-                worker_count=len(worker_runs_by_condition[condition_slug]),
+                worker_count=len(condition_worker_runs),
+                run_duration=_format_run_duration(
+                    sum(worker_run.run_duration_ms for worker_run in condition_worker_runs)
+                ),
                 session_count=session_count,
                 trial_count=len(condition_trials),
                 **_format_trial_metric_columns(condition_trials),
@@ -119,6 +123,7 @@ def _build_worker_summary_rows(
                 platform_name=worker_run.platform_name,
                 browser_name=worker_run.browser_name,
                 browser_version=worker_run.browser_version,
+                run_duration=_format_run_duration(worker_run.run_duration_ms),
                 session_count=session_count,
                 trial_count=len(worker_trials),
                 **_format_trial_metric_columns(worker_trials),
@@ -230,3 +235,9 @@ def _percent(numerator: int, denominator: int) -> float | None:
 
 def _round_or_none(value: float | None) -> float | None:
     return None if value is None else round(value, 2)
+
+
+def _format_run_duration(run_duration_ms: float) -> str:
+    total_seconds = round(run_duration_ms / 1000.0)
+    minutes, seconds = divmod(total_seconds, 60)
+    return f"{minutes:02d}:{seconds:02d}"
