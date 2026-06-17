@@ -1,5 +1,28 @@
 # IAT
 
+Implementation and evaluation tooling for Implicit Association Tests. The written report is available at [`docs/report.pdf`](docs/report.pdf).
+
+## Setup
+
+Either use the provided `devcontainer` for a configured development environment, or set up Bazel and the tooling manually.
+
+Install [Bazelisk](https://github.com/bazelbuild/bazelisk) and [Direnv](https://direnv.net/) on Linux, then hook Direnv into your shell using the [Direnv shell hook guide](https://direnv.net/docs/hook.html).
+
+On Ubuntu: (possible installation commands below with bash)
+
+```bash
+sudo apt install ca-certificates direnv golang-go
+go install github.com/bazelbuild/bazelisk@latest
+mkdir -p ~/.local/bin
+ln -sf "$(go env GOPATH)/bin/bazelisk" ~/.local/bin/bazel
+grep -q '.local/bin' ~/.bashrc || echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+grep -q 'direnv hook bash' ~/.bashrc || echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+source ~/.bashrc
+hash -r
+```
+
+This sets up Bazelisk and Direnv, adds Bazel to your `PATH`, and hooks Direnv into bash. Adjust the shell hook line for other shells.
+
 ## Start
 
 With `direnv`:
@@ -93,3 +116,4 @@ tool update
 
 - [Documentation index](docs/README.md)
 - [Tooling](docs/tooling.md)
+- [Report](docs/report.pdf)

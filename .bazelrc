@@ -37,4 +37,7 @@ build --repo_contents_cache_gc_max_age=7d
 # Hermetic python toolchain
 build --@rules_python//python/config_settings:bootstrap_impl=script
 
+# Keep java_binary launchers on an LTS runtime for tools such as Selenium Server.
+build --java_runtime_version=remotejdk_11
+
 try-import %workspace%/user.bazelrc

@@ -44,7 +44,9 @@ selenium-server node \
   --hub "http://GRID_HOST:4444" \
   --selenium-manager true \
   --detect-drivers false \
-  --driver-configuration "stereotype={\"browserName\":\"chrome\",\"iat:workerId\":\"worker-a\"}"
+  --driver-configuration \
+    display-name="Chrome" \
+    stereotype='{"browserName":"chrome","iat:workerId":"worker-a"}'
 ```
 
 ```bash
@@ -52,7 +54,9 @@ selenium-server node \
   --hub "http://GRID_HOST:4444" \
   --selenium-manager true \
   --detect-drivers false \
-  --driver-configuration "stereotype={\"browserName\":\"firefox\",\"iat:workerId\":\"worker-b\"}"
+  --driver-configuration \
+    display-name="Firefox" \
+    stereotype='{"browserName":"firefox","iat:workerId":"worker-b"}'
 ```
 
 Change `iat:workerId` per machine and set `browserName` to the actual browser that node serves.
@@ -79,9 +83,9 @@ Then run a benchmark:
 
 ```bash
 bazel run //apps/evaluation:main -- spec \
-  resources/evaluation/baseline-text-text.yaml \
-  --output-dir resources/evaluation-results/baseline-text-text \
-  --app-url https://example.test/ \
+  resources/evaluation/baseline-image-text.yaml \
+  --output-dir resources/evaluation-results/baseline-image-text \
+  --app-url https://localhost:8000/ \
   --grid-url http://GRID_HOST:4444
 ```
 
@@ -89,8 +93,8 @@ Or run a batch of benchmarks:
 
 ```bash
 bazel run //apps/evaluation:main -- batch \
-  resources/evaluation/baseline-batch.yaml \
-  --app-url https://example.test/ \
+  resources/evaluation/all.yaml \
+  --app-url https://localhost:8000/ \
   --grid-url http://GRID_HOST:4444
 ```
 

@@ -21,8 +21,7 @@
     "source=${localEnv:HOME}/.config/opencode,target=/home/vscode/.config/opencode,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.cache/opencode,target=/home/vscode/.cache/opencode,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.local/state/opencode,target=/home/vscode/.local/state/opencode,type=bind,consistency=cached",
-    "source=${devcontainerId}-bazel-cache,target=/home/vscode/.cache/bazel,type=volume,volume-nocopy"
+    "source=${localEnv:HOME}/.local/state/opencode,target=/home/vscode/.local/state/opencode,type=bind,consistency=cached"
   ],
   "customizations": {
     "vscode": {

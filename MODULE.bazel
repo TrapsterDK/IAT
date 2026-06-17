@@ -49,6 +49,13 @@ single_version_override(
     patches = ["//third_party/patches/aspect_rules_py:unique_runtime_venv.patch"],
 )
 
+# Remove unnecessary logging from bazel_env.bzl which is confusing.
+single_version_override(
+    module_name = "bazel_env.bzl",
+    patch_strip = 1,
+    patches = ["//third_party/patches/bazel_env:unnecessary_log.patch"],
+)
+
 python_version = "3.13.11"
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
